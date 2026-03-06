@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Dashboard-specific styles */
+
+/* Stat grid override for 4 columns */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: var(--space-xl);
+}
+
+/* Two-column dashboard layout */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--space-xl);
+}
+
+/* Activity Feed */
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.feed-item {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  transition: all 0.2s var(--ease-out);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.feed-item:hover {
+  border-color: var(--border-light);
+  background: var(--bg-card-hover);
+}
+
+.feed-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feed-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.feed-title {
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 2px;
+}
+
+.feed-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.feed-meta {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.feed-tag {
+  padding: 2px 8px;
+  background: var(--bg-surface);
+  border-radius: 100px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+}
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  text-align: center;
+}
+.quick-action:hover {
+  border-color: var(--cyan-30);
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+}
+
+.quick-action-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Task Preview */
+.task-preview {
+  display: block;
+  padding: var(--space-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: var(--space-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+.task-preview:hover {
+  border-color: var(--border-light);
+  background: var(--bg-card-hover);
+}
+
+.task-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 6px;
+}
+
+.task-preview-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.task-preview-pay {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--green);
+  white-space: nowrap;
+  margin-left: var(--space-sm);
+}
+
+.task-preview-company {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.task-preview-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+/* Holdings */
+.holding {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+}
+.holding:last-child { border-bottom: none; }
+
+.holding-info { flex: 1; min-width: 0; }
+
+.holding-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.holding-share {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.holding-value { text-align: right; }
+
+.holding-amount {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.holding-return {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Holding avatars */
+.holding-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Section headers */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+.section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.section-link {
+  font-size: 0.78rem;
+  color: var(--cyan);
+  font-weight: 500;
+}
+.section-link:hover {
+  text-decoration: underline;
+}
+
+/* Dashboard card wrapper */
+.dash-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+/* Status pulse dot */
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green-30);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1200px) {
+  .dash-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .dash-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .dash-stats { grid-template-columns: 1fr; }
+  .quick-actions { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">AF</div>
+        AutoFoundry
+      </a>
+    </div>
+
+    <!-- Dashboard contextual info -->
+    <div class="sidebar-widget">
+      <div class="sidebar-widget-label">Total Earnings</div>
+      <div class="sidebar-widget-value text-green">$2,847</div>
+      <div class="sidebar-widget-sub">+$340 this month</div>
+      <div style="margin-top: 12px;">
+        <div class="sidebar-widget-label">Top Holdings</div>
+        <div class="sidebar-widget-item"><span>QuickLedger</span><span>+23.4%</span></div>
+        <div class="sidebar-widget-item"><span>PetMatch AI</span><span>+18.2%</span></div>
+        <div class="sidebar-widget-item"><span>CodeReviewr</span><span>+12.1%</span></div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigate</div>
+        <a href="dashboard.html" class="sidebar-link active">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="marketplace.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span>Marketplace</span>
+        </a>
+        <a href="tasks.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+          <span>Tasks</span>
+          <span class="count">12</span>
+        </a>
+        <a href="advisory.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span>Advisory</span>
+          <span class="count">3</span>
+        </a>
+        <a href="profile.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Companies</div>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--cyan);"></div><span>MailForge</span></a>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--amber);"></div><span>FeedbackOwl</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Watching</div>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--purple);"></div><span>CodeSnap</span></a>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--cyan);"></div><span>InvoiceBot</span></a>
+      </div>
+    </nav>
+
+    <div class="sidebar-cta">
+      <a href="submit-idea.html" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Submit Idea
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="sidebar-avatar">AC</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Alex Chen</div>
+          <div class="sidebar-user-rep">742 reputation</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">Welcome back, Alex</div>
+      </div>
+      <a href="submit-idea.html" class="btn btn-primary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Submit Idea
+      </a>
+    </div>
+
+    <div class="page-body">
+
+      <!-- Stat Cards -->
+      <div class="dash-stats">
+        <div class="stat-card">
+          <div class="stat-label">Portfolio Value</div>
+          <div class="stat-value">$4,210</div>
+          <div class="stat-change up">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            +12.3% this month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-value text-green">$847</div>
+          <div class="stat-change up">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            +23% vs last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Tasks Completed</div>
+          <div class="stat-value">24</div>
+          <div class="stat-change" style="color: var(--text-dim);">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            3 this week
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reputation</div>
+          <div class="stat-value">742<span style="font-size: 0.85rem; font-weight: 500; color: var(--text-dim);">/1000</span></div>
+          <div style="margin-top: 8px;">
+            <div class="progress-bar" style="height: 4px;">
+              <div class="progress-bar-fill" style="width: 74.2%;"></div>
+            </div>
+          </div>
+          <div class="stat-change" style="color: var(--cyan);">Silver Tier</div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="dash-grid">
+
+        <!-- Left Column: Activity Feed -->
+        <div>
+          <div class="section-header" style="margin-bottom: var(--space-md);">
+            <h3 style="font-size: 1rem; font-weight: 600;">Activity Feed</h3>
+            <span class="badge badge-cyan">18 new</span>
+          </div>
+
+          <div class="feed">
+            <!-- Revenue distribution -->
+            <a href="company.html" class="feed-item">
+              <div class="feed-icon" style="background: var(--green-15); color: var(--green);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">Revenue distribution: +$420.00</div>
+                <div class="feed-desc">Monthly payout from MailForge ($320), InvoiceBot ($62), CodeAudit Pro ($38)</div>
+                <div class="feed-meta">
+                  <span>Just now</span>
+                  <span class="feed-tag" style="background: var(--green-15); color: var(--green);">Earnings</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Deployment -->
+            <a href="company.html" class="feed-item">
+              <div class="feed-icon" style="background: var(--cyan-15); color: var(--cyan);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">MailForge deployed v2.4.1</div>
+                <div class="feed-desc">New template drag-and-drop editor. Agent predicts +12% conversion improvement based on cross-company data.</div>
+                <div class="feed-meta">
+                  <span class="pulse-dot"></span>
+                  <span>Agent active</span>
+                  <span>12 min ago</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Task available -->
+            <a href="task-detail.html" class="feed-item">
+              <div class="feed-icon" style="background: var(--amber-15); color: var(--amber);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">New task: Security review of payment flow</div>
+                <div class="feed-desc">InvoiceBot needs a security audit of their new Stripe integration. Full context package attached.</div>
+                <div class="feed-meta">
+                  <span>28 min ago</span>
+                  <span class="feed-tag" style="background: var(--amber-15); color: var(--amber);">$120 + bonus</span>
+                  <span class="feed-tag">Code Review</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Advisory vote -->
+            <a href="advisory.html" class="feed-item">
+              <div class="feed-icon" style="background: var(--purple-15); color: var(--purple);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">BrandVoice: Should we add a freemium tier?</div>
+                <div class="feed-desc">The CEO agent is weighing whether to add a free plan. 47 votes cast. Your expertise match: 82%.</div>
+                <div class="feed-meta">
+                  <span>1 hour ago</span>
+                  <span class="feed-tag" style="background: var(--purple-15); color: var(--purple);">Vote</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Milestone -->
+            <a href="company.html" class="feed-item">
+              <div class="feed-icon" style="background: var(--green-15); color: var(--green);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">FitPlanAI reached 300 users</div>
+                <div class="feed-desc">Milestone reached. Agent auto-adjusting marketing spend from SEO content to paid acquisition.</div>
+                <div class="feed-meta"><span>3 hours ago</span></div>
+              </div>
+            </a>
+
+            <!-- New company launched -->
+            <a href="marketplace.html" class="feed-item">
+              <div class="feed-icon" style="background: var(--cyan-15); color: var(--cyan);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">New company launched: PetTracker</div>
+                <div class="feed-desc">GPS-enabled pet monitoring SaaS. First investor deal available: 5% for $100.</div>
+                <div class="feed-meta">
+                  <span>5 hours ago</span>
+                  <span class="feed-tag" style="background: var(--cyan-15); color: var(--cyan);">Invest</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Task completed -->
+            <div class="feed-item">
+              <div class="feed-icon" style="background: var(--green-15); color: var(--green);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">Task completed: UX review payout +$85</div>
+                <div class="feed-desc">Your UX review for RecipeGenius was accepted. Base pay $60 + $25 quality bonus.</div>
+                <div class="feed-meta"><span>Yesterday</span></div>
+              </div>
+            </div>
+
+            <!-- Investment gain -->
+            <a href="company.html" class="feed-item">
+              <div class="feed-icon" style="background: var(--green-15); color: var(--green);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div class="feed-content">
+                <div class="feed-title">CodeAudit Pro share price up 18%</div>
+                <div class="feed-desc">Secondary market valuation increased after reaching $2K MRR milestone.</div>
+                <div class="feed-meta"><span>Yesterday</span></div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+
+          <!-- Quick Actions -->
+          <div class="dash-card">
+            <div class="section-title" style="margin-bottom: var(--space-md);">Quick Actions</div>
+            <div class="quick-actions">
+              <a href="submit-idea.html" class="quick-action">
+                <div class="quick-action-icon" style="background: var(--cyan-15); color: var(--cyan);">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+                Submit Idea
+              </a>
+              <a href="marketplace.html" class="quick-action">
+                <div class="quick-action-icon" style="background: var(--green-15); color: var(--green);">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                Browse Marketplace
+              </a>
+              <a href="tasks.html" class="quick-action">
+                <div class="quick-action-icon" style="background: var(--amber-15); color: var(--amber);">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+                Find Tasks
+              </a>
+            </div>
+          </div>
+
+          <!-- Matched Tasks -->
+          <div style="margin-bottom: var(--space-lg);">
+            <div class="section-header">
+              <div class="section-title">Matched Tasks</div>
+              <a href="tasks.html" class="section-link">View all</a>
+            </div>
+
+            <a href="task-detail.html" class="task-preview">
+              <div class="task-preview-header">
+                <div class="task-preview-title">Security review: payment flow</div>
+                <div class="task-preview-pay">$120</div>
+              </div>
+              <div class="task-preview-company">InvoiceBot -- Code Review</div>
+              <div class="task-preview-footer">
+                <span class="badge badge-amber">Urgent</span>
+                <span style="font-size: 0.72rem; color: var(--text-dim);">~2 hours</span>
+                <span style="font-size: 0.72rem; color: var(--cyan); margin-left: auto;">95% skill match</span>
+              </div>
+            </a>
+
+            <a href="task-detail.html" class="task-preview">
+              <div class="task-preview-header">
+                <div class="task-preview-title">Debug CSS rendering issue</div>
+                <div class="task-preview-pay">$65</div>
+              </div>
+              <div class="task-preview-company">RecipeGenius -- Frontend</div>
+              <div class="task-preview-footer">
+                <span class="badge badge-cyan">Normal</span>
+                <span style="font-size: 0.72rem; color: var(--text-dim);">~45 min</span>
+                <span style="font-size: 0.72rem; color: var(--cyan); margin-left: auto;">88% skill match</span>
+              </div>
+            </a>
+
+            <a href="task-detail.html" class="task-preview">
+              <div class="task-preview-header">
+                <div class="task-preview-title">Write onboarding email sequence</div>
+                <div class="task-preview-pay">$90</div>
+              </div>
+              <div class="task-preview-company">MailForge -- Copywriting</div>
+              <div class="task-preview-footer">
+                <span class="badge badge-cyan">Normal</span>
+                <span style="font-size: 0.72rem; color: var(--text-dim);">~1.5 hours</span>
+                <span style="font-size: 0.72rem; color: var(--cyan); margin-left: auto;">72% skill match</span>
+              </div>
+            </a>
+          </div>
+
+          <!-- Holdings -->
+          <div>
+            <div class="section-header">
+              <div class="section-title">Holdings</div>
+              <a href="marketplace.html" class="section-link">View all</a>
+            </div>
+
+            <div class="dash-card" style="margin-bottom: 0;">
+              <a href="company.html" class="holding">
+                <div class="holding-avatar" style="background: var(--green-15); color: var(--green);">IB</div>
+                <div class="holding-info">
+                  <div class="holding-name">InvoiceBot</div>
+                  <div class="holding-share">2.4% revenue share</div>
+                </div>
+                <div class="sparkline sparkline-green">
+                  <div class="sparkline-bar" style="height: 30%;"></div>
+                  <div class="sparkline-bar" style="height: 45%;"></div>
+                  <div class="sparkline-bar" style="height: 40%;"></div>
+                  <div class="sparkline-bar" style="height: 55%;"></div>
+                  <div class="sparkline-bar" style="height: 60%;"></div>
+                  <div class="sparkline-bar" style="height: 65%;"></div>
+                  <div class="sparkline-bar" style="height: 80%;"></div>
+                </div>
+                <div class="holding-value">
+                  <div class="holding-amount">$62/mo</div>
+                  <div class="holding-return text-green">+24%</div>
+                </div>
+              </a>
+
+              <a href="company.html" class="holding">
+                <div class="holding-avatar" style="background: var(--purple-15); color: var(--purple);">CA</div>
+                <div class="holding-info">
+                  <div class="holding-name">CodeAudit Pro</div>
+                  <div class="holding-share">1.8% revenue share</div>
+                </div>
+                <div class="sparkline sparkline-green">
+                  <div class="sparkline-bar" style="height: 35%;"></div>
+                  <div class="sparkline-bar" style="height: 38%;"></div>
+                  <div class="sparkline-bar" style="height: 42%;"></div>
+                  <div class="sparkline-bar" style="height: 50%;"></div>
+                  <div class="sparkline-bar" style="height: 48%;"></div>
+                  <div class="sparkline-bar" style="height: 58%;"></div>
+                  <div class="sparkline-bar" style="height: 70%;"></div>
+                </div>
+                <div class="holding-value">
+                  <div class="holding-amount">$38/mo</div>
+                  <div class="holding-return text-green">+18%</div>
+                </div>
+              </a>
+
+              <a href="company.html" class="holding">
+                <div class="holding-avatar" style="background: var(--amber-15); color: var(--amber);">BV</div>
+                <div class="holding-info">
+                  <div class="holding-name">BrandVoice</div>
+                  <div class="holding-share">3.1% revenue share</div>
+                </div>
+                <div class="sparkline sparkline-green">
+                  <div class="sparkline-bar" style="height: 50%;"></div>
+                  <div class="sparkline-bar" style="height: 45%;"></div>
+                  <div class="sparkline-bar" style="height: 48%;"></div>
+                  <div class="sparkline-bar" style="height: 52%;"></div>
+                  <div class="sparkline-bar" style="height: 50%;"></div>
+                  <div class="sparkline-bar" style="height: 53%;"></div>
+                  <div class="sparkline-bar" style="height: 55%;"></div>
+                </div>
+                <div class="holding-value">
+                  <div class="holding-amount">$18/mo</div>
+                  <div class="holding-return text-green">+3%</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasks -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ===== Filter Pills ===== */
+.filter-pills {
+  display: flex;
+  gap: 8px;
+}
+.filter-pill {
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  font-family: var(--font-body);
+}
+.filter-pill:hover {
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+}
+.filter-pill.active {
+  background: var(--cyan-15);
+  border-color: var(--cyan-30);
+  color: var(--cyan);
+}
+
+/* ===== Sort Bar ===== */
+.sort-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.sort-bar .sort-count {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.sort-select {
+  padding: 8px 36px 8px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23566074' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.sort-select:focus {
+  border-color: var(--cyan-60);
+}
+
+/* ===== Task Cards ===== */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-card {
+  display: block;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  transition: all 0.25s var(--ease-out);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.task-card:hover {
+  border-color: var(--cyan-30);
+  background: var(--bg-card-hover);
+  transform: translateX(4px);
+}
+
+.task-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 16px;
+}
+
+.task-card-company {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.task-card-company-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 700;
+}
+
+.task-card-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.task-card-pay {
+  text-align: right;
+  flex-shrink: 0;
+}
+.task-card-amount {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green);
+}
+.task-card-bonus {
+  font-size: 0.72rem;
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.task-card-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.task-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.task-card-footer .badge {
+  font-size: 0.68rem;
+}
+
+.task-match {
+  font-size: 0.78rem;
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.task-time {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task-view-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cyan);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.task-card:hover .task-view-link {
+  opacity: 1;
+}
+
+/* Share-only task variant */
+.task-card.share-only {
+  border-left: 3px solid var(--purple);
+}
+.share-only-badge {
+  display: inline-flex;
+  padding: 4px 10px;
+  background: var(--purple-15);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--purple);
+}
+.share-only-detail {
+  font-size: 0.78rem;
+  color: var(--purple);
+  font-weight: 600;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .filter-pills { flex-wrap: wrap; }
+}
+@media (max-width: 768px) {
+  .task-card-top { flex-direction: column; gap: 8px; }
+  .task-card-pay { text-align: left; }
+  .filter-pills { gap: 6px; }
+  .sort-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    </div>
+    <div class="sidebar-widget">
+      <div class="sidebar-widget-label">Task Earnings</div>
+      <div class="sidebar-widget-value text-green">$380</div>
+      <div class="sidebar-widget-sub">7 tasks completed</div>
+      <div style="margin-top: 12px;">
+        <div class="sidebar-widget-label">Your Skills</div>
+        <div class="sidebar-skill-tags">
+          <span class="sidebar-skill-tag">React</span>
+          <span class="sidebar-skill-tag">Node.js</span>
+          <span class="sidebar-skill-tag">Python</span>
+          <span class="sidebar-skill-tag">UI/UX</span>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigate</div>
+        <a href="dashboard.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></a>
+        <a href="marketplace.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Marketplace</span></a>
+        <a href="tasks.html" class="sidebar-link active"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg><span>Tasks</span><span class="count">12</span></a>
+        <a href="advisory.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Advisory</span><span class="count">3</span></a>
+        <a href="profile.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Companies</div>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--cyan);"></div><span>MailForge</span></a>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--amber);"></div><span>FeedbackOwl</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Watching</div>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--purple);"></div><span>CodeSnap</span></a>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--cyan);"></div><span>InvoiceBot</span></a>
+      </div>
+    </nav>
+    <div class="sidebar-cta"><a href="submit-idea.html" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Submit Idea</a></div>
+    <div class="sidebar-footer"><a href="profile.html" class="sidebar-user"><div class="sidebar-avatar">AC</div><div class="sidebar-user-info"><div class="sidebar-user-name">Alex Chen</div><div class="sidebar-user-rep">742 reputation</div></div></a></div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Tasks</h1>
+      <div class="filter-pills">
+        <button class="filter-pill active" onclick="filterTask(this)">All</button>
+        <button class="filter-pill" onclick="filterTask(this)">Matched</button>
+        <button class="filter-pill" onclick="filterTask(this)">My Skills</button>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <!-- Stat Row -->
+      <div class="stat-grid" style="margin-bottom: 24px;">
+        <div class="stat-card animate-in">
+          <div class="stat-label">Available Tasks</div>
+          <div class="stat-value text-cyan">47</div>
+          <div class="stat-change up">+8 since yesterday</div>
+        </div>
+        <div class="stat-card animate-in animate-delay-1">
+          <div class="stat-label">Avg Payment</div>
+          <div class="stat-value text-green">$75-200</div>
+          <div class="stat-change" style="color: var(--text-dim);">per task</div>
+        </div>
+        <div class="stat-card animate-in animate-delay-2">
+          <div class="stat-label">Your Match Rate</div>
+          <div class="stat-value">89%</div>
+          <div class="stat-change up">+5% this week</div>
+        </div>
+      </div>
+
+      <!-- Sort Bar -->
+      <div class="sort-bar">
+        <span class="sort-count">47 tasks available</span>
+        <select class="sort-select">
+          <option>Sort by: Best Match</option>
+          <option>Sort by: Highest Pay</option>
+          <option>Sort by: Newest</option>
+          <option>Sort by: Quickest</option>
+          <option>Sort by: Urgency</option>
+        </select>
+      </div>
+
+      <!-- Task List -->
+      <div class="task-list">
+
+        <!-- Task 1: Urgent -->
+        <a href="task-detail.html" class="task-card animate-in">
+          <div class="task-card-top">
+            <div>
+              <div class="task-card-company">
+                <span class="task-card-company-icon" style="background: var(--cyan-15); color: var(--cyan);">IB</span>
+                InvoiceBot &bull; Posted 28 min ago
+              </div>
+              <div class="task-card-title">Security review: Stripe payment integration</div>
+            </div>
+            <div class="task-card-pay">
+              <div class="task-card-amount">$120</div>
+              <div class="task-card-bonus">+ up to $60 bonus</div>
+            </div>
+          </div>
+          <div class="task-card-desc">Review the new Stripe payment integration for security vulnerabilities. Full context package includes: PR diff, architectural docs, known risk areas, and acceptance criteria. Estimated 2 hours.</div>
+          <div class="task-card-footer">
+            <span class="badge badge-red">Urgent</span>
+            <span class="tag">Code Review</span>
+            <span class="tag">Security</span>
+            <span class="task-match">95% skill match</span>
+            <span class="task-time">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~2 hours
+            </span>
+            <span class="task-view-link">View Task <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+
+        <!-- Task 2 -->
+        <a href="task-detail.html" class="task-card animate-in animate-delay-1">
+          <div class="task-card-top">
+            <div>
+              <div class="task-card-company">
+                <span class="task-card-company-icon" style="background: var(--green-15); color: var(--green);">RG</span>
+                RecipeGenius &bull; Posted 1 hour ago
+              </div>
+              <div class="task-card-title">Debug CSS rendering issue on Safari</div>
+            </div>
+            <div class="task-card-pay">
+              <div class="task-card-amount">$65</div>
+              <div class="task-card-bonus">+ up to $30 bonus</div>
+            </div>
+          </div>
+          <div class="task-card-desc">Recipe card layout breaks on Safari 17+. Grid items overlap and images don't resize. Agent tried 3 fixes that didn't work. Includes screenshots, error logs, and the relevant CSS files.</div>
+          <div class="task-card-footer">
+            <span class="badge badge-amber">Normal</span>
+            <span class="tag">Frontend</span>
+            <span class="tag">CSS</span>
+            <span class="task-match">88% skill match</span>
+            <span class="task-time">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~45 min
+            </span>
+            <span class="task-view-link">View Task <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+
+        <!-- Task 3 -->
+        <a href="task-detail.html" class="task-card animate-in animate-delay-2">
+          <div class="task-card-top">
+            <div>
+              <div class="task-card-company">
+                <span class="task-card-company-icon" style="background: var(--purple-15); color: var(--purple);">MF</span>
+                MailForge &bull; Posted 2 hours ago
+              </div>
+              <div class="task-card-title">Write onboarding email sequence (5 emails)</div>
+            </div>
+            <div class="task-card-pay">
+              <div class="task-card-amount">$90</div>
+              <div class="task-card-bonus">+ up to $45 bonus</div>
+            </div>
+          </div>
+          <div class="task-card-desc">Create a 5-email onboarding sequence for new MailForge users. Brand voice guide, user journey map, and conversion data from current emails included in context package.</div>
+          <div class="task-card-footer">
+            <span class="badge badge-cyan">Normal</span>
+            <span class="tag">Copywriting</span>
+            <span class="tag">Marketing</span>
+            <span class="task-match">72% skill match</span>
+            <span class="task-time">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~1.5 hours
+            </span>
+            <span class="task-view-link">View Task <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+
+        <!-- Task 4: Architecture -->
+        <a href="task-detail.html" class="task-card animate-in animate-delay-3">
+          <div class="task-card-top">
+            <div>
+              <div class="task-card-company">
+                <span class="task-card-company-icon" style="background: var(--amber-15); color: var(--amber);">SF</span>
+                SupportFlow &bull; Posted 3 hours ago
+              </div>
+              <div class="task-card-title">Architect multi-tenant database schema</div>
+            </div>
+            <div class="task-card-pay">
+              <div class="task-card-amount">$200</div>
+              <div class="task-card-bonus">+ up to $100 bonus</div>
+            </div>
+          </div>
+          <div class="task-card-desc">Design the database schema for SupportFlow's new multi-tenant architecture. Must support isolated customer data, shared configuration, and cross-tenant analytics. Current schema docs included.</div>
+          <div class="task-card-footer">
+            <span class="badge badge-red">High Priority</span>
+            <span class="tag">Backend</span>
+            <span class="tag">Architecture</span>
+            <span class="badge badge-amber" style="font-size: 0.68rem;">Requires Gold tier</span>
+            <span class="task-match">82% skill match</span>
+            <span class="task-time">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~4 hours
+            </span>
+            <span class="task-view-link">View Task <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+
+        <!-- Task 5: Customer Call -->
+        <a href="task-detail.html" class="task-card animate-in animate-delay-4">
+          <div class="task-card-top">
+            <div>
+              <div class="task-card-company">
+                <span class="task-card-company-icon" style="background: var(--red-15); color: var(--red);">CA</span>
+                CodeAudit Pro &bull; Posted 4 hours ago
+              </div>
+              <div class="task-card-title">Customer discovery call with enterprise prospect</div>
+            </div>
+            <div class="task-card-pay">
+              <div class="task-card-amount">$75</div>
+              <div class="task-card-bonus">+ up to $50 bonus</div>
+            </div>
+          </div>
+          <div class="task-card-desc">30-minute call with a potential enterprise customer evaluating CodeAudit Pro. Customer history, product context, pricing authority, and call script included.</div>
+          <div class="task-card-footer">
+            <span class="badge badge-amber">Time-sensitive</span>
+            <span class="tag">Sales</span>
+            <span class="tag">Customer Call</span>
+            <span class="task-match">45% skill match</span>
+            <span class="task-time">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~30 min
+            </span>
+            <span class="task-view-link">View Task <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+
+        <!-- Task 6: Share-only -->
+        <a href="task-detail.html" class="task-card share-only">
+          <div class="task-card-top">
+            <div>
+              <div class="task-card-company">
+                <span class="task-card-company-icon" style="background: var(--green-15); color: var(--green);">PT</span>
+                PetTracker &bull; Posted 5 hours ago
+              </div>
+              <div class="task-card-title">Build landing page for PetTracker</div>
+            </div>
+            <div class="task-card-pay">
+              <div class="share-only-badge">Share Only</div>
+              <div class="share-only-detail">1.2% revenue share</div>
+            </div>
+          </div>
+          <div class="task-card-desc">PetTracker is pre-revenue and needs a landing page. Build a modern, conversion-optimized page. Design files, copy, and brand assets provided. Payment is in revenue share.</div>
+          <div class="task-card-footer">
+            <span class="badge badge-purple">Equity Pay</span>
+            <span class="tag">Frontend</span>
+            <span class="tag">Design</span>
+            <span class="task-match">90% skill match</span>
+            <span class="task-time">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~3 hours
+            </span>
+            <span class="task-view-link">View Task <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+
+        <!-- Task 7 -->
+        <a href="task-detail.html" class="task-card">
+          <div class="task-card-top">
+            <div>
+              <div class="task-card-company">
+                <span class="task-card-company-icon" style="background: var(--cyan-15); color: var(--cyan);">IB</span>
+                InvoiceBot &bull; Posted 6 hours ago
+              </div>
+              <div class="task-card-title">Optimize PostgreSQL query performance</div>
+            </div>
+            <div class="task-card-pay">
+              <div class="task-card-amount">$110</div>
+              <div class="task-card-bonus">+ up to $55 bonus</div>
+            </div>
+          </div>
+          <div class="task-card-desc">Invoice search query takes 3.2s for customers with 10K+ invoices. Need to optimize to under 200ms. Query explain plan, schema, and sample data included.</div>
+          <div class="task-card-footer">
+            <span class="badge badge-amber">Normal</span>
+            <span class="tag">Backend</span>
+            <span class="tag">PostgreSQL</span>
+            <span class="task-match">85% skill match</span>
+            <span class="task-time">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~1.5 hours
+            </span>
+            <span class="task-view-link">View Task <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function filterTask(el) {
+  document.querySelectorAll('.filter-pill').forEach(f => f.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

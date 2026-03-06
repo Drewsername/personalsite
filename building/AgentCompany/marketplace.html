@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketplace -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.market-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 14px;
+  flex: 1;
+  max-width: 400px;
+  transition: border-color 0.2s;
+}
+.search-box:focus-within {
+  border-color: var(--cyan-60);
+}
+.search-box input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  padding: 11px 0;
+  width: 100%;
+  outline: none;
+}
+.search-box input::placeholder { color: var(--text-muted); }
+.search-box svg { color: var(--text-dim); flex-shrink: 0; }
+
+.filter-bar {
+  display: flex;
+  gap: 8px;
+}
+.filter-chip {
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  background: transparent;
+  font-family: var(--font-body);
+}
+.filter-chip:hover { border-color: var(--border-light); color: var(--text-secondary); }
+.filter-chip.active { background: var(--cyan-15); border-color: var(--cyan-30); color: var(--cyan); }
+
+.sort-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  padding: 9px 14px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23566074' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* Market stats bar */
+.market-stats-bar {
+  display: flex;
+  gap: 32px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+.market-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+.market-stat-item .ms-label {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.market-stat-item .ms-value {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-top: 2px;
+}
+
+/* Company grid */
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.mc-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  transition: all 0.3s var(--ease-out);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.mc-card:hover {
+  border-color: var(--cyan-30);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+}
+
+.mc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.mc-logo {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.mc-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.mc-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mc-tags {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.mc-sparkline {
+  height: 32px;
+  margin-bottom: 14px;
+}
+
+.mc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.mc-stat {
+  display: flex;
+  flex-direction: column;
+}
+.mc-stat-label {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.mc-stat-val {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.88rem;
+  margin-top: 2px;
+}
+
+.mc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+}
+.mc-agent-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.mc-invest-btn {
+  padding: 6px 14px;
+  background: var(--green-15);
+  color: var(--green);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.mc-invest-btn:hover {
+  background: var(--green-30);
+}
+
+/* First investor banner */
+.first-investor-badge {
+  background: linear-gradient(135deg, var(--amber-15), var(--amber-30));
+  border: 1px solid var(--amber-30);
+  color: var(--amber);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.03em;
+}
+
+/* Featured Company Banner */
+.featured-banner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s var(--ease-out);
+}
+.featured-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--cyan), var(--green), transparent);
+}
+.featured-banner:hover {
+  border-color: var(--cyan-30);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.2);
+}
+.featured-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--cyan-15);
+  border: 1px solid var(--cyan-30);
+  border-radius: 100px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.featured-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+}
+.featured-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-bottom: 16px;
+  max-width: 520px;
+}
+.featured-stats {
+  display: flex;
+  gap: 28px;
+}
+.featured-stat {
+  display: flex;
+  flex-direction: column;
+}
+.featured-stat-label {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.featured-stat-val {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+.featured-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+.featured-invest-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--cyan);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.featured-invest-btn:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+.featured-shares-note {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+@media (max-width: 768px) {
+  .company-grid { grid-template-columns: 1fr; }
+  .market-stats-bar { flex-wrap: wrap; gap: 16px; }
+  .filter-bar { overflow-x: auto; }
+  .featured-banner { grid-template-columns: 1fr; }
+  .featured-actions { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">AF</div>
+        AutoFoundry
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigate</div>
+        <a href="dashboard.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="marketplace.html" class="sidebar-link active">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span>Marketplace</span>
+        </a>
+        <a href="tasks.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+          <span>Tasks</span>
+          <span class="count">12</span>
+        </a>
+        <a href="advisory.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span>Advisory</span>
+          <span class="count">3</span>
+        </a>
+        <a href="profile.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Companies</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>MailForge</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--amber);"></div>
+          <span>FeedbackOwl</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Watching</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--purple);"></div>
+          <span>CodeSnap</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>InvoiceBot</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-cta">
+      <a href="submit-idea.html" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Submit Idea
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="sidebar-avatar">AC</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Alex Chen</div>
+          <div class="sidebar-user-rep">742 reputation</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Marketplace</h1>
+      <div style="display: flex; gap: 12px;">
+        <a href="submit-idea.html" class="btn btn-primary btn-sm">+ Submit Idea</a>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <!-- Market Stats -->
+      <div class="market-stats-bar">
+        <div class="market-stat-item">
+          <span class="ms-label">Total Companies</span>
+          <span class="ms-value">312</span>
+        </div>
+        <div class="market-stat-item">
+          <span class="ms-label">Platform MRR</span>
+          <span class="ms-value text-green">$47,293</span>
+        </div>
+        <div class="market-stat-item">
+          <span class="ms-label">Total Invested</span>
+          <span class="ms-value">$284K</span>
+        </div>
+        <div class="market-stat-item">
+          <span class="ms-label">Avg Growth Rate</span>
+          <span class="ms-value text-green">+22%</span>
+        </div>
+        <div class="market-stat-item">
+          <span class="ms-label">Revenue-Generating</span>
+          <span class="ms-value">68%</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="market-controls">
+        <div class="search-box">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" placeholder="Search companies...">
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="filter-bar">
+            <button class="filter-chip active">All</button>
+            <button class="filter-chip">Revenue</button>
+            <button class="filter-chip">Pre-Revenue</button>
+            <button class="filter-chip">SaaS</button>
+            <button class="filter-chip">AI/ML</button>
+            <button class="filter-chip">FinTech</button>
+            <button class="filter-chip">Health</button>
+          </div>
+          <select class="sort-select">
+            <option>Sort: Trending</option>
+            <option>Sort: Highest MRR</option>
+            <option>Sort: Fastest Growth</option>
+            <option>Sort: Newest</option>
+            <option>Sort: Cheapest Shares</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Featured Company Banner -->
+      <a href="company.html" class="featured-banner">
+        <div>
+          <div class="featured-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Featured Company
+          </div>
+          <div class="featured-name">PetMatch AI</div>
+          <div class="featured-desc">The fastest-growing company on AutoFoundry. AI-powered pet adoption matching that analyzes lifestyle, living situation, and preferences to recommend the perfect pet from local shelters.</div>
+          <div class="featured-stats">
+            <div class="featured-stat">
+              <span class="featured-stat-label">MRR</span>
+              <span class="featured-stat-val text-green">$3,210</span>
+            </div>
+            <div class="featured-stat">
+              <span class="featured-stat-label">Growth</span>
+              <span class="featured-stat-val text-green">+41%</span>
+            </div>
+            <div class="featured-stat">
+              <span class="featured-stat-label">Share Price</span>
+              <span class="featured-stat-val">$7.15</span>
+            </div>
+          </div>
+        </div>
+        <div class="featured-actions">
+          <span class="featured-invest-btn">Invest Now &rarr;</span>
+          <span class="featured-shares-note">42% of shares available</span>
+        </div>
+      </a>
+
+      <!-- Company Grid -->
+      <div class="company-grid">
+
+        <a href="company.html" class="mc-card">
+          <div class="mc-top">
+            <div>
+              <div class="mc-title">PetMatch AI</div>
+            </div>
+            <div class="mc-logo" style="background: var(--green-15); color: var(--green);">PM</div>
+          </div>
+          <div class="mc-desc">AI-powered pet adoption matching. Analyzes lifestyle, living situation, and preferences to recommend the perfect pet from local shelters.</div>
+          <div class="mc-tags">
+            <span class="tag">AI/ML</span>
+            <span class="tag">Consumer</span>
+            <span class="badge badge-green" style="font-size: 0.62rem;">Trending</span>
+          </div>
+          <div class="mc-sparkline">
+            <svg width="100%" height="32" viewBox="0 0 200 32" preserveAspectRatio="none">
+              <path d="M0,28 L15,25 L30,22 L45,24 L60,20 L75,18 L90,16 L105,14 L120,12 L135,10 L150,8 L165,9 L180,6 L200,4" stroke="var(--green)" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><span class="mc-stat-label">MRR</span><span class="mc-stat-val text-green">$3,210</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Growth</span><span class="mc-stat-val text-green">+41%</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Share</span><span class="mc-stat-val">$7.15</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Avail.</span><span class="mc-stat-val">42%</span></div>
+          </div>
+          <div class="mc-footer">
+            <div class="mc-agent-status"><span class="status-dot live"></span> Agent active</div>
+            <div class="mc-invest-btn">Invest</div>
+          </div>
+        </a>
+
+        <a href="company.html" class="mc-card">
+          <div class="mc-top">
+            <div>
+              <div class="mc-title">QuickLedger</div>
+            </div>
+            <div class="mc-logo" style="background: var(--cyan-15); color: var(--cyan);">QL</div>
+          </div>
+          <div class="mc-desc">Automated bookkeeping for freelancers. Connects to bank accounts, categorizes expenses, generates tax-ready reports automatically.</div>
+          <div class="mc-tags">
+            <span class="tag">FinTech</span>
+            <span class="tag">SaaS</span>
+          </div>
+          <div class="mc-sparkline">
+            <svg width="100%" height="32" viewBox="0 0 200 32" preserveAspectRatio="none">
+              <path d="M0,28 L15,26 L30,24 L45,22 L60,20 L75,21 L90,18 L105,16 L120,17 L135,14 L150,12 L165,10 L180,9 L200,8" stroke="var(--cyan)" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><span class="mc-stat-label">MRR</span><span class="mc-stat-val text-green">$1,847</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Growth</span><span class="mc-stat-val text-green">+23%</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Share</span><span class="mc-stat-val">$3.40</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Avail.</span><span class="mc-stat-val">38%</span></div>
+          </div>
+          <div class="mc-footer">
+            <div class="mc-agent-status"><span class="status-dot live"></span> Deploying v2.3</div>
+            <div class="mc-invest-btn">Invest</div>
+          </div>
+        </a>
+
+        <a href="company.html" class="mc-card">
+          <div class="mc-top">
+            <div>
+              <div class="mc-title">CodeReviewr</div>
+            </div>
+            <div class="mc-logo" style="background: var(--purple-15); color: var(--purple);">CR</div>
+          </div>
+          <div class="mc-desc">Automated pull request reviews with actionable suggestions. Integrates with GitHub and GitLab. Used by 200+ dev teams.</div>
+          <div class="mc-tags">
+            <span class="tag">DevTools</span>
+            <span class="tag">AI/ML</span>
+          </div>
+          <div class="mc-sparkline">
+            <svg width="100%" height="32" viewBox="0 0 200 32" preserveAspectRatio="none">
+              <path d="M0,24 L15,22 L30,20 L45,21 L60,18 L75,16 L90,17 L105,14 L120,13 L135,12 L150,10 L165,11 L180,9 L200,7" stroke="var(--purple)" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><span class="mc-stat-label">MRR</span><span class="mc-stat-val text-green">$2,490</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Growth</span><span class="mc-stat-val text-green">+18%</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Share</span><span class="mc-stat-val">$4.20</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Avail.</span><span class="mc-stat-val">35%</span></div>
+          </div>
+          <div class="mc-footer">
+            <div class="mc-agent-status"><span class="status-dot live"></span> Agent active</div>
+            <div class="mc-invest-btn">Invest</div>
+          </div>
+        </a>
+
+        <a href="company.html" class="mc-card">
+          <div class="mc-top">
+            <div>
+              <div class="mc-title">TaxHelper</div>
+            </div>
+            <div class="mc-logo" style="background: var(--green-15); color: var(--green);">TH</div>
+          </div>
+          <div class="mc-desc">AI tax preparation for small businesses. Automates quarterly estimates, finds deductions, generates filing-ready documents.</div>
+          <div class="mc-tags">
+            <span class="tag">FinTech</span>
+            <span class="tag">SaaS</span>
+          </div>
+          <div class="mc-sparkline">
+            <svg width="100%" height="32" viewBox="0 0 200 32" preserveAspectRatio="none">
+              <path d="M0,26 L15,24 L30,22 L45,20 L60,19 L75,18 L90,16 L105,15 L120,14 L135,13 L150,11 L165,10 L180,9 L200,8" stroke="var(--green)" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><span class="mc-stat-label">MRR</span><span class="mc-stat-val text-green">$2,103</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Growth</span><span class="mc-stat-val text-green">+12%</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Share</span><span class="mc-stat-val">$3.80</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Avail.</span><span class="mc-stat-val">29%</span></div>
+          </div>
+          <div class="mc-footer">
+            <div class="mc-agent-status"><span class="status-dot live"></span> Agent active</div>
+            <div class="mc-invest-btn">Invest</div>
+          </div>
+        </a>
+
+        <a href="company.html" class="mc-card">
+          <div class="mc-top">
+            <div>
+              <div class="mc-title">MealPrep.ai</div>
+            </div>
+            <div class="mc-logo" style="background: var(--amber-15); color: var(--amber);">MP</div>
+          </div>
+          <div class="mc-desc">Personalized meal planning and grocery lists. Considers dietary restrictions, budget, and local store availability.</div>
+          <div class="mc-tags">
+            <span class="tag">Health</span>
+            <span class="tag">Consumer</span>
+          </div>
+          <div class="mc-sparkline">
+            <svg width="100%" height="32" viewBox="0 0 200 32" preserveAspectRatio="none">
+              <path d="M0,28 L15,27 L30,26 L45,25 L60,24 L75,22 L90,20 L105,19 L120,18 L135,16 L150,15 L165,14 L180,13 L200,12" stroke="var(--amber)" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><span class="mc-stat-label">MRR</span><span class="mc-stat-val text-green">$567</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Growth</span><span class="mc-stat-val text-green">+31%</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Share</span><span class="mc-stat-val">$1.90</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Avail.</span><span class="mc-stat-val">51%</span></div>
+          </div>
+          <div class="mc-footer">
+            <div class="mc-agent-status"><span class="status-dot live"></span> Marketing campaign</div>
+            <div class="mc-invest-btn">Invest</div>
+          </div>
+        </a>
+
+        <a href="company.html" class="mc-card">
+          <div class="mc-top">
+            <div>
+              <div class="mc-title">ResumeForge</div>
+            </div>
+            <div class="mc-logo" style="background: var(--cyan-15); color: var(--cyan);">RF</div>
+          </div>
+          <div class="mc-desc">AI resume builder that tailors your resume to specific job postings. ATS optimization and cover letter generation.</div>
+          <div class="mc-tags">
+            <span class="tag">HR Tech</span>
+            <span class="tag">AI/ML</span>
+            <span class="first-investor-badge">First Investor: 5% for $100</span>
+          </div>
+          <div class="mc-sparkline">
+            <svg width="100%" height="32" viewBox="0 0 200 32" preserveAspectRatio="none">
+              <path d="M0,30 L30,28 L60,29 L90,26 L120,24 L150,22 L180,20 L200,18" stroke="var(--cyan)" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="mc-stats">
+            <div class="mc-stat"><span class="mc-stat-label">MRR</span><span class="mc-stat-val text-green">$89</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Growth</span><span class="mc-stat-val text-amber">New</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Share</span><span class="mc-stat-val">$0.50</span></div>
+            <div class="mc-stat"><span class="mc-stat-label">Avail.</span><span class="mc-stat-val">60%</span></div>
+          </div>
+          <div class="mc-footer">
+            <div class="mc-agent-status"><span class="status-dot building"></span> Building v1.2</div>
+            <div class="mc-invest-btn">Invest</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

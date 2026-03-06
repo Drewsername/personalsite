@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ===== PROFILE HEADER ===== */
+.profile-header {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0, 212, 255, 0.04) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  margin-bottom: var(--space-xl);
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.profile-avatar-area {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--bg-deep);
+  margin-bottom: var(--space-sm);
+}
+
+.profile-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: var(--cyan-08);
+  border: 1px solid var(--cyan-30);
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.profile-bio {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  margin-bottom: var(--space-md);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+.profile-meta {
+  display: flex;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.profile-meta-item {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+.profile-stat {
+  text-align: center;
+}
+
+.profile-stat-num {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.profile-stat-label {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* ===== REPUTATION SECTION ===== */
+.rep-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.rep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.rep-score-big {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.rep-num-big {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: -0.03em;
+}
+
+.rep-max {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+
+.rep-progress-area {
+  text-align: right;
+}
+
+.rep-progress-track {
+  width: 200px;
+  height: 8px;
+  background: var(--bg-surface);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rep-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--amber), var(--cyan));
+  transition: width 0.6s var(--ease-out);
+}
+
+.rep-breakdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.rep-factor {
+  text-align: center;
+}
+
+.rep-factor-ring {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto var(--space-sm);
+  position: relative;
+}
+
+.rep-factor-ring svg {
+  transform: rotate(-90deg);
+}
+
+.rep-factor-num {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.rep-factor-label {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* ===== ACHIEVEMENTS ===== */
+.achievements-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all 0.25s var(--ease-out);
+}
+
+.achievement-card:hover {
+  border-color: var(--border-light);
+  background: var(--bg-surface);
+  transform: translateY(-1px);
+}
+
+.achievement-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.achievement-text {
+  min-width: 0;
+}
+
+.achievement-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.achievement-desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* ===== VERIFIED SKILLS ===== */
+.skills-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.skill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.skill-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 8px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.skill-badge:hover {
+  border-color: var(--border-light);
+  background: var(--bg-surface);
+}
+
+.skill-level {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skill-level.expert { background: var(--green); }
+.skill-level.advanced { background: var(--cyan); }
+.skill-level.intermediate { background: var(--amber); }
+
+/* ===== ACTIVITY GRID ===== */
+.activity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.activity-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.activity-panel-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  transition: background 0.15s;
+}
+
+.history-item:last-child { border-bottom: none; }
+
+.history-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-content { flex: 1; min-width: 0; }
+.history-title { font-weight: 500; }
+.history-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.history-amount { font-weight: 700; text-align: right; white-space: nowrap; flex-shrink: 0; }
+
+/* ===== SECTION TITLE ===== */
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .achievement-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 1024px) {
+  .profile-header { flex-direction: column; align-items: center; text-align: center; }
+  .profile-meta { justify-content: center; }
+  .profile-bio { margin-left: auto; margin-right: auto; }
+  .profile-stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .rep-breakdown { grid-template-columns: repeat(2, 1fr); }
+  .rep-header { flex-direction: column; gap: var(--space-md); align-items: flex-start; }
+  .activity-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .profile-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .achievement-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigate</div>
+        <a href="dashboard.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></a>
+        <a href="marketplace.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Marketplace</span></a>
+        <a href="tasks.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg><span>Tasks</span><span class="count">12</span></a>
+        <a href="advisory.html" class="sidebar-link"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Advisory</span><span class="count">3</span></a>
+        <a href="profile.html" class="sidebar-link active"><svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Companies</div>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--cyan);"></div><span>MailForge</span></a>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--amber);"></div><span>FeedbackOwl</span></a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Watching</div>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--purple);"></div><span>CodeSnap</span></a>
+        <a href="company.html" class="sidebar-company"><div class="sidebar-company-dot" style="background: var(--cyan);"></div><span>InvoiceBot</span></a>
+      </div>
+    </nav>
+    <div class="sidebar-cta"><a href="submit-idea.html" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Submit Idea</a></div>
+    <div class="sidebar-footer"><a href="profile.html" class="sidebar-user"><div class="sidebar-avatar">AC</div><div class="sidebar-user-info"><div class="sidebar-user-name">Alex Chen</div><div class="sidebar-user-rep">742 reputation</div></div></a></div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Profile</h1>
+      <button class="btn btn-secondary btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Profile
+      </button>
+    </div>
+
+    <div class="page-body">
+      <!-- Profile Header -->
+      <div class="profile-header animate-in">
+        <div class="profile-avatar-area">
+          <div class="profile-avatar">AC</div>
+          <div class="profile-tier">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Rising Builder
+          </div>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">Alex Chen</div>
+          <div class="profile-bio">Full-stack developer and SaaS enthusiast. Building AI-powered companies and investing in the future of autonomous business.</div>
+          <div class="profile-meta">
+            <div class="profile-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Joined 3 months ago
+            </div>
+            <div class="profile-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              San Francisco, CA
+            </div>
+            <div class="profile-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+              GitHub connected
+            </div>
+          </div>
+          <div class="profile-stats-grid">
+            <div class="profile-stat">
+              <div class="profile-stat-num">2</div>
+              <div class="profile-stat-label">Companies</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num">8</div>
+              <div class="profile-stat-label">Investments</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num">24</div>
+              <div class="profile-stat-label">Tasks Done</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num text-green">$2,847</div>
+              <div class="profile-stat-label">Revenue</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num text-amber">14</div>
+              <div class="profile-stat-label">Day Streak</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num text-cyan">#47</div>
+              <div class="profile-stat-label">Rank</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reputation Score -->
+      <div class="rep-section animate-in animate-delay-1">
+        <div class="rep-header">
+          <div>
+            <div class="section-label">Reputation Score</div>
+            <div class="rep-score-big">
+              <span class="rep-num-big">742</span>
+              <span class="rep-max">/ 1,000</span>
+            </div>
+            <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">258 points to Gold tier. Gold unlocks high-value tasks and 2x advisory rewards.</div>
+          </div>
+          <div class="rep-progress-area">
+            <div class="rep-progress-track">
+              <div class="rep-progress-fill" style="width:74%;"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:0.68rem; color:var(--text-muted);">
+              <span>Silver (500)</span>
+              <span>Gold (1000)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rep-breakdown">
+          <!-- Quality 89% => offset = 188 * (1 - 0.89) = 20.68 -->
+          <div class="rep-factor">
+            <div class="rep-factor-ring">
+              <svg width="72" height="72" viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--bg-surface)" stroke-width="5"/>
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--green)" stroke-width="5" stroke-dasharray="188" stroke-dashoffset="21" stroke-linecap="round"/>
+              </svg>
+              <div class="rep-factor-num text-green">89%</div>
+            </div>
+            <div class="rep-factor-label">Quality</div>
+          </div>
+          <!-- Reliability 92% => offset = 188 * (1 - 0.92) = 15.04 -->
+          <div class="rep-factor">
+            <div class="rep-factor-ring">
+              <svg width="72" height="72" viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--bg-surface)" stroke-width="5"/>
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--cyan)" stroke-width="5" stroke-dasharray="188" stroke-dashoffset="15" stroke-linecap="round"/>
+              </svg>
+              <div class="rep-factor-num text-cyan">92%</div>
+            </div>
+            <div class="rep-factor-label">Reliability</div>
+          </div>
+          <!-- Expertise 78% => offset = 188 * (1 - 0.78) = 41.36 -->
+          <div class="rep-factor">
+            <div class="rep-factor-ring">
+              <svg width="72" height="72" viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--bg-surface)" stroke-width="5"/>
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--purple)" stroke-width="5" stroke-dasharray="188" stroke-dashoffset="41" stroke-linecap="round"/>
+              </svg>
+              <div class="rep-factor-num text-purple">78%</div>
+            </div>
+            <div class="rep-factor-label">Expertise</div>
+          </div>
+          <!-- Community 85% => offset = 188 * (1 - 0.85) = 28.2 -->
+          <div class="rep-factor">
+            <div class="rep-factor-ring">
+              <svg width="72" height="72" viewBox="0 0 72 72">
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--bg-surface)" stroke-width="5"/>
+                <circle cx="36" cy="36" r="30" fill="none" stroke="var(--amber)" stroke-width="5" stroke-dasharray="188" stroke-dashoffset="28" stroke-linecap="round"/>
+              </svg>
+              <div class="rep-factor-num text-amber">85%</div>
+            </div>
+            <div class="rep-factor-label">Community</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="achievements-section animate-in animate-delay-2">
+        <div class="section-label" style="margin-bottom: var(--space-lg);">Achievements</div>
+        <div class="achievement-grid">
+          <div class="achievement-card">
+            <div class="achievement-icon" style="background: var(--cyan-08); border: 1px solid var(--cyan-30);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+            <div class="achievement-text">
+              <div class="achievement-title">First Investment</div>
+              <div class="achievement-desc">Made your first investment</div>
+            </div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon" style="background: var(--green-15); border: 1px solid var(--green-30);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="achievement-text">
+              <div class="achievement-title">Task Master</div>
+              <div class="achievement-desc">Completed 20+ tasks</div>
+            </div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon" style="background: var(--purple-15); border: 1px solid var(--purple-30);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="achievement-text">
+              <div class="achievement-title">Early Adopter</div>
+              <div class="achievement-desc">Joined during beta</div>
+            </div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon" style="background: var(--amber-15); border: 1px solid var(--amber-30);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="achievement-text">
+              <div class="achievement-title">Revenue Milestone</div>
+              <div class="achievement-desc">Earned $1,000+ total</div>
+            </div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon" style="background: var(--cyan-08); border: 1px solid var(--cyan-30);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <div class="achievement-text">
+              <div class="achievement-title">Community Voice</div>
+              <div class="achievement-desc">50+ advisory votes</div>
+            </div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon" style="background: var(--red-15); border: 1px solid var(--red-30);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M12 22c-4.97 0-9-3.58-9-8 0-2.93 1.57-4.5 3-6 .47-.49.99-1.05 1.36-1.78A5 5 0 0112 2c0 2.5-.5 4-2 6 0 0 3-1 4 0s1 3 1 3c1.5-1 2.5-3 2.5-5 .5 1 1.5 2 1.5 4 0 4.42-4.03 8-9 8z"/></svg>
+            </div>
+            <div class="achievement-text">
+              <div class="achievement-title">Streak Champion</div>
+              <div class="achievement-desc">14-day activity streak</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verified Skills -->
+      <div class="skills-section animate-in animate-delay-3">
+        <div class="section-label" style="margin-bottom: var(--space-md);">Verified Skills</div>
+        <div style="display:flex; gap:var(--space-lg); align-items:center; margin-bottom:var(--space-md); font-size:0.75rem; color:var(--text-dim);">
+          <span style="display:flex; align-items:center; gap:6px;"><span class="skill-level expert"></span> Expert</span>
+          <span style="display:flex; align-items:center; gap:6px;"><span class="skill-level advanced"></span> Advanced</span>
+          <span style="display:flex; align-items:center; gap:6px;"><span class="skill-level intermediate"></span> Intermediate</span>
+        </div>
+        <div class="skill-grid">
+          <div class="skill-badge"><div class="skill-level expert"></div> React</div>
+          <div class="skill-badge"><div class="skill-level expert"></div> Node.js</div>
+          <div class="skill-badge"><div class="skill-level expert"></div> TypeScript</div>
+          <div class="skill-badge"><div class="skill-level advanced"></div> Python</div>
+          <div class="skill-badge"><div class="skill-level advanced"></div> PostgreSQL</div>
+          <div class="skill-badge"><div class="skill-level advanced"></div> Next.js</div>
+          <div class="skill-badge"><div class="skill-level advanced"></div> Security Auditing</div>
+          <div class="skill-badge"><div class="skill-level intermediate"></div> UI/UX Design</div>
+          <div class="skill-badge"><div class="skill-level intermediate"></div> Marketing Strategy</div>
+          <div class="skill-badge"><div class="skill-level intermediate"></div> Copywriting</div>
+        </div>
+      </div>
+
+      <!-- Activity: Earnings + Portfolio -->
+      <div class="activity-grid animate-in animate-delay-4">
+        <!-- Earnings Timeline -->
+        <div class="activity-panel">
+          <div class="activity-panel-title">Recent Earnings</div>
+          <div class="history-item">
+            <div class="history-icon" style="background: var(--green-15); color: var(--green);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="history-content">
+              <div class="history-title">Revenue distribution</div>
+              <div class="history-meta">MailForge, InvoiceBot, CodeAudit Pro -- Today</div>
+            </div>
+            <div class="history-amount text-green">+$420</div>
+          </div>
+          <div class="history-item">
+            <div class="history-icon" style="background: var(--amber-15); color: var(--amber);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="history-content">
+              <div class="history-title">Task: UX review for RecipeGenius</div>
+              <div class="history-meta">Base $60 + $25 quality bonus -- Yesterday</div>
+            </div>
+            <div class="history-amount text-green">+$85</div>
+          </div>
+          <div class="history-item">
+            <div class="history-icon" style="background: var(--purple-15); color: var(--purple);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <div class="history-content">
+              <div class="history-title">Advisory: Correct vote on pricing</div>
+              <div class="history-meta">BrandVoice pricing decision -- 3 days ago</div>
+            </div>
+            <div class="history-amount text-green">+$12</div>
+          </div>
+          <div class="history-item">
+            <div class="history-icon" style="background: var(--green-15); color: var(--green);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="history-content">
+              <div class="history-title">Revenue distribution</div>
+              <div class="history-meta">Monthly payout -- 1 week ago</div>
+            </div>
+            <div class="history-amount text-green">+$380</div>
+          </div>
+          <div class="history-item">
+            <div class="history-icon" style="background: var(--amber-15); color: var(--amber);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="history-content">
+              <div class="history-title">Task: Debug auth flow</div>
+              <div class="history-meta">SupportFlow -- 2 weeks ago</div>
+            </div>
+            <div class="history-amount text-green">+$95</div>
+          </div>
+        </div>
+
+        <!-- Investment Portfolio -->
+        <div class="activity-panel">
+          <div class="activity-panel-title">Investment Portfolio</div>
+          <a href="company.html" class="history-item" style="text-decoration:none; cursor:pointer;">
+            <div class="history-icon" style="background:linear-gradient(135deg,var(--cyan),var(--purple)); color:white; font-size:0.6rem; font-weight:800;">MF</div>
+            <div class="history-content">
+              <div class="history-title">MailForge</div>
+              <div class="history-meta">Founder -- 15% share</div>
+            </div>
+            <div class="history-amount text-green">$480/mo</div>
+          </a>
+          <a href="company.html" class="history-item" style="text-decoration:none; cursor:pointer;">
+            <div class="history-icon" style="background:linear-gradient(135deg,var(--green),var(--cyan)); color:white; font-size:0.6rem; font-weight:800;">IB</div>
+            <div class="history-content">
+              <div class="history-title">InvoiceBot</div>
+              <div class="history-meta">Investor -- 2.4% share</div>
+            </div>
+            <div class="history-amount text-green">$62/mo</div>
+          </a>
+          <a href="company.html" class="history-item" style="text-decoration:none; cursor:pointer;">
+            <div class="history-icon" style="background:linear-gradient(135deg,var(--amber),var(--red)); color:white; font-size:0.6rem; font-weight:800;">CA</div>
+            <div class="history-content">
+              <div class="history-title">CodeAudit Pro</div>
+              <div class="history-meta">Investor -- 1.8% share</div>
+            </div>
+            <div class="history-amount text-green">$38/mo</div>
+          </a>
+          <a href="company.html" class="history-item" style="text-decoration:none; cursor:pointer;">
+            <div class="history-icon" style="background:linear-gradient(135deg,#EC4899,var(--red)); color:white; font-size:0.6rem; font-weight:800;">BV</div>
+            <div class="history-content">
+              <div class="history-title">BrandVoice</div>
+              <div class="history-meta">Investor -- 3.1% share</div>
+            </div>
+            <div class="history-amount text-green">$18/mo</div>
+          </a>
+          <a href="company.html" class="history-item" style="text-decoration:none; cursor:pointer;">
+            <div class="history-icon" style="background:linear-gradient(135deg,var(--red),var(--amber)); color:white; font-size:0.6rem; font-weight:800;">FP</div>
+            <div class="history-content">
+              <div class="history-title">FitPlanAI</div>
+              <div class="history-meta">Founder -- 15% share</div>
+            </div>
+            <div class="history-amount text-green">$126/mo</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

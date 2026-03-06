@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Investments -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.portfolio-header {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.ph-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+.ph-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.ph-value {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.ph-change {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Portfolio chart */
+.portfolio-chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.portfolio-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.portfolio-chart-header h3 { font-size: 1rem; }
+
+/* Holdings table */
+.holdings-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.holdings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.holdings-header h3 { font-size: 1rem; }
+
+.holding-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.holding-row:hover { background: var(--bg-card-hover); }
+.holding-row:last-child { border-bottom: none; }
+
+.holding-company {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.holding-logo {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.holding-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.holding-desc {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.holding-value {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.holding-sub {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+/* Distributions section */
+.dist-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.dist-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.dist-header h3 { font-size: 1rem; }
+.dist-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  font-size: 0.85rem;
+}
+.dist-row:last-child { border-bottom: none; }
+
+@media (max-width: 1024px) {
+  .portfolio-header { grid-template-columns: repeat(2, 1fr); }
+  .holding-row { grid-template-columns: 1fr; gap: 8px; }
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">AF</div>
+        AutoFoundry
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigate</div>
+        <a href="dashboard.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="marketplace.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span>Marketplace</span>
+        </a>
+        <a href="tasks.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+          <span>Tasks</span>
+          <span class="count">12</span>
+        </a>
+        <a href="advisory.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span>Advisory</span>
+          <span class="count">3</span>
+        </a>
+        <a href="profile.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Companies</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>MailForge</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--amber);"></div>
+          <span>FeedbackOwl</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Watching</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--purple);"></div>
+          <span>CodeSnap</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>InvoiceBot</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-cta">
+      <a href="submit-idea.html" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Submit Idea
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="sidebar-avatar">AC</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Alex Chen</div>
+          <div class="sidebar-user-rep">742 reputation</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Investments</h1>
+      <a href="marketplace.html" class="btn btn-primary btn-sm">Browse Companies</a>
+    </div>
+
+    <div class="page-body">
+      <!-- Portfolio Stats -->
+      <div class="portfolio-header">
+        <div class="ph-card">
+          <div class="ph-label">Portfolio Value</div>
+          <div class="ph-value">$4,217</div>
+          <div class="ph-change" style="color: var(--green);">+$342 (+8.8%) this month</div>
+        </div>
+        <div class="ph-card">
+          <div class="ph-label">Monthly Distributions</div>
+          <div class="ph-value text-green">$187.40</div>
+          <div class="ph-change" style="color: var(--green);">+18% vs last month</div>
+        </div>
+        <div class="ph-card">
+          <div class="ph-label">Total Invested</div>
+          <div class="ph-value">$2,850</div>
+          <div class="ph-change" style="color: var(--text-dim);">Across 5 companies</div>
+        </div>
+        <div class="ph-card">
+          <div class="ph-label">All-Time Return</div>
+          <div class="ph-value text-green">+48%</div>
+          <div class="ph-change" style="color: var(--green);">$1,367 profit</div>
+        </div>
+      </div>
+
+      <!-- Portfolio Chart -->
+      <div class="portfolio-chart-card">
+        <div class="portfolio-chart-header">
+          <h3>Portfolio Value Over Time</h3>
+          <div style="display: flex; gap: 4px;">
+            <span style="padding: 5px 12px; border-radius: var(--radius-sm); font-size: 0.72rem; font-weight: 600; color: var(--text-dim); cursor: pointer;">1M</span>
+            <span style="padding: 5px 12px; border-radius: var(--radius-sm); font-size: 0.72rem; font-weight: 600; color: var(--cyan); background: var(--cyan-08); cursor: pointer;">3M</span>
+            <span style="padding: 5px 12px; border-radius: var(--radius-sm); font-size: 0.72rem; font-weight: 600; color: var(--text-dim); cursor: pointer;">All</span>
+          </div>
+        </div>
+        <div style="height: 180px;">
+          <svg width="100%" height="180" viewBox="0 0 700 180" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="portfolioGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#00D4FF;stop-opacity:0.2"/>
+                <stop offset="100%" style="stop-color:#00D4FF;stop-opacity:0"/>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="45" x2="700" y2="45" stroke="var(--border)" stroke-width="0.5"/>
+            <line x1="0" y1="90" x2="700" y2="90" stroke="var(--border)" stroke-width="0.5"/>
+            <line x1="0" y1="135" x2="700" y2="135" stroke="var(--border)" stroke-width="0.5"/>
+            <path d="M0,160 L35,155 L70,150 L105,148 L140,145 L175,140 L210,135 L245,128 L280,125 L315,118 L350,110 L385,105 L420,95 L455,88 L490,80 L525,72 L560,60 L595,50 L630,42 L665,35 L700,28" stroke="var(--cyan)" stroke-width="2" fill="none"/>
+            <path d="M0,160 L35,155 L70,150 L105,148 L140,145 L175,140 L210,135 L245,128 L280,125 L315,118 L350,110 L385,105 L420,95 L455,88 L490,80 L525,72 L560,60 L595,50 L630,42 L665,35 L700,28 L700,180 L0,180 Z" fill="url(#portfolioGrad)"/>
+            <text x="6" y="43" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">$5,000</text>
+            <text x="6" y="88" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">$3,500</text>
+            <text x="6" y="133" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">$2,000</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Holdings -->
+      <div class="holdings-card">
+        <div class="holdings-header">
+          <h3>Holdings</h3>
+          <span style="font-size: 0.82rem; color: var(--text-dim);">5 companies</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; gap: 16px; padding: 10px 24px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+            <div>Company</div>
+            <div>Your Share</div>
+            <div>Share Price</div>
+            <div>Value</div>
+            <div>Monthly Income</div>
+            <div>Return</div>
+          </div>
+
+          <a href="company.html" class="holding-row" style="text-decoration: none; color: inherit;">
+            <div class="holding-company">
+              <div class="holding-logo" style="background: var(--green-15); color: var(--green);">PM</div>
+              <div>
+                <div class="holding-name">PetMatch AI</div>
+                <div class="holding-desc">Pet adoption matching</div>
+              </div>
+            </div>
+            <div>
+              <div class="holding-value">1.20%</div>
+              <div class="holding-sub">Purchased + earned</div>
+            </div>
+            <div>
+              <div class="holding-value">$7.15</div>
+              <div class="holding-sub text-green">+8.3%</div>
+            </div>
+            <div>
+              <div class="holding-value">$1,716</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">$38.52</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">+72%</div>
+              <div class="holding-sub text-green">+$716</div>
+            </div>
+          </a>
+
+          <a href="company.html" class="holding-row" style="text-decoration: none; color: inherit;">
+            <div class="holding-company">
+              <div class="holding-logo" style="background: var(--purple-15); color: var(--purple);">CR</div>
+              <div>
+                <div class="holding-name">CodeReviewr</div>
+                <div class="holding-desc">Automated PR reviews</div>
+              </div>
+            </div>
+            <div>
+              <div class="holding-value">0.80%</div>
+              <div class="holding-sub">Purchased</div>
+            </div>
+            <div>
+              <div class="holding-value">$4.20</div>
+              <div class="holding-sub text-green">+5.0%</div>
+            </div>
+            <div>
+              <div class="holding-value">$1,008</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">$19.92</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">+34%</div>
+              <div class="holding-sub text-green">+$258</div>
+            </div>
+          </a>
+
+          <a href="company.html" class="holding-row" style="text-decoration: none; color: inherit;">
+            <div class="holding-company">
+              <div class="holding-logo" style="background: var(--green-15); color: var(--green);">TH</div>
+              <div>
+                <div class="holding-name">TaxHelper</div>
+                <div class="holding-desc">AI tax preparation</div>
+              </div>
+            </div>
+            <div>
+              <div class="holding-value">0.50%</div>
+              <div class="holding-sub">Purchased</div>
+            </div>
+            <div>
+              <div class="holding-value">$3.80</div>
+              <div class="holding-sub text-green">+3.2%</div>
+            </div>
+            <div>
+              <div class="holding-value">$760</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">$10.52</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">+27%</div>
+              <div class="holding-sub text-green">+$160</div>
+            </div>
+          </a>
+
+          <a href="company.html" class="holding-row" style="text-decoration: none; color: inherit;">
+            <div class="holding-company">
+              <div class="holding-logo" style="background: var(--amber-15); color: var(--amber);">MP</div>
+              <div>
+                <div class="holding-name">MealPrep.ai</div>
+                <div class="holding-desc">Meal planning</div>
+              </div>
+            </div>
+            <div>
+              <div class="holding-value">0.30%</div>
+              <div class="holding-sub">Purchased</div>
+            </div>
+            <div>
+              <div class="holding-value">$1.90</div>
+              <div class="holding-sub text-green">+12%</div>
+            </div>
+            <div>
+              <div class="holding-value">$456</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">$1.70</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">+14%</div>
+              <div class="holding-sub text-green">+$56</div>
+            </div>
+          </a>
+
+          <a href="company.html" class="holding-row" style="text-decoration: none; color: inherit;">
+            <div class="holding-company">
+              <div class="holding-logo" style="background: var(--cyan-15); color: var(--cyan);">IB</div>
+              <div>
+                <div class="holding-name">InvoiceBot</div>
+                <div class="holding-desc">Automated invoicing</div>
+              </div>
+            </div>
+            <div>
+              <div class="holding-value">0.13%</div>
+              <div class="holding-sub">Earned (tasks)</div>
+            </div>
+            <div>
+              <div class="holding-value">$2.10</div>
+              <div class="holding-sub text-green">+2.4%</div>
+            </div>
+            <div>
+              <div class="holding-value">$277</div>
+            </div>
+            <div>
+              <div class="holding-value text-green">$1.16</div>
+            </div>
+            <div>
+              <div class="holding-value text-amber">N/A</div>
+              <div class="holding-sub">Earned via tasks</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Recent Distributions -->
+      <div class="dist-card">
+        <div class="dist-header">
+          <h3>Recent Distributions</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 16px; padding: 10px 24px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+          <div>Date</div>
+          <div>Company</div>
+          <div>Your Share</div>
+          <div>Amount</div>
+        </div>
+        <div class="dist-row">
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim);">Mar 1</div>
+          <div style="font-weight: 600;">PetMatch AI</div>
+          <div style="color: var(--text-dim);">1.20%</div>
+          <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">$38.52</div>
+        </div>
+        <div class="dist-row">
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim);">Mar 1</div>
+          <div style="font-weight: 600;">CodeReviewr</div>
+          <div style="color: var(--text-dim);">0.80%</div>
+          <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">$19.92</div>
+        </div>
+        <div class="dist-row">
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim);">Mar 1</div>
+          <div style="font-weight: 600;">TaxHelper</div>
+          <div style="color: var(--text-dim);">0.50%</div>
+          <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">$10.52</div>
+        </div>
+        <div class="dist-row">
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim);">Mar 1</div>
+          <div style="font-weight: 600;">MealPrep.ai</div>
+          <div style="color: var(--text-dim);">0.30%</div>
+          <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">$1.70</div>
+        </div>
+        <div class="dist-row">
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim);">Mar 1</div>
+          <div style="font-weight: 600;">InvoiceBot</div>
+          <div style="color: var(--text-dim);">0.13%</div>
+          <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">$1.16</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

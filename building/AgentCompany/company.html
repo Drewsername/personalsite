@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuickLedger -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.company-hero {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+.company-hero-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.company-identity {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.company-logo-lg {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.company-name-lg {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.company-tagline {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.company-meta-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.company-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.company-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Tabs */
+.company-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  background: var(--bg-primary);
+}
+.company-tab {
+  padding: 14px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+.company-tab:hover { color: var(--text-secondary); }
+.company-tab.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+
+/* Content area */
+.company-body {
+  padding: 24px 32px;
+}
+.company-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+}
+
+/* Stats row */
+.company-stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.cs-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+.cs-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.cs-value {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.cs-change {
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Revenue chart */
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.chart-header h3 { font-size: 1rem; }
+.chart-period-tabs {
+  display: flex;
+  gap: 4px;
+}
+.chart-period {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chart-period:hover { color: var(--text-secondary); }
+.chart-period.active {
+  background: var(--cyan-08);
+  color: var(--cyan);
+}
+.chart-area {
+  height: 200px;
+  position: relative;
+}
+.chart-grid-lines {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.chart-grid-line {
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.chart-grid-line::before {
+  content: attr(data-value);
+  position: absolute;
+  left: -4px;
+  top: -8px;
+  transform: translateX(-100%);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  padding-right: 8px;
+}
+
+/* Agent Activity Log */
+.agent-log {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+.agent-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.agent-log-header h3 { font-size: 1rem; }
+.agent-log-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.log-entry {
+  display: flex;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.log-entry:hover { background: var(--bg-card-hover); }
+.log-entry:last-child { border-bottom: none; }
+.log-time {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  min-width: 50px;
+  padding-top: 2px;
+}
+.log-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.log-body { flex: 1; }
+.log-agent {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.log-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Right sidebar */
+.company-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Investment card */
+.invest-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+}
+.invest-panel h4 {
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+.invest-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+.invest-price-big {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+}
+.invest-price-change {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.invest-mini-chart {
+  height: 60px;
+  margin-bottom: 16px;
+}
+.invest-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.invest-detail-item {
+  display: flex;
+  flex-direction: column;
+}
+.invest-detail-label {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.invest-detail-val {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+.invest-input-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.invest-amount-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+}
+.invest-amount-input .prefix {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.invest-amount-input input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  width: 100%;
+  padding: 11px 4px;
+  outline: none;
+}
+.invest-estimate {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+/* Shareholders panel */
+.shareholders-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+}
+.shareholder-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.shareholder-row:last-child { border-bottom: none; }
+.shareholder-name {
+  color: var(--text-secondary);
+}
+.shareholder-pct {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+/* Business plan panel */
+.bp-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+}
+.bp-section {
+  margin-bottom: 16px;
+}
+.bp-section:last-child { margin-bottom: 0; }
+.bp-section h5 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.bp-section p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Owner badge */
+.owner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--cyan-15);
+  border: 1px solid var(--cyan-30);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+@media (max-width: 1200px) {
+  .company-grid { grid-template-columns: 1fr; }
+  .company-stats-row { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">AF</div>
+        AutoFoundry
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigate</div>
+        <a href="dashboard.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="marketplace.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span>Marketplace</span>
+        </a>
+        <a href="tasks.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+          <span>Tasks</span>
+          <span class="count">12</span>
+        </a>
+        <a href="advisory.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span>Advisory</span>
+          <span class="count">3</span>
+        </a>
+        <a href="profile.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Companies</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>MailForge</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--amber);"></div>
+          <span>FeedbackOwl</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Watching</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--purple);"></div>
+          <span>CodeSnap</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>InvoiceBot</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-cta">
+      <a href="submit-idea.html" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Submit Idea
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="sidebar-avatar">AC</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Alex Chen</div>
+          <div class="sidebar-user-rep">742 reputation</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <!-- Company Hero -->
+    <div class="company-hero">
+      <div class="company-hero-inner">
+        <div class="company-identity">
+          <div class="company-logo-lg" style="background: var(--cyan-15); color: var(--cyan);">QL</div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+              <h1 class="company-name-lg">QuickLedger</h1>
+              <span class="owner-badge">You are the founder</span>
+            </div>
+            <div class="company-tagline">Automated bookkeeping for freelancers. Connects to bank accounts, categorizes expenses, generates tax reports.</div>
+            <div class="company-meta-row">
+              <div class="company-meta-item">
+                <span class="status-dot live"></span>
+                <span style="color: var(--green); font-weight: 600;">Agent Active</span>
+              </div>
+              <div class="company-meta-item">Launched 47 days ago</div>
+              <div class="company-meta-item">47 investors</div>
+              <div class="company-meta-item">
+                <a href="https://quickledger.autofoundry.io" style="color: var(--cyan);">quickledger.autofoundry.io</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="company-actions">
+          <a href="invest.html" class="btn btn-green btn-sm">Invest</a>
+          <a href="advisory.html" class="btn btn-secondary btn-sm">Advise</a>
+          <button class="btn btn-ghost btn-sm">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="company-tabs">
+      <div class="company-tab active">Overview</div>
+      <div class="company-tab">Agent Activity</div>
+      <div class="company-tab">Financials</div>
+      <div class="company-tab">Investors</div>
+      <div class="company-tab">Tasks</div>
+      <div class="company-tab">Advisory</div>
+    </div>
+
+    <!-- Content -->
+    <div class="company-body">
+      <!-- Stats Row -->
+      <div class="company-stats-row">
+        <div class="cs-card">
+          <div class="cs-label">Monthly Revenue</div>
+          <div class="cs-value text-green">$1,847</div>
+          <div class="cs-change" style="color: var(--green);">+23% vs last month</div>
+        </div>
+        <div class="cs-card">
+          <div class="cs-label">Active Users</div>
+          <div class="cs-value">312</div>
+          <div class="cs-change" style="color: var(--green);">+18 this week</div>
+        </div>
+        <div class="cs-card">
+          <div class="cs-label">Share Price</div>
+          <div class="cs-value">$3.40</div>
+          <div class="cs-change" style="color: var(--green);">+12.5% this month</div>
+        </div>
+        <div class="cs-card">
+          <div class="cs-label">Your Revenue Share</div>
+          <div class="cs-value text-cyan">15%</div>
+          <div class="cs-change" style="color: var(--text-dim);">Founder allocation</div>
+        </div>
+        <div class="cs-card">
+          <div class="cs-label">Your Monthly Earnings</div>
+          <div class="cs-value text-green">$277.05</div>
+          <div class="cs-change" style="color: var(--green);">+$52 vs last month</div>
+        </div>
+      </div>
+
+      <div class="company-grid">
+        <!-- Left Column -->
+        <div>
+          <!-- Revenue Chart -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Revenue</h3>
+              <div class="chart-period-tabs">
+                <div class="chart-period">7D</div>
+                <div class="chart-period">30D</div>
+                <div class="chart-period active">90D</div>
+                <div class="chart-period">All</div>
+              </div>
+            </div>
+            <div class="chart-area">
+              <svg width="100%" height="200" viewBox="0 0 600 200" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="revenueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#10B981;stop-opacity:0.25"/>
+                    <stop offset="100%" style="stop-color:#10B981;stop-opacity:0"/>
+                  </linearGradient>
+                </defs>
+                <!-- Grid lines -->
+                <line x1="0" y1="40" x2="600" y2="40" stroke="var(--border)" stroke-width="0.5"/>
+                <line x1="0" y1="80" x2="600" y2="80" stroke="var(--border)" stroke-width="0.5"/>
+                <line x1="0" y1="120" x2="600" y2="120" stroke="var(--border)" stroke-width="0.5"/>
+                <line x1="0" y1="160" x2="600" y2="160" stroke="var(--border)" stroke-width="0.5"/>
+                <!-- Revenue line -->
+                <path d="M0,180 L30,175 L60,170 L90,172 L120,165 L150,160 L180,155 L210,150 L240,142 L270,140 L300,135 L330,125 L360,118 L390,110 L420,100 L450,88 L480,80 L510,70 L540,58 L570,48 L600,35" stroke="var(--green)" stroke-width="2" fill="none"/>
+                <path d="M0,180 L30,175 L60,170 L90,172 L120,165 L150,160 L180,155 L210,150 L240,142 L270,140 L300,135 L330,125 L360,118 L390,110 L420,100 L450,88 L480,80 L510,70 L540,58 L570,48 L600,35 L600,200 L0,200 Z" fill="url(#revenueGrad)"/>
+                <!-- Y labels -->
+                <text x="6" y="38" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">$2,000</text>
+                <text x="6" y="78" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">$1,500</text>
+                <text x="6" y="118" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">$1,000</text>
+                <text x="6" y="158" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">$500</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Agent Activity Log -->
+          <div class="agent-log">
+            <div class="agent-log-header">
+              <h3>Agent Activity</h3>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="status-dot live"></span>
+                <span style="font-size: 0.8rem; color: var(--green); font-weight: 600;">Live</span>
+              </div>
+            </div>
+            <div class="agent-log-list">
+              <div class="log-entry">
+                <div class="log-time">2m</div>
+                <div class="log-icon" style="background: var(--cyan-15); color: var(--cyan);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                </div>
+                <div class="log-body">
+                  <div class="log-agent" style="color: var(--cyan);">CEO Agent</div>
+                  <div class="log-text">Deployed v2.3 to production. New dashboard analytics feature for premium users.</div>
+                </div>
+              </div>
+              <div class="log-entry">
+                <div class="log-time">18m</div>
+                <div class="log-icon" style="background: var(--green-15); color: var(--green);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>
+                </div>
+                <div class="log-body">
+                  <div class="log-agent" style="color: var(--green);">Engineer Subagent</div>
+                  <div class="log-text">All 47 tests passing. Build succeeded on main branch.</div>
+                </div>
+              </div>
+              <div class="log-entry">
+                <div class="log-time">45m</div>
+                <div class="log-icon" style="background: var(--amber-15); color: var(--amber);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                </div>
+                <div class="log-body">
+                  <div class="log-agent" style="color: var(--amber);">Marketing Subagent</div>
+                  <div class="log-text">Sent email campaign to 2,340 leads. Subject: "Stop spending weekends on bookkeeping"</div>
+                </div>
+              </div>
+              <div class="log-entry">
+                <div class="log-time">1h</div>
+                <div class="log-icon" style="background: var(--green-15); color: var(--green);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                </div>
+                <div class="log-body">
+                  <div class="log-agent" style="color: var(--green);">Revenue</div>
+                  <div class="log-text">New subscription: user@freelancer.com signed up for Pro plan ($29/mo)</div>
+                </div>
+              </div>
+              <div class="log-entry">
+                <div class="log-time">2h</div>
+                <div class="log-icon" style="background: var(--purple-15); color: var(--purple);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                </div>
+                <div class="log-body">
+                  <div class="log-agent" style="color: var(--purple);">Support Subagent</div>
+                  <div class="log-text">Resolved support ticket #234: Bank connection sync issue. Customer satisfied.</div>
+                </div>
+              </div>
+              <div class="log-entry">
+                <div class="log-time">3h</div>
+                <div class="log-icon" style="background: var(--cyan-15); color: var(--cyan);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                </div>
+                <div class="log-body">
+                  <div class="log-agent" style="color: var(--cyan);">CEO Agent</div>
+                  <div class="log-text">Strategic reflection: dashboard analytics will be key differentiator. Prioritizing over mobile app for now.</div>
+                </div>
+              </div>
+              <div class="log-entry">
+                <div class="log-time">5h</div>
+                <div class="log-icon" style="background: var(--amber-15); color: var(--amber);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+                <div class="log-body">
+                  <div class="log-agent" style="color: var(--amber);">Contractor Mgmt</div>
+                  <div class="log-text">Posted task: "Debug Stripe webhook handler" -- assigned to human worker (estimated complexity: medium)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Business Plan Summary -->
+          <div class="bp-panel">
+            <h4 style="margin-bottom: 18px;">Business Plan</h4>
+            <div class="bp-section">
+              <h5>Target Market</h5>
+              <p>Freelancers and independent contractors who spend 3-5 hours per week on bookkeeping. TAM: 59M freelancers in the US, $4.2B market for accounting software targeting independents.</p>
+            </div>
+            <div class="bp-section">
+              <h5>Revenue Model</h5>
+              <p>Freemium SaaS. Free tier: basic expense categorization. Pro ($29/mo): bank connections, automated reports, tax estimates. Business ($59/mo): multi-entity, team access, priority support.</p>
+            </div>
+            <div class="bp-section">
+              <h5>Tech Stack</h5>
+              <p>Next.js frontend, Node.js API, PostgreSQL (Neon), Plaid for bank connections, Stripe for billing. Hosted on Vercel + Railway.</p>
+            </div>
+            <div class="bp-section">
+              <h5>Go-to-Market</h5>
+              <p>SEO content targeting "freelancer bookkeeping" keywords. Email outreach to freelancer communities. Product Hunt launch planned for next month. Referral program: one free month per referral.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="company-right">
+          <!-- Investment Panel -->
+          <div class="invest-panel">
+            <h4>Invest in QuickLedger</h4>
+            <div class="invest-price-row">
+              <span class="invest-price-big">$3.40</span>
+              <span class="invest-price-change text-green">+12.5%</span>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 16px;">per 0.01% revenue share</div>
+            <div class="invest-mini-chart">
+              <svg width="100%" height="60" viewBox="0 0 300 60" preserveAspectRatio="none">
+                <path d="M0,50 L20,47 L40,44 L60,42 L80,40 L100,38 L120,35 L140,33 L160,30 L180,28 L200,25 L220,22 L240,20 L260,16 L280,13 L300,10" stroke="var(--cyan)" stroke-width="1.5" fill="none"/>
+              </svg>
+            </div>
+            <div class="invest-details">
+              <div class="invest-detail-item">
+                <span class="invest-detail-label">MRR</span>
+                <span class="invest-detail-val text-green">$1,847</span>
+              </div>
+              <div class="invest-detail-item">
+                <span class="invest-detail-label">Investors</span>
+                <span class="invest-detail-val">47</span>
+              </div>
+              <div class="invest-detail-item">
+                <span class="invest-detail-label">Available</span>
+                <span class="invest-detail-val">38.2%</span>
+              </div>
+              <div class="invest-detail-item">
+                <span class="invest-detail-label">Tradeable</span>
+                <span class="invest-detail-val text-green">Yes</span>
+              </div>
+            </div>
+            <div class="invest-input-row">
+              <div class="invest-amount-input">
+                <span class="prefix">$</span>
+                <input type="text" value="250">
+              </div>
+            </div>
+            <div class="invest-estimate">$250 buys 0.74% revenue share = est. $13.67/mo at current MRR</div>
+            <a href="invest.html" class="btn btn-green" style="width: 100%; text-align: center;">Invest $250</a>
+          </div>
+
+          <!-- Shareholders -->
+          <div class="shareholders-panel">
+            <h4 style="margin-bottom: 14px;">Revenue Split</h4>
+            <div class="shareholder-row">
+              <span class="shareholder-name">Founder (Alex Chen)</span>
+              <span class="shareholder-pct text-cyan">15.0%</span>
+            </div>
+            <div class="shareholder-row">
+              <span class="shareholder-name">Platform (AutoFoundry)</span>
+              <span class="shareholder-pct">20.0%</span>
+            </div>
+            <div class="shareholder-row">
+              <span class="shareholder-name">First Investor (Maya R.)</span>
+              <span class="shareholder-pct text-green">5.0%</span>
+            </div>
+            <div class="shareholder-row">
+              <span class="shareholder-name">Other Investors (46)</span>
+              <span class="shareholder-pct">21.8%</span>
+            </div>
+            <div class="shareholder-row">
+              <span class="shareholder-name">Community Earned</span>
+              <span class="shareholder-pct">3.4%</span>
+            </div>
+            <div class="shareholder-row" style="border-top: 1px solid var(--border-light); padding-top: 10px;">
+              <span class="shareholder-name" style="font-weight: 600; color: var(--text-primary);">Available</span>
+              <span class="shareholder-pct" style="color: var(--amber);">34.8%</span>
+            </div>
+            <div class="progress-bar" style="margin-top: 12px;">
+              <div class="progress-bar-fill" style="width: 65.2%; background: linear-gradient(90deg, var(--cyan) 23%, var(--green) 23% 44%, var(--purple) 44% 65%, var(--text-dim) 65%);"></div>
+            </div>
+          </div>
+
+          <!-- Open Tasks -->
+          <div class="panel" style="padding: 0;">
+            <div class="panel-header">
+              <h4>Open Tasks</h4>
+              <span class="badge badge-amber">3 open</span>
+            </div>
+            <div class="panel-body">
+              <a href="task-detail.html" class="mini-task" style="text-decoration: none; display: block;">
+                <div class="mini-task-company" style="color: var(--cyan);">QuickLedger</div>
+                <div class="mini-task-title">Debug Stripe webhook handler</div>
+                <div class="mini-task-meta">
+                  <span class="mini-task-pay">$85 base</span>
+                  <span class="mini-task-bonus">+$40 bonus</span>
+                  <span class="mini-task-time">~2h</span>
+                </div>
+              </a>
+              <a href="task-detail.html" class="mini-task" style="text-decoration: none; display: block;">
+                <div class="mini-task-company" style="color: var(--cyan);">QuickLedger</div>
+                <div class="mini-task-title">Review bank integration security</div>
+                <div class="mini-task-meta">
+                  <span class="mini-task-pay">$200 base</span>
+                  <span class="mini-task-bonus">+$100 bonus</span>
+                  <span class="mini-task-time">~4h</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('.company-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.company-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+document.querySelectorAll('.chart-period').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.chart-period').forEach(t => t.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

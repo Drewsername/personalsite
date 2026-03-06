@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Started -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.onboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+.onboard-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 80px;
+  max-width: 640px;
+}
+.onboard-right {
+  flex: 1;
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  position: relative;
+  overflow: hidden;
+}
+.onboard-right::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--cyan-08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 48px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--text-primary); }
+
+.onboard-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 48px;
+}
+.onboard-logo .nav-logo-icon {
+  width: 36px; height: 36px;
+}
+.onboard-logo span {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.onboard-progress {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+.progress-step {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.4s;
+}
+.progress-step.active {
+  background: var(--cyan);
+}
+.progress-step.done {
+  background: var(--green);
+}
+
+.onboard-title {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+.onboard-sub {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+/* Path selection */
+.path-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.path-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out);
+  position: relative;
+}
+.path-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+.path-card.selected {
+  border-color: var(--cyan);
+  background: var(--cyan-08);
+}
+.path-card .path-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+.path-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+.path-card p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.path-card .path-price {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.path-card .path-price strong {
+  color: var(--text-primary);
+}
+.path-check {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+.path-card.selected .path-check {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--bg-deep);
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 20px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.onboard-form { display: none; }
+.onboard-form.active { display: block; }
+
+/* Right panel info */
+.right-info {
+  position: relative;
+  z-index: 1;
+  max-width: 380px;
+}
+.right-info h3 {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+.right-info p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.benefit-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.benefit-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.benefit-check {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  background: var(--green-15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+/* Skill tags */
+.skill-tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.skill-tag-option {
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-secondary);
+}
+.skill-tag-option:hover {
+  border-color: var(--cyan-60);
+  color: var(--text-primary);
+}
+.skill-tag-option.selected {
+  background: var(--cyan-15);
+  border-color: var(--cyan-60);
+  color: var(--cyan);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.social-login {
+  display: flex;
+  gap: 12px;
+}
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.social-btn:hover {
+  border-color: var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+@media (max-width: 1024px) {
+  .onboard-right { display: none; }
+  .onboard-left { max-width: 100%; padding: 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="onboard-layout">
+  <div class="onboard-left">
+    <a href="index.html" class="back-link">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to home
+    </a>
+
+    <div class="onboard-logo">
+      <div class="nav-logo-icon">AF</div>
+      <span>AutoFoundry</span>
+    </div>
+
+    <div class="onboard-progress">
+      <div class="progress-step active" id="prog-1"></div>
+      <div class="progress-step" id="prog-2"></div>
+      <div class="progress-step" id="prog-3"></div>
+    </div>
+
+    <!-- STEP 1: Choose Path -->
+    <div class="onboard-form active" id="step-1">
+      <h2 class="onboard-title">How do you want to start?</h2>
+      <p class="onboard-sub">You can always do everything later. Pick what excites you most right now.</p>
+
+      <div class="path-grid">
+        <div class="path-card" id="path-founder" onclick="selectPath('founder')">
+          <div class="path-check" id="check-founder">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" style="display: none;" class="check-icon"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div class="path-icon" style="background: var(--cyan-15);">
+            <svg width="24" height="24" fill="none" stroke="var(--cyan)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3>I have an idea</h3>
+          <p>Submit a software product idea and let AI build it into a company.</p>
+          <div class="path-price">$49/mo <strong>to keep your company running</strong></div>
+        </div>
+
+        <div class="path-card" id="path-investor" onclick="selectPath('investor')">
+          <div class="path-check" id="check-investor">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" style="display: none;" class="check-icon"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div class="path-icon" style="background: var(--green-15);">
+            <svg width="24" height="24" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <h3>I want to invest</h3>
+          <p>Browse AI companies, buy revenue share, and earn returns.</p>
+          <div class="path-price"><strong>Free to join.</strong> Invest any amount.</div>
+        </div>
+      </div>
+
+      <p style="font-size: 0.82rem; color: var(--text-dim); margin-bottom: 24px;">
+        You can also earn by completing tasks and advising companies -- no matter which path you choose.
+      </p>
+
+      <button class="btn btn-primary" style="width: 100%;" onclick="goToStep(2)" id="step1-next" disabled>Continue</button>
+    </div>
+
+    <!-- STEP 2: Create Account -->
+    <div class="onboard-form" id="step-2">
+      <h2 class="onboard-title">Create your account</h2>
+      <p class="onboard-sub">Join 4,891 founders, investors, and builders on the platform.</p>
+
+      <div class="social-login">
+        <button class="social-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google
+        </button>
+        <button class="social-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </button>
+      </div>
+
+      <div class="divider">or</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="input-label">First Name</label>
+          <input type="text" class="input" placeholder="Alex">
+        </div>
+        <div class="form-group">
+          <label class="input-label">Last Name</label>
+          <input type="text" class="input" placeholder="Chen">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="input-label">Email</label>
+        <input type="email" class="input" placeholder="alex@example.com">
+      </div>
+      <div class="form-group">
+        <label class="input-label">Password</label>
+        <input type="password" class="input" placeholder="At least 8 characters">
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="goToStep(3)">Create Account</button>
+      <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 12px; text-align: center;">
+        Already have an account? <a href="login.html" style="color: var(--cyan);">Log in</a>
+      </p>
+    </div>
+
+    <!-- STEP 3: Profile & Skills -->
+    <div class="onboard-form" id="step-3">
+      <h2 class="onboard-title">Tell us about yourself</h2>
+      <p class="onboard-sub">This helps us match you with the right tasks, companies, and opportunities.</p>
+
+      <div class="form-group">
+        <label class="input-label">What best describes you?</label>
+        <div class="skill-tag-grid">
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Software Engineer</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Designer</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Product Manager</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Marketer</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Data Scientist</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Business/Finance</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Content Creator</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Student</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Other</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">Your Skills (select all that apply)</label>
+        <div class="skill-tag-grid">
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">React / Next.js</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Python</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Node.js</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">UI/UX Design</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">DevOps / Cloud</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">SEO / Growth</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Copywriting</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Sales</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Data Analysis</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Customer Support</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">Mobile Dev</span>
+          <span class="skill-tag-option" onclick="this.classList.toggle('selected')">AI / ML</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">Connect Accounts (optional, boosts your reputation)</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+          <button class="social-btn" style="justify-content: flex-start; padding: 10px 16px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            Connect GitHub
+          </button>
+          <button class="social-btn" style="justify-content: flex-start; padding: 10px 16px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Connect LinkedIn
+          </button>
+        </div>
+      </div>
+
+      <a href="dashboard.html" class="btn btn-primary" style="width: 100%; margin-top: 16px; text-align: center;">
+        Enter AutoFoundry
+      </a>
+      <button class="btn btn-ghost" style="width: 100%; margin-top: 8px;" onclick="window.location.href='dashboard.html'">Skip for now</button>
+    </div>
+  </div>
+
+  <div class="onboard-right">
+    <div class="right-info" id="right-info">
+      <h3>What happens after you join</h3>
+      <p>Whether you are here to build, invest, or work -- you will have access to everything from day one.</p>
+      <ul class="benefit-list">
+        <li>
+          <div class="benefit-check">
+            <svg width="12" height="12" fill="none" stroke="var(--green)" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          Browse 312 live AI companies and their real-time metrics
+        </li>
+        <li>
+          <div class="benefit-check">
+            <svg width="12" height="12" fill="none" stroke="var(--green)" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          Invest in companies with as little as $10
+        </li>
+        <li>
+          <div class="benefit-check">
+            <svg width="12" height="12" fill="none" stroke="var(--green)" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          Earn money completing tasks for AI companies
+        </li>
+        <li>
+          <div class="benefit-check">
+            <svg width="12" height="12" fill="none" stroke="var(--green)" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          Advise AI agents and earn revenue share for good advice
+        </li>
+        <li>
+          <div class="benefit-check">
+            <svg width="12" height="12" fill="none" stroke="var(--green)" stroke-width="3" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          Build reputation that unlocks higher-paying opportunities
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedPath = null;
+
+function selectPath(path) {
+  selectedPath = path;
+  document.querySelectorAll('.path-card').forEach(c => {
+    c.classList.remove('selected');
+    c.querySelector('.check-icon').style.display = 'none';
+  });
+  const card = document.getElementById('path-' + path);
+  card.classList.add('selected');
+  card.querySelector('.check-icon').style.display = 'block';
+  document.getElementById('step1-next').disabled = false;
+}
+
+function goToStep(step) {
+  document.querySelectorAll('.onboard-form').forEach(f => f.classList.remove('active'));
+  document.getElementById('step-' + step).classList.add('active');
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('prog-' + i);
+    el.classList.remove('active', 'done');
+    if (i < step) el.classList.add('done');
+    if (i === step) el.classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>

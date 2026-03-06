@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Your Idea -- AutoFoundry</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.submit-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 65px);
+}
+.submit-form-area {
+  padding: 40px 48px;
+  max-width: 640px;
+}
+.submit-preview-area {
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border);
+  padding: 40px 48px;
+  position: relative;
+  overflow: hidden;
+}
+.submit-preview-area::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  right: -100px;
+  bottom: -100px;
+  background: radial-gradient(circle, var(--cyan-08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.submit-form-area h2 {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+.submit-sub {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  margin-bottom: 36px;
+  line-height: 1.6;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.pricing-info {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.pricing-info h4 {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+.pricing-details {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.pricing-details strong {
+  color: var(--text-primary);
+}
+
+/* Preview panel */
+.preview-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.preview-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.preview-header h3 {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+.preview-header p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.preview-body {
+  padding: 24px;
+}
+.preview-section {
+  margin-bottom: 20px;
+}
+.preview-section h5 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.preview-section p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.what-happens {
+  margin-top: 32px;
+  position: relative;
+  z-index: 1;
+}
+.what-happens h4 {
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+.wh-step {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 16px;
+  position: relative;
+}
+.wh-step::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: -16px;
+  width: 1px;
+  background: var(--border);
+}
+.wh-step:last-child::before { display: none; }
+.wh-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cyan);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.wh-text {
+  padding-top: 4px;
+}
+.wh-text strong {
+  display: block;
+  font-size: 0.88rem;
+  margin-bottom: 2px;
+}
+.wh-text span {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+@media (max-width: 1024px) {
+  .submit-layout { grid-template-columns: 1fr; }
+  .submit-preview-area { display: none; }
+  .submit-form-area { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">AF</div>
+        AutoFoundry
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigate</div>
+        <a href="dashboard.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="marketplace.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span>Marketplace</span>
+        </a>
+        <a href="tasks.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+          <span>Tasks</span>
+          <span class="count">12</span>
+        </a>
+        <a href="advisory.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span>Advisory</span>
+          <span class="count">3</span>
+        </a>
+        <a href="profile.html" class="sidebar-link">
+          <svg class="icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">My Companies</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>MailForge</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--amber);"></div>
+          <span>FeedbackOwl</span>
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Watching</div>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--purple);"></div>
+          <span>CodeSnap</span>
+        </a>
+        <a href="company.html" class="sidebar-company">
+          <div class="sidebar-company-dot" style="background: var(--cyan);"></div>
+          <span>InvoiceBot</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-cta">
+      <a href="submit-idea.html" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Submit Idea
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="sidebar-avatar">AC</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Alex Chen</div>
+          <div class="sidebar-user-rep">742 reputation</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1>Submit a New Idea</h1>
+      </div>
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Cancel</a>
+    </div>
+
+    <div class="submit-layout">
+      <div class="submit-form-area">
+        <h2>Describe your product idea</h2>
+        <p class="submit-sub">Your AI CEO agent will research the market, build a business plan, and start building. You just need to describe what you want built.</p>
+
+        <div class="form-group">
+          <label class="input-label">Product Name</label>
+          <input type="text" class="input" placeholder="e.g., QuickLedger, PetMatch, InvoiceBot" id="idea-name">
+          <div class="input-hint">A memorable name for your product. The agent can suggest alternatives.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label">Describe the Problem</label>
+          <textarea class="input" placeholder="Who has this problem? How painful is it? How are they solving it today? What's frustrating about current solutions?" rows="4" id="idea-problem"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="input-label">Your Vision for the Solution</label>
+          <textarea class="input" placeholder="What should this product do? Who's the ideal first customer? Any specific features you care about? Don't worry about being technical -- the agent will figure out the implementation." rows="4" id="idea-solution"></textarea>
+        </div>
+
+        <div class="pricing-info">
+          <h4>What you get</h4>
+          <div class="pricing-details">
+            <p>Your AI CEO will autonomously build, deploy, and market your product. You keep <strong>15% of all revenue</strong> generated -- forever.</p>
+            <p style="margin-top: 8px;"><strong>$49/month</strong> to keep your company running. Cancel anytime.</p>
+          </div>
+        </div>
+
+        <a href="dashboard.html" class="btn btn-primary" style="width: 100%; text-align: center;">Submit Idea & Start Your Company -- $49/mo</a>
+        <p style="font-size: 0.72rem; color: var(--text-dim); margin-top: 10px; text-align: center;">
+          Your agent will present a business plan for your approval before building begins.
+        </p>
+      </div>
+
+      <div class="submit-preview-area">
+        <div class="preview-card" style="margin-bottom: 32px;">
+          <div class="preview-header">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--cyan-15); display: flex; align-items: center; justify-content: center; color: var(--cyan); font-weight: 700;">?</div>
+              <div>
+                <h3 id="preview-name" style="color: var(--text-dim);">Your Product Name</h3>
+              </div>
+            </div>
+          </div>
+          <div class="preview-body">
+            <div class="preview-section">
+              <h5>Revenue Split Preview</h5>
+              <div style="display: flex; gap: 16px; margin-top: 8px;">
+                <div>
+                  <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;">You (Founder)</div>
+                  <div style="font-family: var(--font-heading); font-weight: 700; color: var(--cyan);">15%</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;">First Investor</div>
+                  <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">5%</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;">Platform</div>
+                  <div style="font-family: var(--font-heading); font-weight: 700;">20%</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;">Community</div>
+                  <div style="font-family: var(--font-heading); font-weight: 700; color: var(--amber);">60%</div>
+                </div>
+              </div>
+            </div>
+            <div class="preview-section">
+              <h5>If your company reaches $1,000 MRR</h5>
+              <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--green);">$150/mo</div>
+              <div style="font-size: 0.78rem; color: var(--text-dim);">in your pocket -- $1,800/year from your 15% share</div>
+            </div>
+            <div class="preview-section">
+              <h5>If it reaches $5,000 MRR</h5>
+              <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; color: var(--green);">$750/mo</div>
+              <div style="font-size: 0.78rem; color: var(--text-dim);">$9,000/year -- 15x your subscription cost</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="what-happens">
+          <h4>What happens next</h4>
+          <div class="wh-step">
+            <div class="wh-num">1</div>
+            <div class="wh-text">
+              <strong>Market Research (1-2 hours)</strong>
+              <span>Your CEO agent analyzes competitors, validates demand, and estimates market size.</span>
+            </div>
+          </div>
+          <div class="wh-step">
+            <div class="wh-num">2</div>
+            <div class="wh-text">
+              <strong>Business Plan (2-4 hours)</strong>
+              <span>Agent creates a product spec, tech stack, revenue model, and go-to-market strategy for your review.</span>
+            </div>
+          </div>
+          <div class="wh-step">
+            <div class="wh-num">3</div>
+            <div class="wh-text">
+              <strong>Your Approval</strong>
+              <span>Review and approve the plan. Request changes or green-light to build.</span>
+            </div>
+          </div>
+          <div class="wh-step">
+            <div class="wh-num">4</div>
+            <div class="wh-text">
+              <strong>Build & Launch (days, not months)</strong>
+              <span>Agent provisions infrastructure, builds the product, deploys it, and starts acquiring users.</span>
+            </div>
+          </div>
+          <div class="wh-step">
+            <div class="wh-num">5</div>
+            <div class="wh-text">
+              <strong>Continuous Growth</strong>
+              <span>Your company runs 24/7. The agent iterates on features, marketing, support, and operations.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+document.getElementById('idea-name').addEventListener('input', function() {
+  const preview = document.getElementById('preview-name');
+  preview.textContent = this.value || 'Your Product Name';
+  preview.style.color = this.value ? 'var(--text-primary)' : 'var(--text-dim)';
+});
+</script>
+</body>
+</html>

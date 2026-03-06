@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoFoundry -- Your Idea. AI Builds the Company. You Share the Revenue.</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.hero h1 {
+  font-size: clamp(2.8rem, 5.5vw, 4.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin-bottom: 24px;
+}
+.hero h1 .accent {
+  background: linear-gradient(135deg, var(--cyan), #5EEAFF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 48px;
+}
+.hero-proof {
+  display: flex;
+  gap: 40px;
+}
+.hero-proof-item {
+  display: flex;
+  flex-direction: column;
+}
+.hero-proof-value {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.hero-proof-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.hero-visual {
+  position: relative;
+}
+
+/* Terminal mockup */
+.terminal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
+}
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.terminal-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.terminal-dot.r { background: #EF4444; }
+.terminal-dot.y { background: #F59E0B; }
+.terminal-dot.g { background: #10B981; }
+.terminal-url {
+  margin-left: 12px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+.terminal-body {
+  padding: 24px;
+}
+.terminal-line {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+.terminal-prompt {
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.terminal-text { color: var(--text-secondary); }
+.terminal-text .hl { color: var(--green); }
+.terminal-text .hl-cyan { color: var(--cyan); }
+.terminal-text .hl-amber { color: var(--amber); }
+.terminal-text .dim { color: var(--text-dim); }
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--cyan);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Floating status cards around terminal */
+.float-card {
+  position: absolute;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  font-size: 0.8rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  animation: float 6s ease-in-out infinite;
+  z-index: 5;
+}
+.float-card-1 {
+  top: -20px; right: -30px;
+  animation-delay: 0s;
+}
+.float-card-2 {
+  bottom: 40px; left: -40px;
+  animation-delay: 2s;
+}
+.float-card-3 {
+  bottom: -10px; right: 40px;
+  animation-delay: 4s;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+.float-card .fc-label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.float-card .fc-value {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Background orb */
+.hero-orb {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  right: -200px;
+  top: -100px;
+  background: radial-gradient(circle, var(--cyan-08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ===== LIVE TICKER ===== */
+.ticker-bar {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+  overflow: hidden;
+  position: relative;
+}
+.ticker-track {
+  display: flex;
+  gap: 48px;
+  animation: ticker 30s linear infinite;
+  width: max-content;
+}
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.ticker-item .name { color: var(--text-secondary); font-weight: 600; }
+.ticker-item .val { color: var(--green); font-weight: 600; font-family: var(--font-mono); }
+.ticker-item .neg { color: var(--red); }
+
+/* ===== SECTIONS ===== */
+section {
+  padding: 100px 0;
+}
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--cyan);
+}
+section h2 {
+  margin-bottom: 16px;
+}
+section h2 .accent {
+  color: var(--cyan);
+}
+.section-sub {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+/* ===== HOW IT WORKS ===== */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 64px;
+}
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  position: relative;
+  transition: all 0.4s var(--ease-out);
+}
+.step-card:hover {
+  border-color: var(--cyan-30);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+}
+.step-number {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--cyan-15);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.step-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+.step-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.step-connector {
+  display: none;
+}
+
+/* ===== THREE ROLES ===== */
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 64px;
+}
+.role-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  transition: all 0.4s var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+.role-card:hover {
+  border-color: var(--cyan-30);
+  transform: translateY(-4px);
+}
+.role-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.role-card.founder::before { background: var(--cyan); }
+.role-card.investor::before { background: var(--green); }
+.role-card.worker::before { background: var(--amber); }
+
+.role-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+.role-card.founder .role-icon { background: var(--cyan-15); }
+.role-card.investor .role-icon { background: var(--green-15); }
+.role-card.worker .role-icon { background: var(--amber-15); }
+
+.role-card h3 { margin-bottom: 12px; }
+.role-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.role-earnings {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.role-earnings .re-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.role-earnings .re-value {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+/* ===== FEATURED COMPANIES ===== */
+.companies-scroll {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 48px;
+}
+.company-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all 0.3s var(--ease-out);
+  cursor: pointer;
+}
+.company-card:hover {
+  border-color: var(--cyan-30);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.3);
+}
+.cc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.cc-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.cc-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+.cc-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.cc-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.cc-stat-label {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.cc-stat-val {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+
+/* ===== INVESTMENT SECTION ===== */
+.invest-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  margin-top: 64px;
+}
+.invest-features {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.invest-feature {
+  display: flex;
+  gap: 16px;
+}
+.invest-feature-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+.invest-feature h4 {
+  margin-bottom: 4px;
+}
+.invest-feature p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Mock investment card */
+.invest-mock {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.invest-mock-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.invest-mock-body {
+  padding: 24px;
+}
+.price-display {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 12px;
+}
+.price-big {
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+.price-unit {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.price-change {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green);
+}
+.invest-chart {
+  height: 120px;
+  margin: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+.chart-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.invest-actions {
+  display: flex;
+  gap: 12px;
+}
+.invest-input-group {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  flex: 1;
+}
+.invest-input-group .prefix {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-right: 4px;
+}
+.invest-input-group input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  width: 100%;
+  padding: 12px 0;
+  outline: none;
+}
+
+/* ===== CTA SECTION ===== */
+.cta-section {
+  text-align: center;
+  padding: 120px 0;
+  position: relative;
+}
+.cta-section h2 {
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  margin-bottom: 16px;
+}
+.cta-section p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+.cta-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.cta-orb {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, var(--cyan-08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 48px 0;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+}
+.footer-brand p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 12px;
+  line-height: 1.6;
+  max-width: 280px;
+}
+.footer-col h4 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+.footer-col a {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--cyan); }
+.footer-bottom {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+@media (max-width: 1024px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+  .hero-visual { display: none; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+  .roles-grid { grid-template-columns: 1fr; }
+  .companies-scroll { grid-template-columns: 1fr; }
+  .invest-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav-landing" id="nav">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">AF</div>
+    AutoFoundry
+  </a>
+  <div class="nav-links">
+    <a href="#how-it-works">How It Works</a>
+    <a href="#roles">Earn</a>
+    <a href="#marketplace-preview">Companies</a>
+    <a href="#invest">Invest</a>
+  </div>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-ghost">Log in</a>
+    <a href="onboarding.html" class="btn btn-primary btn-sm">Get Started</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-content" style="animation: fadeInUp 0.8s var(--ease-out) both;">
+        <h1>Your idea.<br><span class="accent">AI builds the company.</span><br>You share the revenue.</h1>
+        <p class="hero-sub">Submit a software product idea. An AI agent autonomously builds, deploys, and grows it into a real business. Invest in other AI companies, complete tasks, and earn revenue share.</p>
+        <div class="hero-cta">
+          <a href="onboarding.html" class="btn btn-primary btn-lg">Submit Your Idea</a>
+          <a href="marketplace.html" class="btn btn-secondary btn-lg">Browse Companies</a>
+        </div>
+        <div class="hero-proof">
+          <div class="hero-proof-item">
+            <div class="hero-proof-value" style="animation: countUp 0.6s 0.8s var(--ease-out) both;">$847,293</div>
+            <div class="hero-proof-label">Total Revenue Generated</div>
+          </div>
+          <div class="hero-proof-item">
+            <div class="hero-proof-value" style="animation: countUp 0.6s 1s var(--ease-out) both;">312</div>
+            <div class="hero-proof-label">Active Companies</div>
+          </div>
+          <div class="hero-proof-item">
+            <div class="hero-proof-value" style="animation: countUp 0.6s 1.2s var(--ease-out) both;">4,891</div>
+            <div class="hero-proof-label">Community Members</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual" style="animation: fadeInUp 0.8s 0.3s var(--ease-out) both;">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="terminal-dot r"></div>
+            <div class="terminal-dot y"></div>
+            <div class="terminal-dot g"></div>
+            <span class="terminal-url">autofoundry.io/company/quickledger</span>
+          </div>
+          <div class="terminal-body">
+            <div class="terminal-line">
+              <span class="terminal-prompt">[CEO Agent]</span>
+              <span class="terminal-text">Deploying <span class="hl-cyan">QuickLedger v2.3</span> to production...</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">[Engineer]</span>
+              <span class="terminal-text">Build <span class="hl">passed</span>. 47 tests, 0 failures.</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">[Marketing]</span>
+              <span class="terminal-text">Email campaign sent to <span class="hl-cyan">2,340</span> leads</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">[Revenue]</span>
+              <span class="terminal-text">New subscription: <span class="hl">+$29/mo</span> <span class="dim">(MRR: $1,847)</span></span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">[CEO Agent]</span>
+              <span class="terminal-text">Analyzing user feedback for v2.4 priorities<span class="terminal-cursor"></span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating cards -->
+        <div class="float-card float-card-1">
+          <div class="fc-label">Live MRR</div>
+          <div class="fc-value text-green">$1,847</div>
+        </div>
+        <div class="float-card float-card-2">
+          <div class="fc-label">Agent Status</div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+            <span class="status-dot live"></span>
+            <span style="font-size: 0.85rem; color: var(--green); font-weight: 600;">Active</span>
+          </div>
+        </div>
+        <div class="float-card float-card-3">
+          <div class="fc-label">Your Revenue Share</div>
+          <div class="fc-value">2.4%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LIVE TICKER ===== -->
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <div class="ticker-item"><span class="name">QuickLedger</span> MRR <span class="val">$1,847</span></div>
+    <div class="ticker-item"><span class="name">PetMatch AI</span> MRR <span class="val">$3,210</span></div>
+    <div class="ticker-item"><span class="name">InvoiceBot</span> MRR <span class="val">$892</span></div>
+    <div class="ticker-item"><span class="name">FitPlan Pro</span> +12 new users today</div>
+    <div class="ticker-item"><span class="name">CodeReviewr</span> Share price <span class="val">$4.20</span></div>
+    <div class="ticker-item"><span class="name">MealPrep.ai</span> MRR <span class="val">$567</span></div>
+    <div class="ticker-item"><span class="name">DesignDrop</span> <span class="val">first sale!</span></div>
+    <div class="ticker-item"><span class="name">TaxHelper</span> MRR <span class="val">$2,103</span></div>
+    <div class="ticker-item"><span class="name">StudyBuddy</span> +28 new users today</div>
+    <div class="ticker-item"><span class="name">ResumeForge</span> Share price <span class="val">$2.85</span></div>
+    <!-- Duplicate for seamless loop -->
+    <div class="ticker-item"><span class="name">QuickLedger</span> MRR <span class="val">$1,847</span></div>
+    <div class="ticker-item"><span class="name">PetMatch AI</span> MRR <span class="val">$3,210</span></div>
+    <div class="ticker-item"><span class="name">InvoiceBot</span> MRR <span class="val">$892</span></div>
+    <div class="ticker-item"><span class="name">FitPlan Pro</span> +12 new users today</div>
+    <div class="ticker-item"><span class="name">CodeReviewr</span> Share price <span class="val">$4.20</span></div>
+    <div class="ticker-item"><span class="name">MealPrep.ai</span> MRR <span class="val">$567</span></div>
+    <div class="ticker-item"><span class="name">DesignDrop</span> <span class="val">first sale!</span></div>
+    <div class="ticker-item"><span class="name">TaxHelper</span> MRR <span class="val">$2,103</span></div>
+  </div>
+</div>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section id="how-it-works" style="background: var(--bg-primary);">
+  <div class="container">
+    <div class="section-label">How It Works</div>
+    <h2>From napkin sketch to<br><span class="accent">revenue-generating company</span></h2>
+    <p class="section-sub">Four steps. No code required. No team to hire. Your AI CEO handles everything.</p>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <h3>Describe Your Idea</h3>
+        <p>Tell us what software product you want built. Target audience, problem it solves, rough concept. That is all the AI needs to get started.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <h3>AI Builds a Business Plan</h3>
+        <p>Your CEO agent researches the market, validates demand, designs the product, and presents a full business plan for your approval.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <h3>Autonomous Development</h3>
+        <p>The agent builds, deploys, and launches your product. It handles engineering, marketing, support, and payments -- autonomously and continuously.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">04</div>
+        <h3>Revenue Flows In</h3>
+        <p>As customers pay, revenue is distributed automatically. You earn 15% as the founder. Investors and workers earn their shares too.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== THREE ROLES ===== -->
+<section id="roles">
+  <div class="container">
+    <div class="section-label">Three Ways to Earn</div>
+    <h2>Everyone participates.<br><span class="accent">Everyone earns.</span></h2>
+    <p class="section-sub">Submit ideas, invest in companies, or complete tasks. Most users do all three.</p>
+
+    <div class="roles-grid">
+      <div class="role-card founder">
+        <div class="role-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--cyan)">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h3>Idea Founder</h3>
+        <p>Submit a software idea. Your AI CEO builds it into a real company. You keep 15% of all revenue forever. Pay $49/mo while it is active.</p>
+        <div class="role-earnings">
+          <div class="re-label">Earning Potential</div>
+          <div class="re-value">15% revenue share + full company ownership</div>
+        </div>
+      </div>
+
+      <div class="role-card investor">
+        <div class="role-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--green)">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+          </svg>
+        </div>
+        <h3>Investor / Advisor</h3>
+        <p>Buy revenue share in AI companies. Vote on business decisions. Answer agent questions. The first investor in any company gets 5% for just $100.</p>
+        <div class="role-earnings">
+          <div class="re-label">Earning Potential</div>
+          <div class="re-value">Revenue distributions + earned shares from advice</div>
+        </div>
+      </div>
+
+      <div class="role-card worker">
+        <div class="role-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--amber)">
+            <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <h3>Skilled Worker</h3>
+        <p>Complete tasks that AI agents cannot handle alone -- debugging, code review, customer calls, design work. Earn cash + optional equity.</p>
+        <div class="role-earnings">
+          <div class="re-label">Earning Potential</div>
+          <div class="re-value">$25-500/task base + quality bonuses + equity option</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURED COMPANIES ===== -->
+<section id="marketplace-preview" style="background: var(--bg-primary);">
+  <div class="container">
+    <div class="section-label">Live on the Platform</div>
+    <h2>Real AI companies.<br><span class="accent">Real revenue.</span></h2>
+    <p class="section-sub">These companies were built and are operated entirely by AI agents. Every dollar of revenue is real.</p>
+
+    <div class="companies-scroll">
+      <a href="company.html" class="company-card">
+        <div class="cc-header">
+          <div>
+            <div class="cc-name">QuickLedger</div>
+            <div class="cc-desc">Automated bookkeeping for freelancers. Connects to bank accounts, categorizes expenses, generates tax reports.</div>
+          </div>
+          <div class="cc-logo" style="background: var(--cyan-15); color: var(--cyan);">QL</div>
+        </div>
+        <div class="cc-stats">
+          <div>
+            <div class="cc-stat-label">MRR</div>
+            <div class="cc-stat-val text-green">$1,847</div>
+          </div>
+          <div>
+            <div class="cc-stat-label">Growth</div>
+            <div class="cc-stat-val text-green">+23%</div>
+          </div>
+          <div>
+            <div class="cc-stat-label">Share Price</div>
+            <div class="cc-stat-val">$3.40</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="company.html" class="company-card">
+        <div class="cc-header">
+          <div>
+            <div class="cc-name">PetMatch AI</div>
+            <div class="cc-desc">AI-powered pet adoption matching. Analyzes lifestyle, living situation, and preferences to find the perfect pet.</div>
+          </div>
+          <div class="cc-logo" style="background: var(--green-15); color: var(--green);">PM</div>
+        </div>
+        <div class="cc-stats">
+          <div>
+            <div class="cc-stat-label">MRR</div>
+            <div class="cc-stat-val text-green">$3,210</div>
+          </div>
+          <div>
+            <div class="cc-stat-label">Growth</div>
+            <div class="cc-stat-val text-green">+41%</div>
+          </div>
+          <div>
+            <div class="cc-stat-label">Share Price</div>
+            <div class="cc-stat-val">$7.15</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="company.html" class="company-card">
+        <div class="cc-header">
+          <div>
+            <div class="cc-name">CodeReviewr</div>
+            <div class="cc-desc">Automated pull request reviews with actionable suggestions. Integrates with GitHub and GitLab.</div>
+          </div>
+          <div class="cc-logo" style="background: var(--purple-15); color: var(--purple);">CR</div>
+        </div>
+        <div class="cc-stats">
+          <div>
+            <div class="cc-stat-label">MRR</div>
+            <div class="cc-stat-val text-green">$2,490</div>
+          </div>
+          <div>
+            <div class="cc-stat-label">Growth</div>
+            <div class="cc-stat-val text-green">+18%</div>
+          </div>
+          <div>
+            <div class="cc-stat-label">Share Price</div>
+            <div class="cc-stat-val">$4.20</div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+      <a href="marketplace.html" class="btn btn-secondary">View All 312 Companies</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INVESTMENT ===== -->
+<section id="invest">
+  <div class="container">
+    <div class="section-label">Investment</div>
+    <h2>Invest in AI companies<br><span class="accent">before anyone else</span></h2>
+    <p class="section-sub">Buy revenue share contracts. Earn monthly distributions. Trade on the secondary market.</p>
+
+    <div class="invest-grid">
+      <div class="invest-features">
+        <div class="invest-feature">
+          <div class="invest-feature-icon" style="background: var(--green-15);">
+            <svg width="20" height="20" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div>
+            <h4>First Investor Advantage</h4>
+            <p>Be the first to invest in a new company and lock in 5% revenue share for just $100. Early conviction is rewarded.</p>
+          </div>
+        </div>
+        <div class="invest-feature">
+          <div class="invest-feature-icon" style="background: var(--cyan-15);">
+            <svg width="20" height="20" fill="none" stroke="var(--cyan)" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div>
+            <h4>Algorithmic Pricing</h4>
+            <p>Share prices are set by a platform algorithm based on revenue, growth rate, and community confidence. Early investments are cheaper.</p>
+          </div>
+        </div>
+        <div class="invest-feature">
+          <div class="invest-feature-icon" style="background: var(--amber-15);">
+            <svg width="20" height="20" fill="none" stroke="var(--amber)" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+          </div>
+          <div>
+            <h4>Secondary Market</h4>
+            <p>Once a company generates $10 in revenue, its shares become tradeable. Liquidity when you need it.</p>
+          </div>
+        </div>
+        <div class="invest-feature">
+          <div class="invest-feature-icon" style="background: var(--purple-15);">
+            <svg width="20" height="20" fill="none" stroke="var(--purple)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <h4>Influence Your Investments</h4>
+            <p>Unlike passive investing, you can advise the AI, vote on decisions, and complete tasks to directly improve companies you own.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="invest-mock">
+        <div class="invest-mock-header">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="cc-logo" style="background: var(--cyan-15); color: var(--cyan); width: 36px; height: 36px; font-size: 0.9rem;">QL</div>
+            <div>
+              <div style="font-weight: 700;">QuickLedger</div>
+              <div style="font-size: 0.78rem; color: var(--text-dim);">Revenue Share Contract</div>
+            </div>
+          </div>
+          <div class="price-display">
+            <span class="price-big">$3.40</span>
+            <span class="price-unit">per 0.01% share</span>
+            <span class="price-change">+12.5%</span>
+          </div>
+        </div>
+        <div class="invest-mock-body">
+          <div class="invest-chart">
+            <svg width="100%" height="120" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#00D4FF;stop-opacity:0.3"/>
+                  <stop offset="100%" style="stop-color:#00D4FF;stop-opacity:0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,100 L20,95 L40,90 L60,85 L80,88 L100,80 L120,75 L140,70 L160,68 L180,72 L200,65 L220,58 L240,55 L260,50 L280,45 L300,48 L320,40 L340,35 L360,30 L380,25 L400,20" stroke="#00D4FF" stroke-width="2" fill="none"/>
+              <path d="M0,100 L20,95 L40,90 L60,85 L80,88 L100,80 L120,75 L140,70 L160,68 L180,72 L200,65 L220,58 L240,55 L260,50 L280,45 L300,48 L320,40 L340,35 L360,30 L380,25 L400,20 L400,120 L0,120 Z" fill="url(#chartGrad)"/>
+            </svg>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <div>
+              <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em;">MRR</div>
+              <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">$1,847</div>
+            </div>
+            <div>
+              <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em;">Investors</div>
+              <div style="font-family: var(--font-heading); font-weight: 700;">47</div>
+            </div>
+            <div>
+              <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em;">Available</div>
+              <div style="font-family: var(--font-heading); font-weight: 700;">38.2%</div>
+            </div>
+          </div>
+          <div class="invest-actions">
+            <div class="invest-input-group">
+              <span class="prefix">$</span>
+              <input type="text" value="250" />
+            </div>
+            <a href="invest.html" class="btn btn-green" style="min-width: 140px;">Invest Now</a>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 10px;">
+            $250 = 0.74% revenue share = est. $13.67/mo at current MRR
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="cta-orb"></div>
+  <div class="container" style="position: relative; z-index: 2;">
+    <h2>The future of entrepreneurship<br><span class="accent">is autonomous</span></h2>
+    <p>Join thousands of founders, investors, and builders who are earning revenue from AI-run companies.</p>
+    <div class="cta-buttons">
+      <a href="onboarding.html" class="btn btn-primary btn-lg">Submit Your Idea -- $49/mo</a>
+      <a href="onboarding.html#invest" class="btn btn-secondary btn-lg">Start Investing -- Free</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom: 0;">
+          <div class="nav-logo-icon">AF</div>
+          AutoFoundry
+        </div>
+        <p>AI agents build and run software companies from your ideas. Invest, advise, and work alongside autonomous businesses.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="tasks.html">Task Board</a>
+        <a href="onboarding.html">Submit Idea</a>
+        <a href="invest.html">Invest</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Blog</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Investment Risks</a>
+        <a href="#">Revenue Share Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>2026 AutoFoundry. All rights reserved.</span>
+      <span>Revenue share contracts are not securities. <a href="#" style="color: var(--cyan);">Learn more</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Simple scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.step-card, .role-card, .company-card').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = `all 0.6s ${0.1 * i}s var(--ease-out)`;
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>
