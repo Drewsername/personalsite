@@ -407,10 +407,38 @@
   .company-grid { grid-template-columns: 1fr; }
   .company-stats-row { grid-template-columns: repeat(3, 1fr); }
 }
+@media (max-width: 768px) {
+  .company-hero { padding: 16px; }
+  .company-hero-inner { flex-direction: column; gap: 16px; }
+  .company-identity { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .company-actions { flex-wrap: wrap; }
+  .company-name-lg { font-size: 1.3rem; }
+  .company-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .company-tabs { padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .company-tab { white-space: nowrap; padding: 12px 16px; font-size: 0.8rem; }
+  .company-body { padding: 16px; }
+  .company-meta-row { flex-wrap: wrap; gap: 8px; }
+  .chart-card { padding: 16px; }
+  .log-entry { padding: 12px 14px; }
+  .bp-panel { padding: 16px; }
+  .invest-panel { padding: 16px; }
+  .invest-price-big { font-size: 1.6rem; }
+}
+@media (max-width: 480px) {
+  .company-stats-row { grid-template-columns: 1fr; }
+  .cs-card { padding: 14px; }
+}
 </style>
 </head>
 <body>
 <div class="app-layout">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo">
@@ -491,7 +519,7 @@
         <div class="company-identity">
           <div class="company-logo-lg" style="background: var(--cyan-15); color: var(--cyan);">QL</div>
           <div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px; flex-wrap: wrap;">
               <h1 class="company-name-lg">QuickLedger</h1>
               <span class="owner-badge">You are the founder</span>
             </div>
@@ -826,6 +854,13 @@ document.querySelectorAll('.chart-period').forEach(p => {
     p.classList.add('active');
   });
 });
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),sidebar=document.querySelector('.sidebar'),overlay=document.getElementById('sidebarOverlay');
+  if(btn&&sidebar&&overlay){
+    btn.addEventListener('click',function(){btn.classList.toggle('active');sidebar.classList.toggle('mobile-open');overlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('mobile-open')?'hidden':'';});
+    overlay.addEventListener('click',function(){btn.classList.remove('active');sidebar.classList.remove('mobile-open');overlay.classList.remove('active');document.body.style.overflow='';});
+  }
+})();
 </script>
 </body>
 </html>

@@ -219,14 +219,28 @@
 @media (max-width: 768px) {
   .task-card-top { flex-direction: column; gap: 8px; }
   .task-card-pay { text-align: left; }
-  .filter-pills { gap: 6px; }
+  .filter-pills { gap: 6px; flex-wrap: wrap; }
   .sort-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
+  .task-card { padding: 16px; }
+  .task-card-footer { gap: 6px; }
+  .task-card-desc { font-size: 0.82rem; }
+}
+@media (max-width: 480px) {
+  .task-card-title { font-size: 0.9rem; }
+  .task-card-amount { font-size: 1rem; }
 }
 </style>
 </head>
 <body>
 
 <div class="app-layout">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
@@ -528,6 +542,13 @@ function filterTask(el) {
   document.querySelectorAll('.filter-pill').forEach(f => f.classList.remove('active'));
   el.classList.add('active');
 }
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),sidebar=document.querySelector('.sidebar'),overlay=document.getElementById('sidebarOverlay');
+  if(btn&&sidebar&&overlay){
+    btn.addEventListener('click',function(){btn.classList.toggle('active');sidebar.classList.toggle('mobile-open');overlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('mobile-open')?'hidden':'';});
+    overlay.addEventListener('click',function(){btn.classList.remove('active');sidebar.classList.remove('mobile-open');overlay.classList.remove('active');document.body.style.overflow='';});
+  }
+})();
 </script>
 </body>
 </html>

@@ -170,10 +170,22 @@
   .submit-preview-area { display: none; }
   .submit-form-area { max-width: 100%; }
 }
+@media (max-width: 768px) {
+  .submit-form-area { padding: 24px 16px; }
+  .submit-form-area h2 { font-size: 1.3rem; }
+  .submit-sub { font-size: 0.85rem; margin-bottom: 24px; }
+}
 </style>
 </head>
 <body>
 <div class="app-layout">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo">
@@ -384,6 +396,13 @@ document.getElementById('idea-name').addEventListener('input', function() {
   preview.textContent = this.value || 'Your Product Name';
   preview.style.color = this.value ? 'var(--text-primary)' : 'var(--text-dim)';
 });
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),sidebar=document.querySelector('.sidebar'),overlay=document.getElementById('sidebarOverlay');
+  if(btn&&sidebar&&overlay){
+    btn.addEventListener('click',function(){btn.classList.toggle('active');sidebar.classList.toggle('mobile-open');overlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('mobile-open')?'hidden':'';});
+    overlay.addEventListener('click',function(){btn.classList.remove('active');sidebar.classList.remove('mobile-open');overlay.classList.remove('active');document.body.style.overflow='';});
+  }
+})();
 </script>
 </body>
 </html>

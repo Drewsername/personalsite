@@ -144,10 +144,28 @@
   .portfolio-header { grid-template-columns: repeat(2, 1fr); }
   .holding-row { grid-template-columns: 1fr; gap: 8px; }
 }
+@media (max-width: 768px) {
+  .portfolio-header { grid-template-columns: 1fr; }
+  .ph-card { padding: 16px; }
+  .ph-value { font-size: 1.3rem; }
+  .holdings-header { padding: 14px 16px; }
+  .holding-row { padding: 14px 16px; grid-template-columns: 1fr; gap: 8px; }
+  .holdings-table-head { display: none !important; }
+  .dist-header { padding: 14px 16px; }
+  .dist-row { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px; }
+  .portfolio-chart-card { padding: 16px; }
+}
 </style>
 </head>
 <body>
 <div class="app-layout">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo">
@@ -289,7 +307,7 @@
           <span style="font-size: 0.82rem; color: var(--text-dim);">5 companies</span>
         </div>
         <div style="overflow-x: auto;">
-          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; gap: 16px; padding: 10px 24px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+          <div class="holdings-table-head" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; gap: 16px; padding: 10px 24px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);">
             <div>Company</div>
             <div>Your Share</div>
             <div>Share Price</div>
@@ -445,7 +463,7 @@
         <div class="dist-header">
           <h3>Recent Distributions</h3>
         </div>
-        <div style="display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 16px; padding: 10px 24px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+        <div class="holdings-table-head" style="display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 16px; padding: 10px 24px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);">
           <div>Date</div>
           <div>Company</div>
           <div>Your Share</div>
@@ -485,5 +503,14 @@
     </div>
   </main>
 </div>
+<script>
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),sidebar=document.querySelector('.sidebar'),overlay=document.getElementById('sidebarOverlay');
+  if(btn&&sidebar&&overlay){
+    btn.addEventListener('click',function(){btn.classList.toggle('active');sidebar.classList.toggle('mobile-open');overlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('mobile-open')?'hidden':'';});
+    overlay.addEventListener('click',function(){btn.classList.remove('active');sidebar.classList.remove('mobile-open');overlay.classList.remove('active');document.body.style.overflow='';});
+  }
+})();
+</script>
 </body>
 </html>

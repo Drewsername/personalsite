@@ -619,6 +619,41 @@ footer {
   .invest-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
+@media (max-width: 768px) {
+  .hero { padding-top: 70px; min-height: auto; padding-bottom: 60px; }
+  .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); }
+  .hero-sub { font-size: 1rem; margin-bottom: 28px; }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .hero-cta .btn { text-align: center; }
+  .hero-proof { flex-direction: column; gap: 16px; }
+  .float-card { display: none; }
+  section { padding: 60px 0; }
+  .section-sub { font-size: 0.92rem; }
+  .steps-grid { grid-template-columns: 1fr; margin-top: 36px; gap: 16px; }
+  .step-card { padding: 24px 20px; }
+  .step-number { font-size: 2.2rem; }
+  .roles-grid { margin-top: 36px; gap: 16px; }
+  .role-card { padding: 28px 20px; }
+  .companies-scroll { margin-top: 32px; gap: 16px; }
+  .invest-grid { gap: 32px; margin-top: 36px; }
+  .invest-actions { flex-direction: column; }
+  .invest-actions .btn { width: 100%; text-align: center; }
+  .cta-section { padding: 80px 0; }
+  .cta-buttons { flex-direction: column; align-items: stretch; }
+  .cta-buttons .btn { text-align: center; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  footer { padding: 32px 0; }
+}
+@media (max-width: 480px) {
+  .hero { padding-top: 64px; padding-bottom: 40px; }
+  .hero h1 { font-size: 1.8rem; }
+  .hero-sub { font-size: 0.9rem; }
+  .hero-proof-value { font-size: 1.3rem; }
+  .cc-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .price-big { font-size: 1.8rem; }
+  .price-display { flex-wrap: wrap; gap: 6px; }
+}
 </style>
 </head>
 <body>
@@ -629,15 +664,26 @@ footer {
     <div class="nav-logo-icon">AF</div>
     AutoFoundry
   </a>
-  <div class="nav-links">
+  <div class="nav-links" id="navLinks">
     <a href="#how-it-works">How It Works</a>
     <a href="#roles">Earn</a>
     <a href="#marketplace-preview">Companies</a>
     <a href="#invest">Invest</a>
   </div>
-  <div class="nav-actions">
+  <div class="nav-actions" id="navActions">
     <a href="login.html" class="btn btn-ghost">Log in</a>
     <a href="onboarding.html" class="btn btn-primary btn-sm">Get Started</a>
+  </div>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-mobile-menu" id="navMobileMenu">
+    <a href="#how-it-works">How It Works</a>
+    <a href="#roles">Earn</a>
+    <a href="#marketplace-preview">Companies</a>
+    <a href="#invest">Invest</a>
+    <a href="login.html" class="btn btn-ghost" style="margin-top: 16px;">Log in</a>
+    <a href="onboarding.html" class="btn btn-primary">Get Started</a>
   </div>
 </nav>
 
@@ -994,7 +1040,7 @@ footer {
               <path d="M0,100 L20,95 L40,90 L60,85 L80,88 L100,80 L120,75 L140,70 L160,68 L180,72 L200,65 L220,58 L240,55 L260,50 L280,45 L300,48 L320,40 L340,35 L360,30 L380,25 L400,20 L400,120 L0,120 Z" fill="url(#chartGrad)"/>
             </svg>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 16px; margin-bottom: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
             <div>
               <div style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em;">MRR</div>
               <div style="font-family: var(--font-heading); font-weight: 700; color: var(--green);">$1,847</div>
@@ -1082,6 +1128,26 @@ footer {
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 50);
 });
+
+// Landing nav hamburger toggle
+(function() {
+  var hamburger = document.getElementById('navHamburger');
+  var mobileMenu = document.getElementById('navMobileMenu');
+  if (hamburger && mobileMenu) {
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+    });
+    mobileMenu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+})();
 
 // Simple scroll reveal
 const observer = new IntersectionObserver((entries) => {

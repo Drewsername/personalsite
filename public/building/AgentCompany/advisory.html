@@ -229,10 +229,26 @@
 @media (max-width: 1024px) {
   .advisory-grid { grid-template-columns: 1fr; }
 }
+@media (max-width: 768px) {
+  .advisory-stats { flex-wrap: wrap; gap: 12px; padding: 14px 16px; }
+  .adv-stat { min-width: calc(50% - 12px); }
+  .question-card { padding: 16px; }
+  .q-text { font-size: 0.95rem; }
+  .q-context { padding: 12px 14px; font-size: 0.78rem; }
+  .q-footer { flex-direction: column; gap: 12px; align-items: stretch; }
+  .q-footer .btn { width: 100%; text-align: center; }
+}
 </style>
 </head>
 <body>
 <div class="app-layout">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo">
@@ -510,6 +526,13 @@ function selectOption(el) {
   el.classList.add('selected');
   card.querySelector('.btn-primary').disabled = false;
 }
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),sidebar=document.querySelector('.sidebar'),overlay=document.getElementById('sidebarOverlay');
+  if(btn&&sidebar&&overlay){
+    btn.addEventListener('click',function(){btn.classList.toggle('active');sidebar.classList.toggle('mobile-open');overlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('mobile-open')?'hidden':'';});
+    overlay.addEventListener('click',function(){btn.classList.remove('active');sidebar.classList.remove('mobile-open');overlay.classList.remove('active');document.body.style.overflow='';});
+  }
+})();
 </script>
 </body>
 </html>

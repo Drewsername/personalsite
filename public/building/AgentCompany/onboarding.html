@@ -293,6 +293,18 @@
   .onboard-right { display: none; }
   .onboard-left { max-width: 100%; padding: 40px; }
 }
+@media (max-width: 768px) {
+  .onboard-left { padding: 24px 16px; }
+  .onboard-title { font-size: 1.4rem; }
+  .path-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .social-login { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .onboard-left { padding: 20px 12px; }
+  .path-card { padding: 20px 16px; }
+  .onboard-title { font-size: 1.2rem; }
+}
 </style>
 </head>
 <body>

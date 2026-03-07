@@ -394,11 +394,27 @@
     position: static;
   }
 }
+@media (max-width: 768px) {
+  .task-detail-title { font-size: 1.2rem; }
+  .task-breadcrumb { flex-wrap: wrap; font-size: 0.72rem; }
+  .context-block { padding: 16px; }
+  .code-block { padding: 12px 14px; font-size: 0.75rem; }
+  .claim-card { padding: 18px; }
+  .pay-amount { font-size: 1.8rem; }
+  .task-meta-bar { gap: 12px; font-size: 0.78rem; }
+}
 </style>
 </head>
 <body>
 
 <div class="app-layout">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
@@ -725,6 +741,13 @@ function selectPayment(el) {
   document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
 }
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),sidebar=document.querySelector('.sidebar'),overlay=document.getElementById('sidebarOverlay');
+  if(btn&&sidebar&&overlay){
+    btn.addEventListener('click',function(){btn.classList.toggle('active');sidebar.classList.toggle('mobile-open');overlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('mobile-open')?'hidden':'';});
+    overlay.addEventListener('click',function(){btn.classList.remove('active');sidebar.classList.remove('mobile-open');overlay.classList.remove('active');document.body.style.overflow='';});
+  }
+})();
 </script>
 </body>
 </html>

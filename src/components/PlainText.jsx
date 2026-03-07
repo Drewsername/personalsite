@@ -91,18 +91,12 @@ export default function PlainText({ transformed }) {
 }
 
 function SectionItem({ section, index, transformed }) {
-  const isActive = !!section.link;
-
   if (transformed) {
     return (
       <TiltCard className="group relative">
         <motion.a
           href={section.link || `#${section.id}`}
-          className={`block rounded-2xl border backdrop-blur-sm p-6 transition-all duration-300 h-full ${
-            isActive
-              ? "border-white/20 bg-white/[0.05] hover:bg-white/[0.09] hover:border-white/30"
-              : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20"
-          }`}
+          className="block rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-6 hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300 h-full"
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{
@@ -112,56 +106,27 @@ function SectionItem({ section, index, transformed }) {
             damping: 18,
           }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <h2 className="font-sans text-xl font-medium text-white">
-              {section.label}
-            </h2>
-            {isActive && (
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/40"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white/70"></span>
-              </span>
-            )}
-          </div>
+          <h2 className="font-sans text-xl font-medium text-white mb-2">
+            {section.label}
+          </h2>
           <p className="font-sans text-sm text-neutral-500 leading-relaxed">
             {section.desc}
           </p>
-          <div className="mt-4 flex items-center gap-1 text-xs font-sans">
-            {isActive ? (
-              <span className="text-neutral-300 flex items-center gap-1">
-                {section.linkLabel}
-                <svg
-                  className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </span>
-            ) : (
-              <span className="text-neutral-600 flex items-center gap-1">
-                coming soon
-                <svg
-                  className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </span>
-            )}
+          <div className="mt-4 flex items-center gap-1 text-neutral-600 text-xs font-sans">
+            <span>coming soon</span>
+            <svg
+              className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
           </div>
         </motion.a>
       </TiltCard>

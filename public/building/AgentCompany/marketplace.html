@@ -346,15 +346,31 @@
 
 @media (max-width: 768px) {
   .company-grid { grid-template-columns: 1fr; }
-  .market-stats-bar { flex-wrap: wrap; gap: 16px; }
-  .filter-bar { overflow-x: auto; }
-  .featured-banner { grid-template-columns: 1fr; }
-  .featured-actions { align-items: flex-start; }
+  .market-stats-bar { flex-wrap: wrap; gap: 12px; padding: 14px 16px; }
+  .market-stat-item { min-width: calc(50% - 12px); }
+  .filter-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .featured-banner { grid-template-columns: 1fr; gap: 16px; padding: 20px; }
+  .featured-actions { align-items: flex-start; flex-direction: row; }
+  .featured-stats { flex-wrap: wrap; gap: 16px; }
+  .market-controls { flex-direction: column; align-items: stretch; }
+  .search-box { max-width: 100%; }
+  .mc-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .featured-name { font-size: 1.1rem; }
+  .mc-card { padding: 16px; }
 }
 </style>
 </head>
 <body>
 <div class="app-layout">
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">AF</div>AutoFoundry</a>
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-header">
@@ -709,6 +725,13 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.classList.add('active');
   });
 });
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),sidebar=document.querySelector('.sidebar'),overlay=document.getElementById('sidebarOverlay');
+  if(btn&&sidebar&&overlay){
+    btn.addEventListener('click',function(){btn.classList.toggle('active');sidebar.classList.toggle('mobile-open');overlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('mobile-open')?'hidden':'';});
+    overlay.addEventListener('click',function(){btn.classList.remove('active');sidebar.classList.remove('mobile-open');overlay.classList.remove('active');document.body.style.overflow='';});
+  }
+})();
 </script>
 </body>
 </html>
