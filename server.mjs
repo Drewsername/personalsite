@@ -16,6 +16,8 @@ const app = express();
 
 const hopByHop = new Set([
   'connection',
+  'content-encoding',
+  'content-length',
   'keep-alive',
   'proxy-authenticate',
   'proxy-authorization',
@@ -36,9 +38,11 @@ async function proxyPersonal(req, res, next) {
     const headers = new Headers();
     for (const [key, value] of Object.entries(req.headers)) {
       if (!value || hopByHop.has(key.toLowerCase())) continue;
+      if (key.toLowerCase() === 'accept-encoding') continue;
       if (key.toLowerCase() === 'host') continue;
       headers.set(key, Array.isArray(value) ? value.join(', ') : value);
     }
+    headers.set('accept-encoding', 'identity');
     headers.set('x-forwarded-host', req.headers.host ?? 'drewbermudez.com');
     headers.set('x-forwarded-proto', req.headers['x-forwarded-proto'] ?? 'https');
     headers.set('x-forwarded-prefix', MOUNT);
