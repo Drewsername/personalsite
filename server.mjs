@@ -66,7 +66,20 @@ async function proxyPersonal(req, res, next) {
     });
 
     if (!upstream.body) return res.end();
-    Readable.fromWeb(upstream.body).pipe(res);
+    const type = upstream.headers.get('content-type') ?? '';
+    if (type.includes('text/event-stream')) {
+      const body = Readable.fromWeb(upstream.body);
+      body.on('error', err => {
+        console.warn(`personal proxy stream ended: ${err.message}`);
+        if (!res.destroyed) res.end();
+      });
+      req.on('close', () => body.destroy());
+      body.pipe(res);
+      return;
+    }
+
+    const body = Buffer.from(await upstream.arrayBuffer());
+    res.end(body);
   } catch (err) {
     next(err);
   }
