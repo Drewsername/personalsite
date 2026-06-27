@@ -20,6 +20,10 @@ export default function App() {
           omega: 1.0,
           beta: 1.2,
           base: 0.07,
+          mono: 0.85,
+          dim: 0.45,
+          speedScale: 0.5,
+          omegaScale: 0.5,
         }}
         interactive={{ onClick: () => console.log('enter'), hoverIntensity: 1.9 }}
       />

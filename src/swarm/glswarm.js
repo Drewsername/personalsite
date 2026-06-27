@@ -23,6 +23,8 @@ uniform float u_time;
 uniform float u_dpr;
 uniform float u_beta;
 uniform float u_omega;
+uniform float u_speed;       // motion-rate scale (1 = full, <1 = calmer)
+uniform float u_omegascale;  // tumble-rate scale
 
 out vec2 v_center;
 out vec3 v_axis;
@@ -39,7 +41,7 @@ void main() {
   float R = a_radius;
   // Floating: slow linear drift + organic low-frequency sway, wrapped at the
   // edges (no hard bounce). Identical treatment for every ball.
-  float ts = u_time;
+  float ts = u_time * u_speed;
   float fa = 0.6 + 0.7 * a_seed;
   float SW = 24.0;
   float mx = a_pos0.x + a_vel.x * ts
@@ -53,7 +55,7 @@ void main() {
 
   float sb = sin(u_beta), cb = cos(u_beta);
   v_axis = vec3(sb * cos(a_psi), sb * sin(a_psi), cb);
-  v_omega = u_omega * (0.55 + 0.9 * a_seed);
+  v_omega = u_omega * (0.55 + 0.9 * a_seed) * u_omegascale;
   v_seed = a_seed;
 
   vec2 clip = (c / u_res) * 2.0 - 1.0;
@@ -75,6 +77,8 @@ uniform float u_time;
 uniform float u_base;
 uniform float u_fade;
 uniform float u_bgdark;   // brightness of balls NOT in the text (≤1)
+uniform float u_mono;     // 0 = full rainbow, 1 = white/silver
+uniform float u_dim;      // overall brightness multiplier
 uniform sampler2D u_target;
 uniform vec4 u_hot;
 uniform float u_hotk;
@@ -126,12 +130,13 @@ void main() {
   // Over text → own colour (decorrelated → white); off text → shared (→ vivid).
   float hue = mix(noiseHue, rainHue, g);
   vec3 col = hsv2rgb(hue, 0.95, 1.0);
+  col = mix(col, vec3(1.0), u_mono); // desaturate toward white/silver
 
   float fill = 1.0 - smoothstep(0.84, 1.0, r2); // plain colour disc
 
   // Darken everything that is NOT in the text so the glyphs stand out.
   float bright = mix(u_bgdark, 1.0, g);
-  float w = u_base * fill * bright * u_fade;
+  float w = u_base * fill * bright * u_fade * u_dim;
   frag = vec4(col * w, 1.0);
 }`;
 
@@ -162,6 +167,10 @@ export class GLSwarm {
       beta: 1.2,
       base: 0.07,
       bgDark: 0.4, // brightness of non-text balls
+      mono: 0, // 0 = rainbow, 1 = white/silver
+      dim: 1, // overall brightness multiplier
+      speedScale: 1, // motion-rate scale
+      omegaScale: 1, // tumble-rate scale
       fadeIn: 0,
       ...config,
     };
@@ -180,6 +189,10 @@ export class GLSwarm {
       dpr: gl.getUniformLocation(prog, 'u_dpr'),
       beta: gl.getUniformLocation(prog, 'u_beta'),
       omega: gl.getUniformLocation(prog, 'u_omega'),
+      speed: gl.getUniformLocation(prog, 'u_speed'),
+      omegascale: gl.getUniformLocation(prog, 'u_omegascale'),
+      mono: gl.getUniformLocation(prog, 'u_mono'),
+      dim: gl.getUniformLocation(prog, 'u_dim'),
       base: gl.getUniformLocation(prog, 'u_base'),
       fade: gl.getUniformLocation(prog, 'u_fade'),
       bgdark: gl.getUniformLocation(prog, 'u_bgdark'),
@@ -271,6 +284,10 @@ export class GLSwarm {
     gl.uniform1f(this.u.dpr, this.dpr);
     gl.uniform1f(this.u.beta, this.cfg.beta);
     gl.uniform1f(this.u.omega, this.cfg.omega);
+    gl.uniform1f(this.u.speed, this.cfg.speedScale);
+    gl.uniform1f(this.u.omegascale, this.cfg.omegaScale);
+    gl.uniform1f(this.u.mono, this.cfg.mono);
+    gl.uniform1f(this.u.dim, this.cfg.dim);
     gl.uniform1f(this.u.base, this.cfg.base);
     gl.uniform1f(this.u.fade, this.cfg.fadeIn > 0 ? Math.min(1, t / this.cfg.fadeIn) : 1);
     gl.uniform1f(this.u.bgdark, this.cfg.bgDark);
