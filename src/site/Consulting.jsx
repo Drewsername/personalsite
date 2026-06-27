@@ -1,11 +1,12 @@
 import { content } from './content.js';
-import { Section, Label, Heading } from './Section.jsx';
+import { Section, Label, Heading, WordSlot } from './Section.jsx';
 import { ui } from './styles.js';
 
 export function Consulting() {
   const c = content.consulting;
   return (
     <Section id="consulting">
+      <WordSlot id="slot-consulting" />
       <Label>Consulting</Label>
       <Heading>What I do</Heading>
       <p style={ui.lead}>{c.intro}</p>

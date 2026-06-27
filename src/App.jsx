@@ -14,10 +14,10 @@ import { useActiveSection } from './site/useActiveSection.js';
 // Each section's background word, anchored to that section's page position.
 const WORDS = [
   { id: 'top', text: content.name },
-  { id: 'consulting', text: 'Consulting' },
-  { id: 'work', text: 'Work' },
-  { id: 'about', text: 'About' },
-  { id: 'contact', text: 'Contact' },
+  { id: 'slot-consulting', text: 'Consulting' },
+  { id: 'slot-work', text: 'Work' },
+  { id: 'slot-about', text: 'About' },
+  { id: 'slot-contact', text: 'Contact' },
   { id: 'footer', text: content.name },
 ];
 // Only the hero name gets the crisp outline; sections rely on their DOM heading.

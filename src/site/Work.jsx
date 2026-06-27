@@ -1,9 +1,10 @@
 import { content } from './content.js';
-import { Section, Label, Heading } from './Section.jsx';
+import { Section, Label, Heading, WordSlot } from './Section.jsx';
 
 export function Work() {
   return (
     <Section id="work">
+      <WordSlot id="slot-work" />
       <Label>Work</Label>
       <Heading>Selected work</Heading>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16, marginTop: 32 }}>

@@ -1,5 +1,11 @@
 // Shared section scaffolding + small typographic primitives.
 
+// An empty band that reserves open space for a section's background swarm word,
+// so the word sits clear of the content below it (the swarm anchors to this id).
+export function WordSlot({ id }) {
+  return <div id={id} aria-hidden="true" style={{ height: 'clamp(200px, 32vh, 380px)', pointerEvents: 'none' }} />;
+}
+
 export function Label({ children }) {
   return (
     <div className="mono" style={{ fontSize: 12, letterSpacing: '2px', color: 'var(--accent)', textTransform: 'uppercase' }}>

@@ -25,6 +25,7 @@ uniform float u_beta;
 uniform float u_omega;
 uniform float u_speed;       // motion-rate scale (1 = full, <1 = calmer)
 uniform float u_omegascale;  // tumble-rate scale
+uniform float u_scroll;      // page scroll (px) — translates the field upward
 
 out vec2 v_center;
 out vec3 v_axis;
@@ -50,7 +51,13 @@ void main() {
   float my = a_pos0.y + a_vel.y * ts
            + SW * cos(0.43 * fa * ts + a_psi)
            + 0.5 * SW * cos(0.71 * fa * ts + a_seed * 6.2831);
-  vec2 c = vec2(wrapf(mx, R, u_res.x - R), wrapf(my, R, u_res.y - R));
+  // Move the whole field up with the page scroll (wrapping recycles balls off
+  // the top to the bottom), so the spheres physically travel as you scroll
+  // rather than the mask sliding over a static field. The fragment re-adds
+  // u_scroll when sampling the mask, so each ball stays pinned to its document
+  // row — the word is carried by the balls, not painted onto them.
+  float sy = my - u_scroll;
+  vec2 c = vec2(wrapf(mx, R, u_res.x - R), wrapf(sy, R, u_res.y - R));
   v_center = c;
 
   float sb = sin(u_beta), cb = cos(u_beta);

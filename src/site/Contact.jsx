@@ -1,11 +1,12 @@
 import { content } from './content.js';
-import { Section, Label, Heading } from './Section.jsx';
+import { Section, Label, Heading, WordSlot } from './Section.jsx';
 import { ui } from './styles.js';
 
 export function Contact() {
   const c = content.contact;
   return (
     <Section id="contact">
+      <WordSlot id="slot-contact" />
       <Label>Contact</Label>
       <Heading>Let&apos;s talk</Heading>
       <p style={ui.lead}>Whether it&apos;s a legal question or a project, I&apos;d love to hear from you.</p>
