@@ -5,21 +5,15 @@
   --font-sans: "Inter", sans-serif;
 }
 
-html {
-  background-color: #000;
-  color: #e5e5e5;
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.cursor-blink {
-  animation: blink 1s step-end infinite;
+  overflow: hidden;
+  color: #e5e5e5;
+  background: radial-gradient(ellipse at 50% 42%, #0b1018 0%, #05070c 58%, #020307 100%);
 }

@@ -1,47 +1,28 @@
-import { useState, useEffect, useCallback } from "react";
-import { LayoutGroup, AnimatePresence } from "framer-motion";
-import PlainText from "./components/PlainText";
-import WaterRipple from "./components/WaterRipple";
+import { useMemo } from 'react';
+import { GLSwarmView } from './swarm/GLSwarmView.jsx';
+import { scenePaint, sceneOutlinePaint } from './swarm/paints.js';
 
-function App() {
-  const [phase, setPhase] = useState("plain");
-  const [transformed, setTransformed] = useState(false);
-
-  useEffect(() => {
-    if (phase !== "plain") return;
-    const timer = setTimeout(() => setPhase("ripple"), 2000);
-    return () => clearTimeout(timer);
-  }, [phase]);
-
-  // Layout swap at peak distortion — content is too warped to see the change
-  const handlePeakDistortion = useCallback(() => {
-    setTransformed(true);
-  }, []);
-
-  const handleRippleComplete = useCallback(() => {
-    setPhase("done");
-  }, []);
-
-  const isRippling = phase === "ripple";
+export default function App() {
+  const paint = useMemo(() => scenePaint({ name: 'Drew Bermudez', button: 'ENTER' }), []);
+  const overlay = useMemo(() => sceneOutlinePaint({ name: 'Drew Bermudez', button: 'ENTER', opacity: 0.5 }), []);
 
   return (
-    <>
-      {/* WaterRipple always rendered so SVG filter element stays in DOM */}
-      <WaterRipple
-        active={isRippling}
-        onPeakDistortion={handlePeakDistortion}
-        onComplete={handleRippleComplete}
+    <div style={{ position: 'fixed', inset: 0 }}>
+      <GLSwarmView
+        paint={paint}
+        overlay={overlay}
+        blur={1}
+        config={{
+          density: 0.05,
+          maxCount: 150000,
+          speed: 11,
+          ballRadius: [5, 12],
+          omega: 1.0,
+          beta: 1.2,
+          base: 0.07,
+        }}
+        interactive={{ onClick: () => console.log('enter'), hoverIntensity: 1.9 }}
       />
-      <div
-        style={isRippling ? { filter: "url(#water-distort)" } : undefined}
-        className="transition-[filter] duration-300"
-      >
-        <LayoutGroup>
-          <PlainText transformed={transformed} />
-        </LayoutGroup>
-      </div>
-    </>
+    </div>
   );
 }
-
-export default App;
