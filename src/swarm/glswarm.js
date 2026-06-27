@@ -80,6 +80,8 @@ uniform float u_bgdark;   // brightness of balls NOT in the text (≤1)
 uniform float u_mono;     // 0 = full rainbow, 1 = white/silver
 uniform float u_dim;      // overall brightness multiplier
 uniform sampler2D u_target;
+uniform sampler2D u_targetB; // morph destination mask
+uniform float u_morph;       // 0 = current target, 1 = destination
 uniform vec4 u_hot;
 uniform float u_hotk;
 
@@ -121,7 +123,8 @@ void main() {
   np += (warp - 0.5) * 4.5 + vec2(u_time * 0.04, u_time * -0.03);
   float noiseHue = fract(vnoise(np) + 0.5 * vnoise(np * 2.0));
 
-  float g = texture(u_target, v_center / u_res).r;
+  vec2 muv = v_center / u_res;
+  float g = mix(texture(u_target, muv).r, texture(u_targetB, muv).r, u_morph);
   if (u_hot.z > 0.0 && v_center.x >= u_hot.x && v_center.x <= u_hot.x + u_hot.z &&
       v_center.y >= u_hot.y && v_center.y <= u_hot.y + u_hot.w) {
     g = clamp(g * (1.0 + u_hotk), 0.0, 1.0);
@@ -197,18 +200,22 @@ export class GLSwarm {
       fade: gl.getUniformLocation(prog, 'u_fade'),
       bgdark: gl.getUniformLocation(prog, 'u_bgdark'),
       target: gl.getUniformLocation(prog, 'u_target'),
+      targetB: gl.getUniformLocation(prog, 'u_targetB'),
+      morph: gl.getUniformLocation(prog, 'u_morph'),
       hot: gl.getUniformLocation(prog, 'u_hot'),
       hotk: gl.getUniformLocation(prog, 'u_hotk'),
     };
 
     this.vbo = gl.createBuffer();
     this.vao = gl.createVertexArray();
-    this.tex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, this.tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    this.texA = this._maskTex();
+    this.texB = this._maskTex();
+    this.cur = 'A'; // which texture holds the settled mask
+    this.morph = 0; // 0..1 blend toward the other texture
+    this.morphing = false;
+    this.morphStart = 0;
+    this.morphDur = 0.8;
+    this.lastT = 0;
 
     this.count = 0;
     this.W = 0;
@@ -216,6 +223,33 @@ export class GLSwarm {
     this.dpr = 1;
     this.hot = [0, 0, 0, 0];
     this.hotk = 0;
+  }
+
+  _maskTex() {
+    const gl = this.gl;
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+  }
+
+  _uploadMask(tex, canvas) {
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+  }
+
+  // Cross-fade the swarm's formation to a new (blurred) mask canvas.
+  setTarget(canvas, durMs = 800) {
+    const dest = this.cur === 'A' ? this.texB : this.texA;
+    this._uploadMask(dest, canvas);
+    this.morphStart = this.lastT;
+    this.morphDur = Math.max(0.001, durMs / 1000);
+    this.morphing = true;
   }
 
   build(W, H, dpr, targetCanvas) {
@@ -260,9 +294,11 @@ export class GLSwarm {
     set(4, 1, 6);
     gl.bindVertexArray(null);
 
-    gl.bindTexture(gl.TEXTURE_2D, this.tex);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, targetCanvas);
+    this._uploadMask(this.texA, targetCanvas);
+    this._uploadMask(this.texB, targetCanvas);
+    this.cur = 'A';
+    this.morph = 0;
+    this.morphing = false;
   }
 
   setHot(rect, k) {
@@ -272,6 +308,17 @@ export class GLSwarm {
 
   render(t) {
     const gl = this.gl;
+    this.lastT = t;
+    if (this.morphing) {
+      this.morph = Math.min(1, (t - this.morphStart) / this.morphDur);
+      if (this.morph >= 1) {
+        this.morphing = false;
+        this.cur = this.cur === 'A' ? 'B' : 'A';
+        this.morph = 0;
+      }
+    }
+    const curTex = this.cur === 'A' ? this.texA : this.texB;
+    const otherTex = this.cur === 'A' ? this.texB : this.texA;
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -292,11 +339,15 @@ export class GLSwarm {
     gl.uniform1f(this.u.fade, this.cfg.fadeIn > 0 ? Math.min(1, t / this.cfg.fadeIn) : 1);
     gl.uniform1f(this.u.bgdark, this.cfg.bgDark);
     gl.uniform1i(this.u.target, 0);
+    gl.uniform1i(this.u.targetB, 1);
+    gl.uniform1f(this.u.morph, this.morph);
     gl.uniform4f(this.u.hot, this.hot[0], this.hot[1], this.hot[2], this.hot[3]);
     gl.uniform1f(this.u.hotk, this.hotk);
 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    gl.bindTexture(gl.TEXTURE_2D, curTex);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, otherTex);
     gl.bindVertexArray(this.vao);
     gl.drawArrays(gl.POINTS, 0, this.count);
     gl.bindVertexArray(null);
@@ -307,7 +358,8 @@ export class GLSwarm {
     const gl = this.gl;
     gl.deleteBuffer(this.vbo);
     gl.deleteVertexArray(this.vao);
-    gl.deleteTexture(this.tex);
+    gl.deleteTexture(this.texA);
+    gl.deleteTexture(this.texB);
     gl.deleteProgram(this.prog);
   }
 }
