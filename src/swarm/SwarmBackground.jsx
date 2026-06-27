@@ -52,14 +52,19 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
       const H = Math.max(1, Math.floor(window.innerHeight));
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const docH = Math.max(H, Math.ceil(document.documentElement.scrollHeight));
+      // On narrow screens use more width, and break multi-word names onto
+      // separate lines so each line is bigger and more legible.
+      const mobile = W < 600;
+      const wFrac = mobile ? 0.86 : 0.74;
       const hPx = Math.round(H * 0.18);
+      const toLines = (t) => (mobile && t.trim().includes(' ') ? t.trim().split(/\s+/) : [t]);
       const place = (list) =>
         list
           .map((w) => {
             const el = document.getElementById(w.id);
             if (!el) return null;
             const r = el.getBoundingClientRect();
-            return { text: w.text, cy: r.top + window.scrollY + r.height / 2 };
+            return { lines: toLines(w.text), cy: r.top + window.scrollY + r.height / 2 };
           })
           .filter(Boolean);
       // Hero band: the #top section. The name fades out across its height.
@@ -67,18 +72,18 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
       const tr = topEl && topEl.getBoundingClientRect();
       const heroH = tr ? tr.height : H;
       const heroEnd = tr ? tr.top + window.scrollY + tr.height : H;
-      return { W, H, dpr, docH, hPx, heroH, heroEnd, words: place(words), outWords: place(outlineWords) };
+      return { W, H, dpr, docH, hPx, wFrac, heroH, heroEnd, words: place(words), outWords: place(outlineWords) };
     }
 
     function maskFor(m) {
-      return paintCanvas(m.W, m.docH, blur, tallMaskPaint(m.words, { hPx: m.hPx }));
+      return paintCanvas(m.W, m.docH, blur, tallMaskPaint(m.words, { hPx: m.hPx, wFrac: m.wFrac }));
     }
 
     function drawOverlay(m) {
       const ov = overlayRef.current;
       if (!ov) return;
       const oh = m.outWords.length
-        ? Math.min(m.docH, Math.ceil(Math.max(...m.outWords.map((w) => w.cy)) + m.hPx))
+        ? Math.min(m.docH, Math.ceil(Math.max(...m.outWords.map((w) => w.cy)) + m.hPx * 1.4))
         : 1;
       ov.width = m.W;
       ov.height = Math.max(1, oh);
@@ -86,7 +91,7 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
       ov.style.height = `${oh}px`;
       const octx = ov.getContext('2d');
       octx.clearRect(0, 0, ov.width, ov.height);
-      if (m.outWords.length) tallOutlinePaint(m.outWords, { hPx: m.hPx, opacity: 0.5 })(octx, m.W);
+      if (m.outWords.length) tallOutlinePaint(m.outWords, { hPx: m.hPx, wFrac: m.wFrac, opacity: 0.5 })(octx, m.W);
     }
 
     function buildAll() {

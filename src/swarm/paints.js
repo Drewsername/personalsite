@@ -64,8 +64,22 @@ function fitFontSize(ctx, text, maxW, maxH, fontFamily) {
   return Math.min(maxW / m.width, maxH / (asc + desc)) * base;
 }
 
+// Draw one word (possibly several stacked lines) centred at cy. All lines share
+// the font size that makes the WIDEST line fit, so they stay aligned.
+function drawStacked(ctx, lines, W, cy, wFrac, hPx, fontFamily, render) {
+  let fs = Infinity;
+  for (const ln of lines) fs = Math.min(fs, fitFontSize(ctx, ln, wFrac * W, hPx, fontFamily));
+  ctx.font = `700 ${fs}px ${fontFamily}`;
+  ctx.letterSpacing = `${fs * 0.04}px`;
+  const lh = fs * 1.08;
+  const n = lines.length;
+  for (let i = 0; i < n; i++) {
+    render(lines[i], W / 2, cy + (i - (n - 1) / 2) * lh, fs);
+  }
+}
+
 // Draw words at absolute document positions onto a document-tall mask canvas.
-// Each word: { text, cy } where cy is the vertical centre in px. FILLED → the
+// Each word: { lines: [..], cy } (cy = vertical centre in px). FILLED → the
 // swarm's mask; the renderer slides it by scrollY so each word sits at its page
 // position and scrolls off like normal text.
 export function tallMaskPaint(words, { fontFamily = '"JetBrains Mono", monospace', wFrac = 0.74, hPx = 170 } = {}) {
@@ -74,10 +88,7 @@ export function tallMaskPaint(words, { fontFamily = '"JetBrains Mono", monospace
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     for (const w of words) {
-      const fs = fitFontSize(ctx, w.text, wFrac * W, hPx, fontFamily);
-      ctx.font = `700 ${fs}px ${fontFamily}`;
-      ctx.letterSpacing = `${fs * 0.04}px`;
-      ctx.fillText(w.text, W / 2, w.cy);
+      drawStacked(ctx, w.lines || [w.text], W, w.cy, wFrac, hPx, fontFamily, (t, x, y) => ctx.fillText(t, x, y));
     }
   };
 }
@@ -90,11 +101,10 @@ export function tallOutlinePaint(words, { fontFamily = '"JetBrains Mono", monosp
     ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
     ctx.lineJoin = 'round';
     for (const w of words) {
-      const fs = fitFontSize(ctx, w.text, wFrac * W, hPx, fontFamily);
-      ctx.font = `700 ${fs}px ${fontFamily}`;
-      ctx.letterSpacing = `${fs * 0.04}px`;
-      ctx.lineWidth = Math.max(1.5, fs * 0.02);
-      ctx.strokeText(w.text, W / 2, w.cy);
+      drawStacked(ctx, w.lines || [w.text], W, w.cy, wFrac, hPx, fontFamily, (t, x, y, fs) => {
+        ctx.lineWidth = Math.max(1.5, fs * 0.02);
+        ctx.strokeText(t, x, y);
+      });
     }
   };
 }

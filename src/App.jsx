@@ -31,6 +31,7 @@ export default function App() {
   // screens) so the swarm looks the same on mobile.
   const config = useMemo(() => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const mobile = window.innerWidth < 600;
     return {
       density: 0.045,
       maxCount: 130000,
@@ -38,9 +39,10 @@ export default function App() {
       ballRadius: [5, 12],
       omega: 1.0,
       beta: 1.2,
-      base: 0.07,
+      base: mobile ? 0.085 : 0.07, // a touch brighter words on mobile
+      bgDark: mobile ? 0.28 : 0.4, // darker background → words read clearer
       mono: 0.85,
-      dim: 0.42,
+      dim: mobile ? 0.5 : 0.42,
       speedScale: reduce ? 0 : 0.5,
       omegaScale: reduce ? 0 : 0.5,
     };
