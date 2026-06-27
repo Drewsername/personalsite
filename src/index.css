@@ -56,6 +56,13 @@ a {
   color: #04222b;
 }
 
+/* On phones, drop the inline nav links (the CTA + wordmark stay). */
+@media (max-width: 720px) {
+  .nav-links {
+    display: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

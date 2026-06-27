@@ -87,11 +87,15 @@ export const SwarmBackground = forwardRef(function SwarmBackground(
 
     build();
     raf = requestAnimationFrame(frame);
-    // Rebuild once after layout has settled — guards against a mount-time race
-    // where innerHeightW/H aren't final yet and the balls distribute short.
+    // Guard against a mount-time race where the viewport isn't final yet and
+    // the balls distribute short. Only rebuild if the size actually changed, so
+    // a normal load doesn't re-randomise every ball (which would visibly pop).
     const settleTimer = setTimeout(() => {
-      if (!cancelled) build();
-    }, 200);
+      if (cancelled) return;
+      const W = Math.floor(window.innerWidth);
+      const H = Math.floor(window.innerHeight);
+      if (W !== st.current.W || H !== st.current.H) build();
+    }, 250);
     const onResize = () => {
       clearTimeout(timer);
       timer = setTimeout(build, 150);

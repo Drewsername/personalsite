@@ -18,27 +18,29 @@ export default function App() {
   const initialOutline = useMemo(() => wordOutlinePaint(content.name, { opacity: 0.5 }), []);
   const active = useSectionMorph(bgRef);
 
+  // Respect reduced-motion (freeze drift/spin) and lighten the ball count on
+  // small screens so phones stay smooth.
+  const config = useMemo(() => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const small = window.innerWidth < 760;
+    return {
+      density: 0.045,
+      maxCount: small ? 45000 : 130000,
+      speed: 11,
+      ballRadius: [5, 12],
+      omega: 1.0,
+      beta: 1.2,
+      base: 0.07,
+      mono: 0.85,
+      dim: 0.42,
+      speedScale: reduce ? 0 : 0.5,
+      omegaScale: reduce ? 0 : 0.5,
+    };
+  }, []);
+
   return (
     <>
-      <SwarmBackground
-        ref={bgRef}
-        initial={initial}
-        initialOutline={initialOutline}
-        blur={1}
-        config={{
-          density: 0.045,
-          maxCount: 130000,
-          speed: 11,
-          ballRadius: [5, 12],
-          omega: 1.0,
-          beta: 1.2,
-          base: 0.07,
-          mono: 0.85,
-          dim: 0.42,
-          speedScale: 0.5,
-          omegaScale: 0.5,
-        }}
-      />
+      <SwarmBackground ref={bgRef} initial={initial} initialOutline={initialOutline} blur={1} config={config} />
       <Nav active={active} />
       <main>
         <Hero />
