@@ -90,6 +90,8 @@ uniform float u_dim;      // overall brightness multiplier
 uniform sampler2D u_target; // document-tall mask
 uniform float u_scroll;     // current page scroll (px) — slides the mask up
 uniform float u_maskh;      // tall mask height (px) = document height
+uniform float u_namefade;   // 0 = hero name visible, 1 = faded into the field
+uniform float u_heroend;    // document Y (px) where the hero band ends
 uniform vec4 u_hot;
 uniform float u_hotk;
 
@@ -139,6 +141,12 @@ void main() {
       v_center.y >= u_hot.y && v_center.y <= u_hot.y + u_hot.w) {
     g = clamp(g * (1.0 + u_hotk), 0.0, 1.0);
   }
+
+  // Fade the hero name out with scroll: weaken its text mask within the hero
+  // band so its letters dissolve back into the field as you scroll down.
+  float docY = v_center.y + u_scroll;
+  float heroBand = 1.0 - smoothstep(u_heroend * 0.7, u_heroend, docY);
+  g *= 1.0 - u_namefade * heroBand;
 
   // Over text → own colour (decorrelated → white); off text → shared (→ vivid).
   float hue = mix(noiseHue, rainHue, g);
@@ -212,6 +220,8 @@ export class GLSwarm {
       target: gl.getUniformLocation(prog, 'u_target'),
       scroll: gl.getUniformLocation(prog, 'u_scroll'),
       maskh: gl.getUniformLocation(prog, 'u_maskh'),
+      namefade: gl.getUniformLocation(prog, 'u_namefade'),
+      heroend: gl.getUniformLocation(prog, 'u_heroend'),
       hot: gl.getUniformLocation(prog, 'u_hot'),
       hotk: gl.getUniformLocation(prog, 'u_hotk'),
     };
@@ -221,6 +231,8 @@ export class GLSwarm {
     this.tex = this._maskTex();
     this.scroll = 0; // page scroll offset (px)
     this.maskH = 0; // tall mask height (px)
+    this.nameFade = 0; // 0 = hero name visible, 1 = faded
+    this.heroEnd = 1e9; // document Y where the hero band ends
 
     this.count = 0;
     this.W = 0;
@@ -251,6 +263,12 @@ export class GLSwarm {
   // Slide the tall mask to the current page scroll position (px).
   setScroll(px) {
     this.scroll = px;
+  }
+
+  // Fade the hero name (0 = visible, 1 = dissolved); end = doc Y of hero band.
+  setNameFade(v, end) {
+    this.nameFade = v;
+    if (end !== undefined) this.heroEnd = end;
   }
 
   // Swap in a new tall mask (e.g. after a resize/reflow) without rebuilding balls.
@@ -334,6 +352,8 @@ export class GLSwarm {
     gl.uniform1i(this.u.target, 0);
     gl.uniform1f(this.u.scroll, this.scroll);
     gl.uniform1f(this.u.maskh, this.maskH || this.H);
+    gl.uniform1f(this.u.namefade, this.nameFade);
+    gl.uniform1f(this.u.heroend, this.heroEnd);
     gl.uniform4f(this.u.hot, this.hot[0], this.hot[1], this.hot[2], this.hot[3]);
     gl.uniform1f(this.u.hotk, this.hotk);
 

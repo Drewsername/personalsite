@@ -42,7 +42,7 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
     let start = 0;
     let cancelled = false;
     let rTimer = 0;
-    const last = { W: 0, H: 0 };
+    const last = { W: 0, H: 0, heroH: 0 };
 
     // Measure the viewport + each word's centre in document coordinates.
     function measure() {
@@ -62,7 +62,12 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
             return { text: w.text, cy: r.top + window.scrollY + r.height / 2 };
           })
           .filter(Boolean);
-      return { W, H, dpr, docH, hPx, words: place(words), outWords: place(outlineWords) };
+      // Hero band: the #top section. The name fades out across its height.
+      const topEl = document.getElementById('top');
+      const tr = topEl && topEl.getBoundingClientRect();
+      const heroH = tr ? tr.height : H;
+      const heroEnd = tr ? tr.top + window.scrollY + tr.height : H;
+      return { W, H, dpr, docH, hPx, heroH, heroEnd, words: place(words), outWords: place(outlineWords) };
     }
 
     function maskFor(m) {
@@ -88,6 +93,8 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
       const m = measure();
       last.W = m.W;
       last.H = m.H;
+      last.heroH = m.heroH;
+      swarm.heroEnd = m.heroEnd;
       canvas.width = Math.floor(m.W * m.dpr);
       canvas.height = Math.floor(m.H * m.dpr);
       canvas.style.width = `${m.W}px`;
@@ -100,6 +107,8 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
     // height changed, e.g. fonts/images settling — avoids a visible ball pop).
     function remask() {
       const m = measure();
+      last.heroH = m.heroH;
+      swarm.heroEnd = m.heroEnd;
       swarm.setMask(maskFor(m), m.docH);
       drawOverlay(m);
     }
@@ -107,7 +116,12 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
     function frame(now) {
       if (cancelled) return;
       if (!start) start = now;
-      swarm.setScroll(window.scrollY || window.pageYOffset || 0);
+      const sc = window.scrollY || window.pageYOffset || 0;
+      swarm.setScroll(sc);
+      // Fade the hero name out over ~70% of the hero's height.
+      const fade = last.heroH ? Math.min(1, sc / (last.heroH * 0.7)) : 0;
+      swarm.setNameFade(fade);
+      if (overlayRef.current) overlayRef.current.style.opacity = String(1 - fade);
       swarm.render((now - start) / 1000);
       raf = requestAnimationFrame(frame);
     }
