@@ -1,12 +1,14 @@
-// SwarmBackground — the swarm as a fixed, full-viewport background layer for the
-// site. Exposes an imperative API so a scroll controller can re-form it per
-// section. The crisp outline overlay shows the hero name and is faded out (by
-// the controller) as you scroll into content where real DOM headings take over.
+// SwarmBackground — the swarm as a fixed, full-viewport ball field whose mask is
+// a document-tall canvas. Each section's word is drawn at its real page position
+// and the renderer slides the mask by scrollY, so words scroll up and clip off
+// like normal text. A crisp outline overlay (the hero name) scrolls in normal
+// document flow so it stays locked to the mask word.
 
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { GLSwarm } from './glswarm.js';
+import { tallMaskPaint, tallOutlinePaint } from './paints.js';
 
-function blurredMask(paint, W, H, blurPx) {
+function paintCanvas(W, H, blurPx, paint) {
   const tc = document.createElement('canvas');
   tc.width = W;
   tc.height = H;
@@ -23,14 +25,9 @@ function blurredMask(paint, W, H, blurPx) {
   return soft;
 }
 
-export const SwarmBackground = forwardRef(function SwarmBackground(
-  { initial, initialOutline, config, blur = 1 },
-  ref,
-) {
+export function SwarmBackground({ words = [], outlineWords = [], config, blur = 1 }) {
   const canvasRef = useRef(null);
   const overlayRef = useRef(null);
-  const swarmRef = useRef(null);
-  const st = useRef({ W: 0, H: 0, dpr: 1 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,98 +38,122 @@ export const SwarmBackground = forwardRef(function SwarmBackground(
       console.error('GLSwarm init failed:', e);
       return;
     }
-    swarmRef.current = swarm;
     let raf = 0;
     let start = 0;
     let cancelled = false;
-    let timer = 0;
+    let rTimer = 0;
+    const last = { W: 0, H: 0 };
 
-    function size() {
-      const W = Math.max(1, Math.floor(window.innerWidth));
+    // Measure the viewport + each word's centre in document coordinates.
+    function measure() {
+      // clientWidth excludes the vertical scrollbar — using innerWidth would
+      // make the absolute overlay overflow and add a horizontal scrollbar.
+      const W = Math.max(1, Math.floor(document.documentElement.clientWidth));
       const H = Math.max(1, Math.floor(window.innerHeight));
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.floor(W * dpr);
-      canvas.height = Math.floor(H * dpr);
-      canvas.style.width = `${W}px`;
-      canvas.style.height = `${H}px`;
-      st.current = { W, H, dpr };
-      return st.current;
+      const docH = Math.max(H, Math.ceil(document.documentElement.scrollHeight));
+      const hPx = Math.round(H * 0.18);
+      const place = (list) =>
+        list
+          .map((w) => {
+            const el = document.getElementById(w.id);
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            return { text: w.text, cy: r.top + window.scrollY + r.height / 2 };
+          })
+          .filter(Boolean);
+      return { W, H, dpr, docH, hPx, words: place(words), outWords: place(outlineWords) };
     }
 
-    function drawOutline() {
+    function maskFor(m) {
+      return paintCanvas(m.W, m.docH, blur, tallMaskPaint(m.words, { hPx: m.hPx }));
+    }
+
+    function drawOverlay(m) {
       const ov = overlayRef.current;
-      const { W, H, dpr } = st.current;
-      ov.width = Math.floor(W * dpr);
-      ov.height = Math.floor(H * dpr);
-      ov.style.width = `${W}px`;
-      ov.style.height = `${H}px`;
+      if (!ov) return;
+      const oh = m.outWords.length
+        ? Math.min(m.docH, Math.ceil(Math.max(...m.outWords.map((w) => w.cy)) + m.hPx))
+        : 1;
+      ov.width = m.W;
+      ov.height = Math.max(1, oh);
+      ov.style.width = `${m.W}px`;
+      ov.style.height = `${oh}px`;
       const octx = ov.getContext('2d');
-      octx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      octx.clearRect(0, 0, W, H);
-      if (initialOutline) initialOutline(octx, W, H);
+      octx.clearRect(0, 0, ov.width, ov.height);
+      if (m.outWords.length) tallOutlinePaint(m.outWords, { hPx: m.hPx, opacity: 0.5 })(octx, m.W);
     }
 
-    function build() {
-      const { W, H, dpr } = size();
-      swarm.build(W, H, dpr, blurredMask(initial, W, H, blur));
-      drawOutline();
+    function buildAll() {
+      const m = measure();
+      last.W = m.W;
+      last.H = m.H;
+      canvas.width = Math.floor(m.W * m.dpr);
+      canvas.height = Math.floor(m.H * m.dpr);
+      canvas.style.width = `${m.W}px`;
+      canvas.style.height = `${m.H}px`;
+      swarm.build(m.W, m.H, m.dpr, maskFor(m), m.docH);
+      drawOverlay(m);
+    }
+
+    // Re-place the words without re-seeding the balls (used when only the page
+    // height changed, e.g. fonts/images settling — avoids a visible ball pop).
+    function remask() {
+      const m = measure();
+      swarm.setMask(maskFor(m), m.docH);
+      drawOverlay(m);
     }
 
     function frame(now) {
       if (cancelled) return;
       if (!start) start = now;
+      swarm.setScroll(window.scrollY || window.pageYOffset || 0);
       swarm.render((now - start) / 1000);
       raf = requestAnimationFrame(frame);
     }
 
-    build();
+    buildAll();
     raf = requestAnimationFrame(frame);
-    // Guard against a mount-time race where the viewport isn't final yet and
-    // the balls distribute short. Only rebuild if the size actually changed, so
-    // a normal load doesn't re-randomise every ball (which would visibly pop).
-    const settleTimer = setTimeout(() => {
-      if (cancelled) return;
-      const W = Math.floor(window.innerWidth);
-      const H = Math.floor(window.innerHeight);
-      if (W !== st.current.W || H !== st.current.H) build();
-    }, 250);
+
     const onResize = () => {
-      clearTimeout(timer);
-      timer = setTimeout(build, 150);
+      clearTimeout(rTimer);
+      rTimer = setTimeout(() => {
+        if (!cancelled) buildAll();
+      }, 150);
     };
     window.addEventListener('resize', onResize);
+
+    // Content reflow (fonts/images) changes section positions → re-place words.
+    const ro = new ResizeObserver(() => {
+      clearTimeout(rTimer);
+      rTimer = setTimeout(() => {
+        if (cancelled) return;
+        const W = Math.floor(document.documentElement.clientWidth);
+        const H = Math.floor(window.innerHeight);
+        if (W !== last.W || H !== last.H) buildAll();
+        else remask();
+      }, 150);
+    });
+    ro.observe(document.body);
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(raf);
-      clearTimeout(timer);
-      clearTimeout(settleTimer);
+      clearTimeout(rTimer);
       window.removeEventListener('resize', onResize);
+      ro.disconnect();
       swarm.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useImperativeHandle(ref, () => ({
-    morphTo(maskPaint, durMs = 850) {
-      const swarm = swarmRef.current;
-      if (!swarm) return;
-      const { W, H } = st.current;
-      swarm.setTarget(blurredMask(maskPaint, W, H, blur), durMs);
-    },
-    setOutlineOpacity(v) {
-      if (overlayRef.current) overlayRef.current.style.opacity = String(v);
-    },
-  }));
-
-  const layer = { position: 'fixed', inset: 0, zIndex: 0, width: '100%', height: '100%' };
   return (
     <>
-      <canvas ref={canvasRef} style={layer} />
+      <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, zIndex: 0, width: '100%', height: '100%' }} />
       <canvas
         ref={overlayRef}
-        style={{ ...layer, pointerEvents: 'none', mixBlendMode: 'overlay', transition: 'opacity 0.5s ease' }}
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 0, pointerEvents: 'none', mixBlendMode: 'overlay' }}
       />
     </>
   );
-});
+}

@@ -1,6 +1,5 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { SwarmBackground } from './swarm/SwarmBackground.jsx';
-import { wordMaskPaint, wordOutlinePaint } from './swarm/paints.js';
 import { content } from './site/content.js';
 import { Nav } from './site/Nav.jsx';
 import { Hero } from './site/Hero.jsx';
@@ -10,13 +9,22 @@ import { Work } from './site/Work.jsx';
 import { About } from './site/About.jsx';
 import { Contact } from './site/Contact.jsx';
 import { Footer } from './site/Footer.jsx';
-import { useSectionMorph } from './site/useSectionMorph.js';
+import { useActiveSection } from './site/useActiveSection.js';
+
+// Each section's background word, anchored to that section's page position.
+const WORDS = [
+  { id: 'top', text: content.name },
+  { id: 'consulting', text: 'Consulting' },
+  { id: 'work', text: 'Work' },
+  { id: 'about', text: 'About' },
+  { id: 'contact', text: 'Contact' },
+  { id: 'footer', text: content.name },
+];
+// Only the hero name gets the crisp outline; sections rely on their DOM heading.
+const OUTLINE_WORDS = [{ id: 'top', text: content.name }];
 
 export default function App() {
-  const bgRef = useRef(null);
-  const initial = useMemo(() => wordMaskPaint(content.name), []);
-  const initialOutline = useMemo(() => wordOutlinePaint(content.name, { opacity: 0.5 }), []);
-  const active = useSectionMorph(bgRef);
+  const active = useActiveSection();
 
   // Respect reduced-motion (freeze drift/spin) and lighten the ball count on
   // small screens so phones stay smooth.
@@ -40,7 +48,7 @@ export default function App() {
 
   return (
     <>
-      <SwarmBackground ref={bgRef} initial={initial} initialOutline={initialOutline} blur={1} config={config} />
+      <SwarmBackground words={WORDS} outlineWords={OUTLINE_WORDS} blur={1} config={config} />
       <Nav active={active} />
       <main>
         <Hero />

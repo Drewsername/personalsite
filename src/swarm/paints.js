@@ -53,43 +53,49 @@ export function scenePaint({
   };
 }
 
-// A single centered word, FILLED → the swarm's morph-target mask.
-export function wordMaskPaint(text, { fontFamily = '"JetBrains Mono", monospace', wFrac = 0.74, hFrac = 0.2, y = 0.5 } = {}) {
-  return (ctx, W, H) => {
+// Fit a word to a max width / max glyph-height; returns the font size in px.
+function fitFontSize(ctx, text, maxW, maxH, fontFamily) {
+  const base = 120;
+  ctx.font = `700 ${base}px ${fontFamily}`;
+  ctx.letterSpacing = `${base * 0.04}px`;
+  const m = ctx.measureText(text);
+  const asc = m.actualBoundingBoxAscent || base * 0.8;
+  const desc = m.actualBoundingBoxDescent || base * 0.2;
+  return Math.min(maxW / m.width, maxH / (asc + desc)) * base;
+}
+
+// Draw words at absolute document positions onto a document-tall mask canvas.
+// Each word: { text, cy } where cy is the vertical centre in px. FILLED → the
+// swarm's mask; the renderer slides it by scrollY so each word sits at its page
+// position and scrolls off like normal text.
+export function tallMaskPaint(words, { fontFamily = '"JetBrains Mono", monospace', wFrac = 0.74, hPx = 170 } = {}) {
+  return (ctx, W) => {
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const base = 120;
-    ctx.font = `700 ${base}px ${fontFamily}`;
-    ctx.letterSpacing = `${base * 0.04}px`;
-    const m = ctx.measureText(text);
-    const asc = m.actualBoundingBoxAscent || base * 0.8;
-    const desc = m.actualBoundingBoxDescent || base * 0.2;
-    const fs = Math.min((wFrac * W) / m.width, (hFrac * H) / (asc + desc)) * base;
-    ctx.font = `700 ${fs}px ${fontFamily}`;
-    ctx.letterSpacing = `${fs * 0.04}px`;
-    ctx.fillText(text, W / 2, H * y);
+    for (const w of words) {
+      const fs = fitFontSize(ctx, w.text, wFrac * W, hPx, fontFamily);
+      ctx.font = `700 ${fs}px ${fontFamily}`;
+      ctx.letterSpacing = `${fs * 0.04}px`;
+      ctx.fillText(w.text, W / 2, w.cy);
+    }
   };
 }
 
-// The same word, STROKED → the crisp overlay outline.
-export function wordOutlinePaint(text, { fontFamily = '"JetBrains Mono", monospace', wFrac = 0.74, hFrac = 0.2, y = 0.5, opacity = 0.5 } = {}) {
-  return (ctx, W, H) => {
+// The same words, STROKED → the crisp overlay outline (absolute doc positions).
+export function tallOutlinePaint(words, { fontFamily = '"JetBrains Mono", monospace', wFrac = 0.74, hPx = 170, opacity = 0.5 } = {}) {
+  return (ctx, W) => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
     ctx.lineJoin = 'round';
-    const base = 120;
-    ctx.font = `700 ${base}px ${fontFamily}`;
-    ctx.letterSpacing = `${base * 0.04}px`;
-    const m = ctx.measureText(text);
-    const asc = m.actualBoundingBoxAscent || base * 0.8;
-    const desc = m.actualBoundingBoxDescent || base * 0.2;
-    const fs = Math.min((wFrac * W) / m.width, (hFrac * H) / (asc + desc)) * base;
-    ctx.font = `700 ${fs}px ${fontFamily}`;
-    ctx.letterSpacing = `${fs * 0.04}px`;
-    ctx.lineWidth = Math.max(1.5, fs * 0.02);
-    ctx.strokeText(text, W / 2, H * y);
+    for (const w of words) {
+      const fs = fitFontSize(ctx, w.text, wFrac * W, hPx, fontFamily);
+      ctx.font = `700 ${fs}px ${fontFamily}`;
+      ctx.letterSpacing = `${fs * 0.04}px`;
+      ctx.lineWidth = Math.max(1.5, fs * 0.02);
+      ctx.strokeText(w.text, W / 2, w.cy);
+    }
   };
 }
 
