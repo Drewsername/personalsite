@@ -3,7 +3,7 @@
 
 export const content = {
   name: 'Drew Bermudez',
-  tagline: 'legal consulting × creative engineering',
+  tagline: 'creative technologist',
 
   nav: [
     { id: 'consulting', label: 'Consulting' },
