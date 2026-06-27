@@ -26,14 +26,14 @@ const OUTLINE_WORDS = [{ id: 'top', text: content.name }];
 export default function App() {
   const active = useActiveSection();
 
-  // Respect reduced-motion (freeze drift/spin) and lighten the ball count on
-  // small screens so phones stay smooth.
+  // Respect reduced-motion (freeze drift/spin). The ball count is held
+  // scale-invariant in the renderer (same count, smaller balls on narrow
+  // screens) so the swarm looks the same on mobile.
   const config = useMemo(() => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const small = window.innerWidth < 760;
     return {
       density: 0.045,
-      maxCount: small ? 45000 : 130000,
+      maxCount: 130000,
       speed: 11,
       ballRadius: [5, 12],
       omega: 1.0,

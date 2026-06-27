@@ -26,6 +26,7 @@ uniform float u_omega;
 uniform float u_speed;       // motion-rate scale (1 = full, <1 = calmer)
 uniform float u_omegascale;  // tumble-rate scale
 uniform float u_scroll;      // page scroll (px) — translates the field upward
+uniform float u_sizescale;   // screen-width scale (sway amplitude scales with it)
 
 out vec2 v_center;
 out vec3 v_axis;
@@ -44,7 +45,7 @@ void main() {
   // edges (no hard bounce). Identical treatment for every ball.
   float ts = u_time * u_speed;
   float fa = 0.6 + 0.7 * a_seed;
-  float SW = 24.0;
+  float SW = 24.0 * u_sizescale;
   float mx = a_pos0.x + a_vel.x * ts
            + SW * sin(0.5 * fa * ts + a_seed * 6.2831)
            + 0.5 * SW * sin(0.83 * fa * ts + a_psi);
@@ -184,6 +185,8 @@ export class GLSwarm {
       maxCount: 150000,
       speed: 11,
       ballRadius: [5, 12],
+      radiusRefWidth: 1920, // ball size + motion scale relative to this width
+      radiusRefHeight: 945, // reference height for the scale-invariant count
       omega: 1.0,
       beta: 1.2,
       base: 0.07,
@@ -212,6 +215,7 @@ export class GLSwarm {
       omega: gl.getUniformLocation(prog, 'u_omega'),
       speed: gl.getUniformLocation(prog, 'u_speed'),
       omegascale: gl.getUniformLocation(prog, 'u_omegascale'),
+      sizescale: gl.getUniformLocation(prog, 'u_sizescale'),
       mono: gl.getUniformLocation(prog, 'u_mono'),
       dim: gl.getUniformLocation(prog, 'u_dim'),
       base: gl.getUniformLocation(prog, 'u_base'),
@@ -231,6 +235,7 @@ export class GLSwarm {
     this.tex = this._maskTex();
     this.scroll = 0; // page scroll offset (px)
     this.maskH = 0; // tall mask height (px)
+    this.sizeScale = 1; // screen-width size scale
     this.nameFade = 0; // 0 = hero name visible, 1 = faded
     this.heroEnd = 1e9; // document Y where the hero band ends
 
@@ -283,18 +288,28 @@ export class GLSwarm {
     this.H = H;
     this.dpr = dpr;
 
-    let count = Math.round(this.cfg.density * W * H);
+    // Scale ball size + motion with screen width so the swarm is a shrunk-down
+    // copy of itself on narrow screens (same look on mobile). Hold the COUNT
+    // constant (based on the reference resolution, not the actual area) so the
+    // word stays just as dense instead of getting sparse as the screen shrinks.
+    const refW = this.cfg.radiusRefWidth;
+    const refH = this.cfg.radiusRefHeight;
+    const s = Math.min(1, Math.max(0.25, W / refW));
+    this.sizeScale = s;
+
+    let count = Math.round(this.cfg.density * refW * refH);
     count = Math.max(200, Math.min(this.cfg.maxCount, count));
     this.count = count;
 
-    const [rMin, rMax] = this.cfg.ballRadius;
+    const rMin = this.cfg.ballRadius[0] * s;
+    const rMax = this.cfg.ballRadius[1] * s;
     const data = new Float32Array(count * FLOATS);
     for (let i = 0; i < count; i++) {
       const o = i * FLOATS;
       const depth = Math.pow(Math.random(), 1.4);
       const R = rMin + (rMax - rMin) * depth;
       const ang = Math.random() * Math.PI * 2;
-      const sp = this.cfg.speed * (0.5 + 0.9 * depth);
+      const sp = this.cfg.speed * (0.5 + 0.9 * depth) * s;
       data[o] = R + Math.random() * Math.max(1, W - 2 * R);
       data[o + 1] = R + Math.random() * Math.max(1, H - 2 * R);
       data[o + 2] = Math.cos(ang) * sp;
@@ -344,6 +359,7 @@ export class GLSwarm {
     gl.uniform1f(this.u.omega, this.cfg.omega);
     gl.uniform1f(this.u.speed, this.cfg.speedScale);
     gl.uniform1f(this.u.omegascale, this.cfg.omegaScale);
+    gl.uniform1f(this.u.sizescale, this.sizeScale);
     gl.uniform1f(this.u.mono, this.cfg.mono);
     gl.uniform1f(this.u.dim, this.cfg.dim);
     gl.uniform1f(this.u.base, this.cfg.base);
