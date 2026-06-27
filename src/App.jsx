@@ -1,32 +1,54 @@
-import { useMemo } from 'react';
-import { GLSwarmView } from './swarm/GLSwarmView.jsx';
-import { scenePaint, sceneOutlinePaint } from './swarm/paints.js';
+import { useMemo, useRef } from 'react';
+import { SwarmBackground } from './swarm/SwarmBackground.jsx';
+import { wordMaskPaint, wordOutlinePaint } from './swarm/paints.js';
+import { content } from './site/content.js';
+import { Nav } from './site/Nav.jsx';
+import { Hero } from './site/Hero.jsx';
+import { Pillars } from './site/Pillars.jsx';
+import { Consulting } from './site/Consulting.jsx';
+import { Work } from './site/Work.jsx';
+import { About } from './site/About.jsx';
+import { Contact } from './site/Contact.jsx';
+import { Footer } from './site/Footer.jsx';
+import { useSectionMorph } from './site/useSectionMorph.js';
 
 export default function App() {
-  const paint = useMemo(() => scenePaint({ name: 'Drew Bermudez', button: 'ENTER' }), []);
-  const overlay = useMemo(() => sceneOutlinePaint({ name: 'Drew Bermudez', button: 'ENTER', opacity: 0.5 }), []);
+  const bgRef = useRef(null);
+  const initial = useMemo(() => wordMaskPaint(content.name), []);
+  const initialOutline = useMemo(() => wordOutlinePaint(content.name, { opacity: 0.5 }), []);
+  const active = useSectionMorph(bgRef);
 
   return (
-    <div style={{ position: 'fixed', inset: 0 }}>
-      <GLSwarmView
-        paint={paint}
-        overlay={overlay}
+    <>
+      <SwarmBackground
+        ref={bgRef}
+        initial={initial}
+        initialOutline={initialOutline}
         blur={1}
         config={{
-          density: 0.05,
-          maxCount: 150000,
+          density: 0.045,
+          maxCount: 130000,
           speed: 11,
           ballRadius: [5, 12],
           omega: 1.0,
           beta: 1.2,
           base: 0.07,
           mono: 0.85,
-          dim: 0.45,
+          dim: 0.42,
           speedScale: 0.5,
           omegaScale: 0.5,
         }}
-        interactive={{ onClick: () => console.log('enter'), hoverIntensity: 1.9 }}
       />
-    </div>
+      <Nav active={active} />
+      <main>
+        <Hero />
+        <Pillars />
+        <Consulting />
+        <Work />
+        <About />
+        <Contact />
+        <Footer />
+      </main>
+    </>
   );
 }

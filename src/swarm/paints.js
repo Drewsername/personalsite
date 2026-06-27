@@ -53,6 +53,46 @@ export function scenePaint({
   };
 }
 
+// A single centered word, FILLED → the swarm's morph-target mask.
+export function wordMaskPaint(text, { fontFamily = '"JetBrains Mono", monospace', wFrac = 0.74, hFrac = 0.2, y = 0.5 } = {}) {
+  return (ctx, W, H) => {
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const base = 120;
+    ctx.font = `700 ${base}px ${fontFamily}`;
+    ctx.letterSpacing = `${base * 0.04}px`;
+    const m = ctx.measureText(text);
+    const asc = m.actualBoundingBoxAscent || base * 0.8;
+    const desc = m.actualBoundingBoxDescent || base * 0.2;
+    const fs = Math.min((wFrac * W) / m.width, (hFrac * H) / (asc + desc)) * base;
+    ctx.font = `700 ${fs}px ${fontFamily}`;
+    ctx.letterSpacing = `${fs * 0.04}px`;
+    ctx.fillText(text, W / 2, H * y);
+  };
+}
+
+// The same word, STROKED → the crisp overlay outline.
+export function wordOutlinePaint(text, { fontFamily = '"JetBrains Mono", monospace', wFrac = 0.74, hFrac = 0.2, y = 0.5, opacity = 0.5 } = {}) {
+  return (ctx, W, H) => {
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.strokeStyle = `rgba(255,255,255,${opacity})`;
+    ctx.lineJoin = 'round';
+    const base = 120;
+    ctx.font = `700 ${base}px ${fontFamily}`;
+    ctx.letterSpacing = `${base * 0.04}px`;
+    const m = ctx.measureText(text);
+    const asc = m.actualBoundingBoxAscent || base * 0.8;
+    const desc = m.actualBoundingBoxDescent || base * 0.2;
+    const fs = Math.min((wFrac * W) / m.width, (hFrac * H) / (asc + desc)) * base;
+    ctx.font = `700 ${fs}px ${fontFamily}`;
+    ctx.letterSpacing = `${fs * 0.04}px`;
+    ctx.lineWidth = Math.max(1.5, fs * 0.02);
+    ctx.strokeText(text, W / 2, H * y);
+  };
+}
+
 // A thin stroked outline of the same scene, to overlay ON TOP of the swarm so
 // the text/button read as a crisp shape. Same layout as scenePaint → aligned.
 export function sceneOutlinePaint({
