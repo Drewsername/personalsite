@@ -91,7 +91,13 @@ export function SwarmBackground({ words = [], outlineWords = [], config, blur = 
       ov.style.height = `${oh}px`;
       const octx = ov.getContext('2d');
       octx.clearRect(0, 0, ov.width, ov.height);
-      if (m.outWords.length) tallOutlinePaint(m.outWords, { hPx: m.hPx, wFrac: m.wFrac, opacity: 0.5 })(octx, m.W);
+      if (m.outWords.length) {
+        // Soft, blurred outline: adds shape/contrast to the name without a hard,
+        // obviously-drawn stroke — it melts into the swarm field behind it.
+        octx.filter = `blur(${Math.max(0, Math.round(m.hPx * 0.016))}px)`;
+        tallOutlinePaint(m.outWords, { hPx: m.hPx, wFrac: m.wFrac, opacity: 0.44 })(octx, m.W);
+        octx.filter = 'none';
+      }
     }
 
     function buildAll() {

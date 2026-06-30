@@ -20,7 +20,8 @@ const WORDS = [
   { id: 'slot-contact', text: 'Contact' },
   { id: 'footer', text: content.name },
 ];
-// Only the hero name gets the crisp outline; sections rely on their DOM heading.
+// The hero name gets a soft, blurred outline (drawn in SwarmBackground) that
+// adds definition without a hard, obviously-drawn stroke.
 const OUTLINE_WORDS = [{ id: 'top', text: content.name }];
 
 export default function App() {
@@ -40,9 +41,9 @@ export default function App() {
       omega: 1.0,
       beta: 1.2,
       base: mobile ? 0.085 : 0.07, // a touch brighter words on mobile
-      bgDark: mobile ? 0.28 : 0.4, // darker background → words read clearer
+      bgDark: 0.18, // darker background → more word contrast
       mono: 0.85,
-      dim: mobile ? 0.5 : 0.42,
+      dim: 0.52,
       speedScale: reduce ? 0 : 0.5,
       omegaScale: reduce ? 0 : 0.5,
     };
