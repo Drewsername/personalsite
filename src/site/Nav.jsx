@@ -1,54 +1,37 @@
 import { content } from './content.js';
+import { Button } from '@/components/ui/button';
 
-export function Nav({ active }) {
+export function Nav({ active, onNavigate }) {
+  // In deck mode the nav drives the scroll-jack controller; in the flow fallback
+  // `onNavigate` is absent and the links behave as ordinary anchors.
+  const jump = (id) => (e) => {
+    if (!onNavigate) return;
+    e.preventDefault();
+    onNavigate(id);
+  };
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 20,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-        padding: '14px var(--pad)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        background: 'linear-gradient(to bottom, rgba(6,7,11,0.72), rgba(6,7,11,0))',
-      }}
-    >
-      <a href="#top" className="mono" style={{ fontWeight: 500, letterSpacing: '0.4px', fontSize: 15 }}>
+    <nav className="fixed inset-x-0 top-0 z-20 flex items-center justify-between gap-4 border-b border-white/[0.06] bg-white/[0.04] px-[var(--pad)] py-3.5 backdrop-blur-xs backdrop-saturate-[1.3]">
+      <a href="#top" onClick={jump('top')} className="font-mono text-[15px] font-medium tracking-[0.4px]">
         {content.name}
       </a>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(14px, 2.4vw, 28px)' }}>
-        <div className="nav-links" style={{ display: 'flex', gap: 'clamp(14px, 2.4vw, 28px)' }}>
+      <div className="flex items-center gap-[clamp(14px,2.4vw,28px)]">
+        <div className="nav-links flex gap-[clamp(14px,2.4vw,28px)]">
           {content.nav.map((n) => (
             <a
               key={n.id}
               href={`#${n.id}`}
-              className="mono"
-              style={{ fontSize: 13, color: active === n.id ? 'var(--accent)' : 'var(--muted)', transition: 'color 0.2s' }}
+              onClick={jump(n.id)}
+              className={`font-mono text-[13px] transition-colors ${
+                active === n.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
               {n.label}
             </a>
           ))}
         </div>
-        <a
-          href={content.consulting.cta.href}
-          className="mono"
-          style={{
-            fontSize: 13,
-            color: 'var(--accent)',
-            border: '1px solid var(--accent)',
-            borderRadius: 999,
-            padding: '7px 15px',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Book a consult
-        </a>
+        <Button asChild variant="outline" className="h-auto rounded-full px-4 py-1.5 font-mono text-[13px]">
+          <a href={content.cta.href}>{content.cta.label}</a>
+        </Button>
       </div>
     </nav>
   );

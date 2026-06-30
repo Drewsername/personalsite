@@ -3,45 +3,25 @@
 // An empty band that reserves open space for a section's background swarm word,
 // so the word sits clear of the content below it (the swarm anchors to this id).
 export function WordSlot({ id }) {
-  return <div id={id} aria-hidden="true" style={{ height: 'clamp(200px, 32vh, 380px)', pointerEvents: 'none' }} />;
+  return <div id={id} aria-hidden="true" className="pointer-events-none h-[clamp(200px,32vh,380px)]" />;
 }
 
 export function Label({ children }) {
-  return (
-    <div className="mono" style={{ fontSize: 12, letterSpacing: '2px', color: 'var(--accent)', textTransform: 'uppercase' }}>
-      {children}
-    </div>
-  );
+  return <div className="font-mono text-xs uppercase tracking-[2px] text-primary">{children}</div>;
 }
 
 export function Heading({ children }) {
   return (
-    <h2
-      style={{
-        fontFamily: 'var(--font-mono)',
-        fontWeight: 500,
-        fontSize: 'clamp(28px, 5vw, 44px)',
-        letterSpacing: '-0.5px',
-        margin: '12px 0 0',
-      }}
-    >
-      {children}
-    </h2>
+    <h2 className="mt-3 font-mono text-[clamp(28px,5vw,44px)] font-medium tracking-[-0.5px]">{children}</h2>
   );
 }
 
-export function Section({ id, children, style }) {
+export function Section({ id, children, className = '', style }) {
   return (
     <section
       id={id}
-      style={{
-        position: 'relative',
-        zIndex: 1,
-        maxWidth: 'var(--maxw)',
-        margin: '0 auto',
-        padding: 'clamp(72px, 13vh, 150px) var(--pad)',
-        ...style,
-      }}
+      className={`relative z-[1] mx-auto max-w-[var(--maxw)] px-[var(--pad)] py-[clamp(72px,13vh,150px)] ${className}`}
+      style={style}
     >
       {children}
     </section>

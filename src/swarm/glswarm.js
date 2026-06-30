@@ -10,6 +10,13 @@
 // WHITE — the text) or a locally-shared colour (correlated → they sum to a vivid
 // hue — the background "noise"). Same balls, same motion, same brightness; only
 // the colour outcome differs.
+//
+// The word the swarm spells is defined by a SIGNED DISTANCE FIELD, not a bitmap.
+// Two SDFs (the word we're leaving and the word we're heading to) are sampled
+// every frame and blended by u_morphT. Because the in-between of two distance
+// fields is itself a smooth shape, the lit region grows/shrinks/travels from one
+// word into the next — and since the ball field keeps drifting underneath, it
+// reads as the swarm physically flowing into the next word.
 
 const VERT = `#version 300 es
 layout(location=0) in vec2 a_pos0;
@@ -25,7 +32,6 @@ uniform float u_beta;
 uniform float u_omega;
 uniform float u_speed;       // motion-rate scale (1 = full, <1 = calmer)
 uniform float u_omegascale;  // tumble-rate scale
-uniform float u_scroll;      // page scroll (px) — translates the field upward
 
 out vec2 v_center;
 out vec3 v_axis;
@@ -51,14 +57,10 @@ void main() {
   float my = a_pos0.y + a_vel.y * ts
            + SW * cos(0.43 * fa * ts + a_psi)
            + 0.5 * SW * cos(0.71 * fa * ts + a_seed * 6.2831);
-  // Move the field up with the page scroll, but at LESS than 1:1 so it flows
-  // relative to the page (and the word) instead of scrolling rigidly with it —
-  // a rigid 1:1 lock reads as a frozen image during the scroll gesture. The
-  // word stays anchored because the fragment samples the mask at the true
-  // document row under each ball (v_center.y + u_scroll), independent of how
-  // fast the balls themselves drift. Wrapping recycles balls off the top.
-  float sy = my - u_scroll * 0.5;
-  vec2 c = vec2(wrapf(mx, R, u_res.x - R), wrapf(sy, R, u_res.y - R));
+  // The field drifts within the fixed viewport and wraps at the edges; the word
+  // is anchored by the fragment sampling the SDF at this ball's screen position,
+  // independent of how the balls themselves drift.
+  vec2 c = vec2(wrapf(mx, R, u_res.x - R), wrapf(my, R, u_res.y - R));
   v_center = c;
 
   float sb = sin(u_beta), cb = cos(u_beta);
@@ -87,13 +89,10 @@ uniform float u_fade;
 uniform float u_bgdark;   // brightness of balls NOT in the text (≤1)
 uniform float u_mono;     // 0 = full rainbow, 1 = white/silver
 uniform float u_dim;      // overall brightness multiplier
-uniform sampler2D u_target; // document-tall mask
-uniform float u_scroll;     // current page scroll (px) — slides the mask up
-uniform float u_maskh;      // tall mask height (px) = document height
-uniform float u_namefade;   // 0 = hero name visible, 1 = faded into the field
-uniform float u_heroend;    // document Y (px) where the hero band ends
-uniform vec4 u_hot;
-uniform float u_hotk;
+uniform sampler2D u_sdfA; // signed distance field of the word we're leaving
+uniform sampler2D u_sdfB; // signed distance field of the word we're entering
+uniform float u_morphT;   // 0 = fully word A, 1 = fully word B
+uniform float u_edge;     // half-width of the soft glyph edge in SDF units
 
 out vec4 frag;
 
@@ -133,20 +132,15 @@ void main() {
   np += (warp - 0.5) * 4.5 + vec2(u_time * 0.04, u_time * -0.03);
   float noiseHue = fract(vnoise(np) + 0.5 * vnoise(np * 2.0));
 
-  // Sample the document-tall mask: x in viewport, y shifted by scroll so the
-  // word sits at its real page position and slides up as you scroll.
-  vec2 muv = vec2(v_center.x / u_res.x, (v_center.y + u_scroll) / u_maskh);
-  float g = texture(u_target, muv).r;
-  if (u_hot.z > 0.0 && v_center.x >= u_hot.x && v_center.x <= u_hot.x + u_hot.z &&
-      v_center.y >= u_hot.y && v_center.y <= u_hot.y + u_hot.w) {
-    g = clamp(g * (1.0 + u_hotk), 0.0, 1.0);
-  }
-
-  // Fade the hero name out with scroll: weaken its text mask within the hero
-  // band so its letters dissolve back into the field as you scroll down.
-  float docY = v_center.y + u_scroll;
-  float heroBand = 1.0 - smoothstep(u_heroend * 0.7, u_heroend, docY);
-  g *= 1.0 - u_namefade * heroBand;
+  // Sample BOTH distance fields at this ball's screen position and blend them.
+  // Each field stores 0.5 at the glyph edge, <0.5 inside, >0.5 outside; the
+  // blend of two distance fields is itself a valid in-between shape, so the
+  // glyphs of word A morph into the glyphs of word B as u_morphT goes 0→1.
+  vec2 muv = v_center / u_res;
+  float dA = texture(u_sdfA, muv).r;
+  float dB = texture(u_sdfB, muv).r;
+  float dd = mix(dA, dB, u_morphT);
+  float g = smoothstep(0.5 + u_edge, 0.5 - u_edge, dd); // 1 inside the word
 
   // Over text → own colour (decorrelated → white); off text → shared (→ vivid).
   float hue = mix(noiseHue, rainHue, g);
@@ -219,32 +213,29 @@ export class GLSwarm {
       base: gl.getUniformLocation(prog, 'u_base'),
       fade: gl.getUniformLocation(prog, 'u_fade'),
       bgdark: gl.getUniformLocation(prog, 'u_bgdark'),
-      target: gl.getUniformLocation(prog, 'u_target'),
-      scroll: gl.getUniformLocation(prog, 'u_scroll'),
-      maskh: gl.getUniformLocation(prog, 'u_maskh'),
-      namefade: gl.getUniformLocation(prog, 'u_namefade'),
-      heroend: gl.getUniformLocation(prog, 'u_heroend'),
-      hot: gl.getUniformLocation(prog, 'u_hot'),
-      hotk: gl.getUniformLocation(prog, 'u_hotk'),
+      sdfA: gl.getUniformLocation(prog, 'u_sdfA'),
+      sdfB: gl.getUniformLocation(prog, 'u_sdfB'),
+      morphT: gl.getUniformLocation(prog, 'u_morphT'),
+      edge: gl.getUniformLocation(prog, 'u_edge'),
     };
 
     this.vbo = gl.createBuffer();
     this.vao = gl.createVertexArray();
-    this.tex = this._maskTex();
-    this.scroll = 0; // page scroll offset (px)
-    this.maskH = 0; // tall mask height (px)
-    this.nameFade = 0; // 0 = hero name visible, 1 = faded
-    this.heroEnd = 1e9; // document Y where the hero band ends
+    this.fallbackTex = this._blankTex(); // bound when a word index is missing
+    this.sdfTexs = []; // one signed-distance-field texture per word
+
+    // Morph state: which word we're leaving (from), heading to (to), and how far
+    // along (t ∈ [0,1]). Settled on a word ⇒ from === to.
+    this.morph = { from: 0, to: 0, t: 0 };
+    this.edge = 0.06; // soft glyph edge half-width in SDF units (0.5 = at edge)
 
     this.count = 0;
     this.W = 0;
     this.H = 0;
     this.dpr = 1;
-    this.hot = [0, 0, 0, 0];
-    this.hotk = 0;
   }
 
-  _maskTex() {
+  _newTex() {
     const gl = this.gl;
     const tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -255,31 +246,44 @@ export class GLSwarm {
     return tex;
   }
 
-  _uploadMask(tex, canvas) {
+  // A 1×1 fully-outside field (value 1.0) used when a word slot is empty so the
+  // shader always has a valid texture bound to both samplers.
+  _blankTex() {
     const gl = this.gl;
+    const tex = this._newTex();
     gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+      new Uint8Array([255, 255, 255, 255]));
+    return tex;
   }
 
-  // Slide the tall mask to the current page scroll position (px).
-  setScroll(px) {
-    this.scroll = px;
+  // Upload one SDF-encoded canvas per word. Replaces any previous set.
+  setSDFs(canvases) {
+    const gl = this.gl;
+    for (const t of this.sdfTexs) gl.deleteTexture(t);
+    this.sdfTexs = canvases.map((cnv) => {
+      const tex = this._newTex();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cnv);
+      return tex;
+    });
   }
 
-  // Fade the hero name (0 = visible, 1 = dissolved); end = doc Y of hero band.
-  setNameFade(v, end) {
-    this.nameFade = v;
-    if (end !== undefined) this.heroEnd = end;
+  // Set the soft glyph edge half-width (SDF units). Smaller = crisper.
+  setEdge(e) {
+    this.edge = e;
   }
 
-  // Swap in a new tall mask (e.g. after a resize/reflow) without rebuilding balls.
-  setMask(targetCanvas, maskH) {
-    this._uploadMask(this.tex, targetCanvas);
-    this.maskH = maskH || this.H;
+  // Blend between word `from` and word `to`, fraction `t` of the way across.
+  setMorph(from, to, t) {
+    const n = this.sdfTexs.length;
+    this.morph.from = n ? Math.max(0, Math.min(n - 1, from | 0)) : 0;
+    this.morph.to = n ? Math.max(0, Math.min(n - 1, to | 0)) : 0;
+    this.morph.t = Math.max(0, Math.min(1, t));
   }
 
-  build(W, H, dpr, targetCanvas, maskH) {
+  build(W, H, dpr) {
     const gl = this.gl;
     this.W = W;
     this.H = H;
@@ -331,14 +335,10 @@ export class GLSwarm {
     set(3, 1, 5);
     set(4, 1, 6);
     gl.bindVertexArray(null);
-
-    this._uploadMask(this.tex, targetCanvas);
-    this.maskH = maskH || H;
   }
 
-  setHot(rect, k) {
-    this.hot = rect ? [rect.x, rect.y, rect.w, rect.h] : [0, 0, 0, 0];
-    this.hotk = k;
+  _texForWord(i) {
+    return this.sdfTexs[i] || this.fallbackTex;
   }
 
   render(t) {
@@ -362,16 +362,16 @@ export class GLSwarm {
     gl.uniform1f(this.u.base, this.cfg.base);
     gl.uniform1f(this.u.fade, this.cfg.fadeIn > 0 ? Math.min(1, t / this.cfg.fadeIn) : 1);
     gl.uniform1f(this.u.bgdark, this.cfg.bgDark);
-    gl.uniform1i(this.u.target, 0);
-    gl.uniform1f(this.u.scroll, this.scroll);
-    gl.uniform1f(this.u.maskh, this.maskH || this.H);
-    gl.uniform1f(this.u.namefade, this.nameFade);
-    gl.uniform1f(this.u.heroend, this.heroEnd);
-    gl.uniform4f(this.u.hot, this.hot[0], this.hot[1], this.hot[2], this.hot[3]);
-    gl.uniform1f(this.u.hotk, this.hotk);
+    gl.uniform1f(this.u.morphT, this.morph.t);
+    gl.uniform1f(this.u.edge, this.edge);
 
+    gl.uniform1i(this.u.sdfA, 0);
+    gl.uniform1i(this.u.sdfB, 1);
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    gl.bindTexture(gl.TEXTURE_2D, this._texForWord(this.morph.from));
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, this._texForWord(this.morph.to));
+
     gl.bindVertexArray(this.vao);
     gl.drawArrays(gl.POINTS, 0, this.count);
     gl.bindVertexArray(null);
@@ -382,7 +382,8 @@ export class GLSwarm {
     const gl = this.gl;
     gl.deleteBuffer(this.vbo);
     gl.deleteVertexArray(this.vao);
-    gl.deleteTexture(this.tex);
+    for (const t of this.sdfTexs) gl.deleteTexture(t);
+    gl.deleteTexture(this.fallbackTex);
     gl.deleteProgram(this.prog);
   }
 }

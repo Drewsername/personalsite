@@ -1,50 +1,35 @@
 // Single source of truth for all site copy. Edit here.
-// [placeholder] markers are content for Drew to replace.
 
 export const content = {
   name: 'Drew Bermudez',
   tagline: 'creative technologist',
 
   nav: [
-    { id: 'consulting', label: 'Consulting' },
-    { id: 'work', label: 'Work' },
-    { id: 'about', label: 'About' },
+    { id: 'projects', label: 'Projects' },
+    { id: 'advisory', label: 'Advisory' },
+    { id: 'opinions', label: 'Opinions' },
     { id: 'contact', label: 'Contact' },
   ],
 
-  pillars: [
-    { id: 'consulting', icon: 'scale', title: 'Legal consulting', blurb: 'Advisory, deals, and strategy for founders and teams.' },
-    { id: 'work', icon: 'sparkles', title: 'Creative work', blurb: 'Interactive experiments and engineered visuals.' },
+  // Home landing cards (2×2 grid). Each routes to its section panel.
+  cards: [
+    { id: 'projects', label: 'Projects' },
+    { id: 'advisory', label: 'Advisory / Consulting' },
+    { id: 'opinions', label: 'Opinions' },
+    { id: 'contact', label: 'Contact' },
   ],
 
-  consulting: {
-    intro: '[placeholder] One or two sentences on who you help and the outcomes you deliver — the through-line that makes a prospective client feel understood.',
-    services: [
-      { title: '[placeholder] Advisory', body: 'Ongoing counsel on contracts, structure, and risk.' },
-      { title: '[placeholder] Transactions', body: 'Hands-on support through deals and negotiations.' },
-      { title: '[placeholder] Strategy', body: 'Translating legal complexity into clear decisions.' },
-    ],
-    cta: { label: 'Book a consult', href: 'mailto:drewtbermudez@gmail.com?subject=Consulting%20enquiry' },
+  // Section panels. `word` is the giant swarm word behind the panel; the body is
+  // intentionally empty for now — each section is under construction.
+  sections: {
+    projects: { word: 'Projects', label: 'Projects', heading: 'Projects' },
+    advisory: { word: 'Advisory', label: 'Advisory', heading: 'Advisory / Consulting' },
+    opinions: { word: 'Opinions', label: 'Opinions', heading: 'Opinions' },
+    contact: { word: 'Contact', label: 'Contact', heading: 'Contact' },
   },
 
-  work: [
-    { title: 'Swarm', blurb: 'A WebGL field of identical balls that resolves into text by additive color overlap.', href: '#' },
-    { title: '[placeholder] Project two', blurb: 'Short blurb describing the work and your role.', href: '#' },
-    { title: '[placeholder] Project three', blurb: 'Short blurb describing the work and your role.', href: '#' },
-  ],
-
-  about: {
-    body: "[placeholder] A short bio that bridges both sides — the lawyer's discipline and the builder's curiosity — in your own voice. Two or three sentences is plenty.",
-  },
-
-  contact: {
-    email: 'drewtbermudez@gmail.com',
-    calendar: '', // [placeholder] paste a calendar link (Cal.com / Calendly) to enable the button
-    socials: [
-      { label: 'GitHub', href: '#' },
-      { label: 'LinkedIn', href: '#' },
-    ],
-  },
+  // Nav CTA. Login is a placeholder for now — no auth flow wired up yet.
+  cta: { label: 'Login', href: '#' },
 
   accent: '#35E0FF',
 };

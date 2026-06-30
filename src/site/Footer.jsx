@@ -4,14 +4,9 @@ import { content } from './content.js';
 // quiet sign-off.
 export function Footer() {
   return (
-    <footer
-      id="footer"
-      style={{ position: 'relative', zIndex: 1, padding: 'clamp(80px, 18vh, 180px) var(--pad) 56px', textAlign: 'center' }}
-    >
-      <div style={{ height: '20vh' }} />
-      <div className="mono" style={{ fontSize: 12, color: 'var(--faint)' }}>
-        © 2026 {content.name}
-      </div>
+    <footer id="footer" className="relative z-[1] px-[var(--pad)] pt-[clamp(80px,18vh,180px)] pb-14 text-center">
+      <div className="h-[20vh]" />
+      <div className="font-mono text-xs text-faint">© 2026 {content.name}</div>
     </footer>
   );
 }
