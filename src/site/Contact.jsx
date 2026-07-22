@@ -57,8 +57,8 @@ export function ContactSection() {
       {state === 'done' ? (
         <p className="mt-6 font-mono text-sm text-primary">{c.thanks}</p>
       ) : (
-        <form onSubmit={submit} className="mt-6 flex flex-col gap-2.5">
-          <div className="flex max-w-[560px] flex-col gap-2.5 sm:flex-row">
+        <form onSubmit={submit} className="mt-5 flex flex-col gap-2 md:mt-6 md:gap-2.5">
+          <div className="flex max-w-[560px] flex-col gap-2 sm:flex-row md:gap-2.5">
             <input
               type="text"
               required
@@ -85,7 +85,7 @@ export function ContactSection() {
             placeholder="Your message"
             aria-label="Your message"
             rows={4}
-            className="max-w-[560px] resize-none rounded-2xl border border-input bg-white/[0.04] px-4 py-3 font-mono text-[13px] leading-relaxed text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+            className="h-[88px] max-w-[560px] resize-none rounded-2xl border border-input bg-white/[0.04] px-4 py-3 font-mono text-[13px] leading-relaxed text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 md:h-auto"
           />
           <div>
             <Button

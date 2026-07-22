@@ -8,7 +8,6 @@ import { BookSection } from './site/Book.jsx';
 import { ContactSection } from './site/Contact.jsx';
 import { ProjectsSection } from './site/Projects.jsx';
 import { useScrollDeck } from './site/useScrollDeck.js';
-import { CONTENT_TOP } from './site/deckLayout.js';
 
 // One panel per word. The swarm spells `word`; the foreground is the home cards
 // (top) or a section header (everything else).
@@ -274,15 +273,20 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
               />
             ) : (
               <>
-                {/* Reserve the top-third band for the swarm word so content never overlaps it. */}
-                <div className="shrink-0" style={{ height: `${CONTENT_TOP * 100}vh` }} aria-hidden="true" />
+                {/* Reserve room for the swarm word so content never overlaps it.
+                    On phones a single-line section word is width-limited (~30vh
+                    bottom edge), so sections start at 34vh there — only the hero's
+                    two-line name needs the full 42vh (= CONTENT_TOP) band. */}
+                <div
+                  className={`shrink-0 ${p.id === 'top' ? 'h-[42vh]' : 'h-[34vh] md:h-[42vh]'}`}
+                  aria-hidden="true"
+                />
                 {/* Content gets the leftover viewport: min-h-0 stops this flex child
                     from growing to its natural height. A section taller than the
-                    budget (≈ (1 - CONTENT_TOP) of the viewport, e.g. the Book panel
-                    on a phone) scrolls natively inside the deck — the scroll-jack
-                    hands wheel/touch gestures over via data-deck-scroll. Content is
+                    budget scrolls natively inside the deck — the scroll-jack hands
+                    wheel/touch gestures over via data-deck-scroll. Content is
                     top-aligned so sections start right under the word band. */}
-                <div data-deck-scroll className="flex min-h-0 flex-1 overflow-y-auto overscroll-contain pb-16">
+                <div data-deck-scroll className="flex min-h-0 flex-1 overflow-y-auto overscroll-contain pb-14 md:pb-16">
                   <div className="mx-auto w-full max-w-[var(--maxw)]">
                     <PanelContent id={p.id} onNavigate={onNavigate} />
                   </div>
@@ -381,8 +385,12 @@ function FlowMode({ swarmRef, config, onFirstFrame }) {
               id={p.id}
               className="relative z-[1] flex min-h-screen flex-col px-[var(--pad)]"
             >
-              {/* Reserve the top-third band for the swarm word so content never overlaps it. */}
-              <div className="shrink-0" style={{ height: `${CONTENT_TOP * 100}vh` }} aria-hidden="true" />
+              {/* Reserve room for the swarm word (see DeckMode: hero needs the full
+                  band; single-line section words free ~8vh on phones). */}
+              <div
+                className={`shrink-0 ${p.id === 'top' ? 'h-[42vh]' : 'h-[34vh] md:h-[42vh]'}`}
+                aria-hidden="true"
+              />
               <div className="flex-1 pb-24">
                 <div className="mx-auto w-full max-w-[var(--maxw)]">
                   <PanelContent id={p.id} />
