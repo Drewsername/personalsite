@@ -91,7 +91,9 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
         style={{
           left: 'var(--pad)',
           right: 'var(--pad)',
-          top: `${CONTENT_TOP * 100}vh`,
+          // Single-line word on phones ends ~30vh, so the reel can start higher
+          // there (taller strips); desktop keeps the shared CONTENT_TOP.
+          top: mobile ? '34vh' : `${CONTENT_TOP * 100}vh`,
           bottom: '72px',
           opacity: isOpen ? 0 : 1,
           pointerEvents: isOpen ? 'none' : 'auto',
