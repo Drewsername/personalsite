@@ -4,6 +4,7 @@ import { content } from './site/content.js';
 import { Nav } from './site/Nav.jsx';
 import { HeroPanel } from './site/Hero.jsx';
 import { UnderConstruction } from './site/Stub.jsx';
+import { ProjectsSection } from './site/Projects.jsx';
 import { useScrollDeck } from './site/useScrollDeck.js';
 import { CONTENT_TOP } from './site/deckLayout.js';
 
@@ -16,8 +17,86 @@ const PANELS = [
   { id: 'opinions', word: content.sections.opinions.word },
   { id: 'contact', word: content.sections.contact.word },
 ];
-const WORDS = PANELS.map((p) => p.word);
+// The swarm's word list is the panel words plus one word per project: when a
+// project is opened from the Projects panel, the swarm morphs from "Projects"
+// to that project's name. PROJECT_WORD_BASE is the index of the first one.
+const WORDS = [...PANELS.map((p) => p.word), ...content.projects.map((p) => p.name)];
+const PROJECT_WORD_BASE = PANELS.length;
 const indexOfId = (id) => PANELS.findIndex((p) => p.id === id);
+const PROJECTS_PANEL = indexOfId('projects');
+
+const easeInOutCubic = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+// Shared open/close state for the Projects reel. Returns the open index, the
+// open/close/hop handlers, and `wordFor` — the panel-index → word-index map the
+// deck's morphs are routed through, so leaving the Projects panel with a
+// project open morphs from that project's NAME, not from "Projects".
+function useProjectPages(swarmRef, { tween = true } = {}) {
+  const [openProject, setOpenProject] = useState(-1);
+  const openRef = useRef(-1);
+  const animRef = useRef(false);
+
+  const wordFor = useCallback(
+    (panel) => (panel === PROJECTS_PANEL && openRef.current >= 0 ? PROJECT_WORD_BASE + openRef.current : panel),
+    []
+  );
+
+  // Morph the swarm between two word indices with the deck's easing. Under
+  // reduced motion / flow mode the word just snaps.
+  const morphWord = useCallback(
+    (fromW, toW, done) => {
+      if (!tween) {
+        swarmRef.current?.setMorph(toW, toW, 0);
+        done?.();
+        return;
+      }
+      animRef.current = true;
+      const t0 = performance.now();
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / 850);
+        swarmRef.current?.setMorph(fromW, toW, easeInOutCubic(p));
+        if (p < 1) {
+          requestAnimationFrame(step);
+        } else {
+          swarmRef.current?.setMorph(toW, toW, 0);
+          animRef.current = false;
+          done?.();
+        }
+      };
+      requestAnimationFrame(step);
+    },
+    [swarmRef, tween]
+  );
+
+  const openProjectAt = useCallback(
+    (i) => {
+      if (animRef.current || i === openRef.current) return;
+      const fromW = wordFor(PROJECTS_PANEL);
+      openRef.current = i;
+      setOpenProject(i);
+      morphWord(fromW, PROJECT_WORD_BASE + i);
+    },
+    [morphWord, wordFor]
+  );
+
+  const closeProject = useCallback(() => {
+    if (animRef.current || openRef.current < 0) return;
+    const fromW = PROJECT_WORD_BASE + openRef.current;
+    setOpenProject(-1);
+    morphWord(fromW, PROJECTS_PANEL, () => {
+      openRef.current = -1;
+    });
+  }, [morphWord]);
+
+  // Silent reset (no morph) once the deck has settled on another panel — the
+  // departing morph already carried the word away.
+  const resetProject = useCallback(() => {
+    openRef.current = -1;
+    setOpenProject(-1);
+  }, []);
+
+  return { openProject, openProjectAt, closeProject, resetProject, wordFor };
+}
 
 function hasWebGL2() {
   try {
@@ -114,7 +193,21 @@ export default function App() {
 
 // ── Scroll-jacked full-screen panel deck ──────────────────────────────────────
 function DeckMode({ swarmRef, config, onFirstFrame }) {
-  const { index, phase, goTo } = useScrollDeck(PANELS.length, swarmRef, { duration: 850 });
+  const { openProject, openProjectAt, closeProject, resetProject, wordFor } =
+    useProjectPages(swarmRef);
+
+  // The deck drives morphs by PANEL index; route them through `wordFor` so the
+  // Projects panel spells the open project's name.
+  const deckSwarmRef = useRef(null);
+  deckSwarmRef.current = {
+    setMorph: (a, b, t) => swarmRef.current?.setMorph(wordFor(a), wordFor(b), t),
+  };
+  const { index, phase, goTo } = useScrollDeck(PANELS.length, deckSwarmRef, { duration: 850 });
+
+  // Once the deck settles on another panel, quietly forget the open project.
+  useEffect(() => {
+    if (index !== PROJECTS_PANEL) resetProject();
+  }, [index, resetProject]);
 
   // Lock the document so only the panel cross-fade moves.
   useEffect(() => {
@@ -128,7 +221,10 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
 
   const onNavigate = (id) => {
     const i = indexOfId(id);
-    if (i >= 0) goTo(i);
+    if (i < 0) return;
+    // Clicking "Projects" while a project page is open returns to the reel.
+    if (i === PROJECTS_PANEL && index === PROJECTS_PANEL && openProject >= 0) closeProject();
+    else goTo(i);
   };
 
   // Per-panel opacity + drift, derived from the live morph phase.
@@ -165,21 +261,37 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
             style={panelStyle(i)}
             aria-hidden={i !== index}
           >
-            {/* Reserve the top-third band for the swarm word so content never overlaps it. */}
-            <div className="shrink-0" style={{ height: `${CONTENT_TOP * 100}vh` }} aria-hidden="true" />
-            {/* Content is capped to the leftover viewport: min-h-0 stops this flex
-                child from growing to its natural height, and overflow-hidden means a
-                too-tall section is clipped (a design signal) — never a scrollbar.
-                Section budget ≈ (1 - CONTENT_TOP) of the viewport height. */}
-            <div className="flex min-h-0 flex-1 items-center overflow-hidden pb-16">
-              <div className="mx-auto w-full max-w-[var(--maxw)]">
-                <PanelContent id={p.id} onNavigate={onNavigate} />
-              </div>
-            </div>
+            {p.id === 'projects' ? (
+              // The Projects reel lays itself out in absolute layers (it needs
+              // full-bleed project pages), so it skips the shared scaffolding.
+              <ProjectsSection
+                open={openProject}
+                onOpen={openProjectAt}
+                onClose={closeProject}
+                active={index === PROJECTS_PANEL}
+              />
+            ) : (
+              <>
+                {/* Reserve the top-third band for the swarm word so content never overlaps it. */}
+                <div className="shrink-0" style={{ height: `${CONTENT_TOP * 100}vh` }} aria-hidden="true" />
+                {/* Content is capped to the leftover viewport: min-h-0 stops this flex
+                    child from growing to its natural height, and overflow-hidden means a
+                    too-tall section is clipped (a design signal) — never a scrollbar.
+                    Section budget ≈ (1 - CONTENT_TOP) of the viewport height. */}
+                <div className="flex min-h-0 flex-1 items-center overflow-hidden pb-16">
+                  <div className="mx-auto w-full max-w-[var(--maxw)]">
+                    <PanelContent id={p.id} onNavigate={onNavigate} />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </main>
-      <DeckHint index={index} total={PANELS.length} onNavigate={onNavigate} />
+      {/* With a project page open, the reel's own dot rail takes over. */}
+      {openProject < 0 || index !== PROJECTS_PANEL ? (
+        <DeckHint index={index} total={PANELS.length} onNavigate={onNavigate} />
+      ) : null}
     </>
   );
 }
@@ -211,6 +323,9 @@ function DeckHint({ index, total, onNavigate }) {
 // ── Reduced-motion / no-WebGL fallback: a normal scrolling page ───────────────
 function FlowMode({ swarmRef, config, onFirstFrame }) {
   const [index, setIndex] = useState(0);
+  const { openProject, openProjectAt, closeProject, wordFor } = useProjectPages(swarmRef, {
+    tween: false,
+  });
 
   // Scroll-spy: set the swarm word to whichever panel is centred. No morph tween
   // — just snap the field to the active word.
@@ -224,7 +339,8 @@ function FlowMode({ swarmRef, config, onFirstFrame }) {
         const el = document.getElementById(id);
         if (el && el.getBoundingClientRect().top <= refY) cur = i;
       });
-      swarmRef.current?.setMorph(cur, cur, 0);
+      const w = wordFor(cur);
+      swarmRef.current?.setMorph(w, w, 0);
       setIndex((p) => (p !== cur ? cur : p));
     };
     const onScroll = () => {
@@ -241,28 +357,36 @@ function FlowMode({ swarmRef, config, onFirstFrame }) {
       window.removeEventListener('scroll', onScroll);
       clearTimeout(t);
     };
-  }, [swarmRef]);
+  }, [swarmRef, wordFor, openProject]);
 
   return (
     <>
       <SwarmBackground words={WORDS} config={config} controlRef={swarmRef} onFirstFrame={onFirstFrame} />
       <Nav active={PANELS[index].id} />
       <main>
-        {PANELS.map((p) => (
-          <section
-            key={p.id}
-            id={p.id}
-            className="relative z-[1] flex min-h-screen flex-col px-[var(--pad)]"
-          >
-            {/* Reserve the top-third band for the swarm word so content never overlaps it. */}
-            <div className="shrink-0" style={{ height: `${CONTENT_TOP * 100}vh` }} aria-hidden="true" />
-            <div className="flex-1 pb-24">
-              <div className="mx-auto w-full max-w-[var(--maxw)]">
-                <PanelContent id={p.id} />
+        {PANELS.map((p) =>
+          p.id === 'projects' ? (
+            // The reel positions itself absolutely, so its section needs a fixed
+            // height (its content is out of flow) — one viewport, like the deck.
+            <section key={p.id} id={p.id} className="relative z-[1] h-screen overflow-hidden">
+              <ProjectsSection open={openProject} onOpen={openProjectAt} onClose={closeProject} />
+            </section>
+          ) : (
+            <section
+              key={p.id}
+              id={p.id}
+              className="relative z-[1] flex min-h-screen flex-col px-[var(--pad)]"
+            >
+              {/* Reserve the top-third band for the swarm word so content never overlaps it. */}
+              <div className="shrink-0" style={{ height: `${CONTENT_TOP * 100}vh` }} aria-hidden="true" />
+              <div className="flex-1 pb-24">
+                <div className="mx-auto w-full max-w-[var(--maxw)]">
+                  <PanelContent id={p.id} />
+                </div>
               </div>
-            </div>
-          </section>
-        ))}
+            </section>
+          )
+        )}
       </main>
     </>
   );
