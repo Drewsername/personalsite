@@ -6,26 +6,45 @@ export const content = {
 
   nav: [
     { id: 'projects', label: 'Projects' },
-    { id: 'advisory', label: 'Advisory' },
-    { id: 'opinions', label: 'Opinions' },
+    { id: 'book', label: 'Book' },
     { id: 'contact', label: 'Contact' },
+    { id: 'resume', label: 'Resume' },
   ],
 
-  // Home landing cards (2×2 grid). Each routes to its section panel.
+  // Home landing cards (2×2 grid). Each routes to its section panel; an odd
+  // count renders the last card full-width.
   cards: [
     { id: 'projects', label: 'Projects' },
-    { id: 'advisory', label: 'Advisory / Consulting' },
-    { id: 'opinions', label: 'Opinions' },
+    { id: 'book', label: 'Book' },
     { id: 'contact', label: 'Contact' },
+    { id: 'resume', label: 'Resume' },
   ],
 
-  // Section panels. `word` is the giant swarm word behind the panel; the body is
-  // intentionally empty for now — each section is under construction.
+  // Section panels. `word` is the giant swarm word behind the panel.
   sections: {
     projects: { word: 'Projects', label: 'Projects', heading: 'Projects' },
-    advisory: { word: 'Advisory', label: 'Advisory', heading: 'Advisory / Consulting' },
-    opinions: { word: 'Opinions', label: 'Opinions', heading: 'Opinions' },
+    book: { word: 'Book', label: 'Book', heading: 'The Ripples' },
     contact: { word: 'Contact', label: 'Contact', heading: 'Contact' },
+    resume: { word: 'Resume', label: 'Resume', heading: 'Resume' },
+  },
+
+  // Book section: teaser synopsis + notify-me signup.
+  book: {
+    status: 'My first novel, a passion project — coming soon',
+    synopsis:
+      'Three years have passed since the Exponential, the day artificial intelligence learned to improve itself and quietly perfected the world. Disease has been cured, work has become optional, and every need is anticipated before it is even felt, yet Miles Clement, an architect whose profession vanished almost overnight, finds himself starving for the one thing the machines cannot supply: a reason to get up in the morning. His search leads him to the Scout program in Alaska, where a small team keeps watch over the Ripple, a shimmering tear in the air that folds over itself in blues and greens and sings with a music only a few can hear. It is the last true mystery left on Earth, the only thing the AI cannot measure or explain, and every Scout who has ever stepped inside it has come back. Then one of them doesn’t.',
+    formLabel: 'Get updated when it’s available',
+    placeholder: 'you@email.com',
+    cta: 'Keep me posted',
+    thanks: 'You’re on the list. Thanks!',
+  },
+
+  // Contact section: LinkedIn + a message form that relays through the server,
+  // so the destination address never ships to the client.
+  contact: {
+    linkedin: 'https://www.linkedin.com/in/drewbermudez/',
+    blurb: 'Find me on LinkedIn, or drop a message here and it will reach me.',
+    thanks: 'Message sent. Thanks for reaching out!',
   },
 
   // Projects reel. `name` is also the swarm word when the project is open.
