@@ -280,10 +280,10 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
                     from growing to its natural height. A section taller than the
                     budget (≈ (1 - CONTENT_TOP) of the viewport, e.g. the Book panel
                     on a phone) scrolls natively inside the deck — the scroll-jack
-                    hands wheel/touch gestures over via data-deck-scroll. my-auto on
-                    the inner div centers short content without clipping tall content. */}
+                    hands wheel/touch gestures over via data-deck-scroll. Content is
+                    top-aligned so sections start right under the word band. */}
                 <div data-deck-scroll className="flex min-h-0 flex-1 overflow-y-auto overscroll-contain pb-16">
-                  <div className="mx-auto my-auto w-full max-w-[var(--maxw)]">
+                  <div className="mx-auto w-full max-w-[var(--maxw)]">
                     <PanelContent id={p.id} onNavigate={onNavigate} />
                   </div>
                 </div>

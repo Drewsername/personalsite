@@ -56,6 +56,11 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
   const projects = content.projects;
   const isOpen = open >= 0;
 
+  // Mobile full-screen demo viewer, opened from a project page. Closes itself
+  // whenever the open project changes (including closing the page).
+  const [demo, setDemo] = useState(false);
+  useEffect(() => setDemo(false), [open]);
+
   return (
     <>
       {/* Full-bleed recording behind the open project page. */}
@@ -67,9 +72,15 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
           style={{ opacity: isOpen && open === i ? 1 : 0 }}
         >
           <Recording src={p.video} tint={p.tint} playing={active && isOpen && open === i} />
+          {/* On phones the recording is heavily dimmed — it's ambience behind the
+              text there, and the "watch demo" viewer is the way to actually watch. */}
           <div
             className="absolute inset-0"
-            style={{ background: 'linear-gradient(180deg, rgba(6,7,11,0.35), rgba(6,7,11,0.72))' }}
+            style={{
+              background: mobile
+                ? 'linear-gradient(180deg, rgba(6,7,11,0.72), rgba(6,7,11,0.9))'
+                : 'linear-gradient(180deg, rgba(6,7,11,0.35), rgba(6,7,11,0.72))',
+            }}
           />
         </div>
       ))}
@@ -169,10 +180,19 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
                   via data-deck-scroll. Desktop bodies fit — no scrollbar. */}
               <p
                 data-deck-scroll
-                className="max-h-[min(40vh,340px)] max-w-[660px] overflow-y-auto overscroll-contain pr-1 text-[clamp(13.5px,1.6vw,15.5px)] leading-[1.75] text-[#c6ccda] [text-wrap:pretty]"
+                className="max-h-[min(32vh,340px)] max-w-[660px] overflow-y-auto overscroll-contain pr-1 text-[clamp(13.5px,1.6vw,15.5px)] leading-[1.75] text-[#c6ccda] [text-wrap:pretty]"
               >
                 {p.body}
               </p>
+              {mobile ? (
+                <button
+                  type="button"
+                  onClick={() => setDemo(true)}
+                  className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 font-mono text-xs tracking-[1px] text-primary transition-colors hover:bg-primary/20"
+                >
+                  ▶ watch demo (silent)
+                </button>
+              ) : null}
             </div>
           </div>
         );
@@ -210,6 +230,29 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
               />
             ))}
           </div>
+        </div>
+      ) : null}
+
+      {/* Full-screen demo viewer (mobile): the recording, undimmed, over
+          everything. Fixed so it escapes the panel's transform/stacking. */}
+      {demo && isOpen ? (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-background">
+          <video
+            key={projects[open].video}
+            src={projects[open].video}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="h-full w-full object-contain"
+          />
+          <button
+            type="button"
+            onClick={() => setDemo(false)}
+            className="absolute right-4 top-4 inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/[0.2] bg-background/60 px-4 py-2 font-mono text-xs tracking-[1px] text-foreground backdrop-blur-[4px]"
+          >
+            ✕ close
+          </button>
         </div>
       ) : null}
     </>
