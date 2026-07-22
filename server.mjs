@@ -54,7 +54,31 @@ app.post('/api/contact', async (req, res) => {
     console.error('contact write failed:', err);
     return res.status(500).json({ error: 'write failed' });
   }
-  if (process.env.SMTP_HOST) {
+  if (process.env.RESEND_API_KEY) {
+    // Railway blocks outbound SMTP below the Pro plan, so delivery goes over
+    // Resend's HTTPS API. Without a verified domain, Resend only delivers to
+    // the account owner's own address — fine for a contact-form-to-self relay.
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM || 'Contact Form <onboarding@resend.dev>',
+          to: [CONTACT_TO],
+          reply_to: `${name} <${email}>`,
+          subject: `drewbermudez.com contact: ${name}`,
+          text: `From: ${name} <${email}>\n\n${message}`,
+        }),
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!r.ok) console.error('resend send failed:', r.status, await r.text());
+    } catch (err) {
+      console.error('resend send failed:', err);
+    }
+  } else if (process.env.SMTP_HOST) {
     try {
       const { default: nodemailer } = await import('nodemailer');
       // Railway containers have no public IPv6 route, and Gmail's SMTP DNS
