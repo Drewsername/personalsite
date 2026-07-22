@@ -1,8 +1,8 @@
 import { content } from './content.js';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 
-// The name itself is spelled by the swarm behind this panel. The foreground is the
-// tagline plus a 2×2 grid of cards that jump into each section of the deck.
+// The name itself is spelled by the swarm behind this panel. The foreground is a
+// 2×2 grid of cards that jump into each section of the deck.
 export function HeroPanel({ onNavigate }) {
   const jump = (id) => (e) => {
     if (!onNavigate) return; // flow fallback → let the anchor scroll natively
@@ -10,11 +10,8 @@ export function HeroPanel({ onNavigate }) {
     onNavigate(id);
   };
   return (
-    // Pull up under the swarm name so the tagline reads as its subtitle.
+    // Pull up under the swarm name so the cards read as its subtitle.
     <div className="-mt-6 flex flex-col items-center text-center">
-      <p className="font-mono text-[clamp(15px,2.6vw,22px)] tracking-[2px] text-muted-foreground">
-        {content.tagline}
-      </p>
       <div className="mt-7 grid w-full max-w-[560px] grid-cols-2 gap-3 sm:gap-4">
         {content.cards.map((c, i) => (
           <a

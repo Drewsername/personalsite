@@ -2,7 +2,6 @@
 
 export const content = {
   name: 'Drew Bermudez',
-  tagline: 'creative technologist',
 
   nav: [
     { id: 'projects', label: 'Projects' },
