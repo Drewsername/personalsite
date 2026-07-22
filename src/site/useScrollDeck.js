@@ -15,6 +15,16 @@ import { useEffect, useRef, useState } from 'react';
 
 const easeInOutCubic = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 
+// A gesture that starts inside an overflowing [data-deck-scroll] region should
+// scroll that region natively (e.g. the Book synopsis on a phone) instead of
+// advancing the deck.
+const scrollRegion = (target) => {
+  const el = target instanceof Element ? target.closest('[data-deck-scroll]') : null;
+  return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
+};
+const canScroll = (el, dy) =>
+  dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0;
+
 export function useScrollDeck(count, swarmRef, { duration = 800, enabled = true } = {}) {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState({ from: 0, to: 0, t: 1 });
@@ -56,6 +66,8 @@ export function useScrollDeck(count, swarmRef, { duration = 800, enabled = true 
     // Wheel: collapse a burst of events (trackpad inertia) into one step.
     let wheelCooldown = false;
     const onWheel = (e) => {
+      const region = scrollRegion(e.target);
+      if (region && canScroll(region, e.deltaY)) return; // native scroll inside the region
       e.preventDefault();
       if (st.animating || wheelCooldown || Math.abs(e.deltaY) < 6) return;
       wheelCooldown = true;
@@ -80,16 +92,24 @@ export function useScrollDeck(count, swarmRef, { duration = 800, enabled = true 
     };
 
     let touchY = null;
+    let touchRegion = null;
     const onTouchStart = (e) => {
       touchY = e.touches[0].clientY;
+      touchRegion = scrollRegion(e.target);
     };
     const onTouchMove = (e) => {
-      if (touchY !== null) e.preventDefault(); // suppress native rubber-banding
+      // Swipes inside a scrollable region pan it natively; everywhere else,
+      // suppress native rubber-banding so the swipe reads as a deck step.
+      if (touchY !== null && !touchRegion) e.preventDefault();
     };
     const onTouchEnd = (e) => {
       if (touchY === null) return;
       const dy = e.changedTouches[0].clientY - touchY;
       touchY = null;
+      if (touchRegion) {
+        touchRegion = null; // the region consumed the gesture
+        return;
+      }
       if (Math.abs(dy) > 45) go(dy < 0 ? 1 : -1);
     };
 
