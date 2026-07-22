@@ -33,8 +33,14 @@ export const content = {
   // Book section: teaser synopsis + notify-me signup.
   book: {
     status: 'My first novel, a passion project — coming soon',
-    synopsis:
-      'Three years have passed since the Exponential, the day artificial intelligence learned to improve itself and quietly perfected the world. Disease has been cured, work has become optional, and every need is anticipated before it is even felt, yet Miles Clement, an architect whose profession vanished almost overnight, finds himself starving for the one thing the machines cannot supply: a reason to get up in the morning. His search leads him to the Scout program in Alaska, where a small team keeps watch over the Ripple, a shimmering tear in the air that folds over itself in blues and greens and sings with a music only a few can hear. It is the last true mystery left on Earth, the only thing the AI cannot measure or explain, and every Scout who has ever stepped inside it has come back. Then one of them doesn’t.',
+    // One <p> per entry.
+    synopsis: [
+      'Three years have passed since the Exponential, the day artificial intelligence learned to improve itself and quietly perfected the world. Disease has been cured. Work has become optional. Every comfort is provided before anyone even knows to want it.',
+      'For Miles Clement, an architect whose profession vanished almost overnight, that perfect world feels strangely empty. He is starving for the one thing the machines cannot provide: a reason to get out of bed.',
+      'His search for purpose leads him to Alaska and the Scout program, where a small team keeps watch over the Ripple, a shimmering tear in the air that folds over itself in blues and greens and sings with a music only a few people can hear. It is the last true mystery on Earth, the only phenomenon artificial intelligence cannot measure or explain.',
+      'Every Scout who has entered the Ripple has returned.',
+      'Until now.',
+    ],
     formLabel: 'Get updated when it’s available',
     placeholder: 'you@email.com',
     cta: 'Keep me posted',

@@ -33,9 +33,11 @@ export function BookSection() {
       <Label>{content.sections.book.label}</Label>
       <Heading>{content.sections.book.heading}</Heading>
       <p className="mt-2 font-mono text-xs tracking-[1px] text-faint">{b.status}</p>
-      <p className="mt-4 text-[14px] leading-relaxed text-muted-foreground sm:mt-5 sm:text-[15px]">
-        {b.synopsis}
-      </p>
+      <div className="mt-4 flex flex-col gap-3 text-[14px] leading-relaxed text-muted-foreground sm:mt-5 sm:text-[15px]">
+        {b.synopsis.map((para, i) => (
+          <p key={i}>{para}</p>
+        ))}
+      </div>
 
       {state === 'done' ? (
         <p className="mt-7 font-mono text-sm text-primary">{b.thanks}</p>
