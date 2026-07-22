@@ -4,6 +4,8 @@ import { content } from './site/content.js';
 import { Nav } from './site/Nav.jsx';
 import { HeroPanel } from './site/Hero.jsx';
 import { UnderConstruction } from './site/Stub.jsx';
+import { BookSection } from './site/Book.jsx';
+import { ContactSection } from './site/Contact.jsx';
 import { ProjectsSection } from './site/Projects.jsx';
 import { useScrollDeck } from './site/useScrollDeck.js';
 import { CONTENT_TOP } from './site/deckLayout.js';
@@ -13,9 +15,9 @@ import { CONTENT_TOP } from './site/deckLayout.js';
 const PANELS = [
   { id: 'top', word: content.name },
   { id: 'projects', word: content.sections.projects.word },
-  { id: 'advisory', word: content.sections.advisory.word },
-  { id: 'opinions', word: content.sections.opinions.word },
+  { id: 'book', word: content.sections.book.word },
   { id: 'contact', word: content.sections.contact.word },
+  { id: 'resume', word: content.sections.resume.word },
 ];
 // The swarm's word list is the panel words plus one word per project: when a
 // project is opened from the Projects panel, the swarm morphs from "Projects"
@@ -396,6 +398,8 @@ function FlowMode({ swarmRef, config, onFirstFrame }) {
 // swarm; this is everything that sits on top of it.
 function PanelContent({ id, onNavigate }) {
   if (id === 'top') return <HeroPanel onNavigate={onNavigate} />;
+  if (id === 'book') return <BookSection />;
+  if (id === 'contact') return <ContactSection />;
   const s = content.sections[id];
   return s ? <UnderConstruction label={s.label} heading={s.heading} /> : null;
 }

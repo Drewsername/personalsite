@@ -21,11 +21,13 @@ export function HeroPanel({ onNavigate }) {
             key={c.id}
             href={`#${c.id}`}
             onClick={jump(c.id)}
-            className="group block text-left transition-transform hover:-translate-y-0.5"
+            className={`group block text-left transition-transform hover:-translate-y-0.5 ${
+              // With an odd card count, the last card stretches across both columns.
+              content.cards.length % 2 === 1 && i === content.cards.length - 1 ? 'col-span-2' : ''
+            }`}
           >
             <Card className="h-full gap-2 py-5 transition-colors group-hover:bg-secondary group-hover:ring-foreground/20">
               <CardHeader className="gap-1.5">
-                <div className="font-mono text-[11px] tracking-[1px] text-primary">0{i + 1}</div>
                 <CardTitle className="text-[clamp(15px,3.4vw,19px)] font-medium leading-tight">
                   {c.label}
                 </CardTitle>
