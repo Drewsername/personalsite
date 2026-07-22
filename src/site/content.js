@@ -26,6 +26,8 @@ export const content = {
     book: { word: 'Book', label: 'Book', heading: 'The Ripples' },
     contact: { word: 'Contact', label: 'Contact', heading: 'Contact' },
     resume: { word: 'Resume', label: 'Resume', heading: 'Resume' },
+    // Reached via the nav CTA, not the nav links / home cards.
+    login: { word: 'Login', label: 'Login', heading: 'Login' },
   },
 
   // Book section: teaser synopsis + notify-me signup.

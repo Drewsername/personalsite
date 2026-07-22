@@ -1,11 +1,8 @@
-import { useState } from 'react';
 import { content } from './content.js';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo.jsx';
-import { LoginModal } from './Login.jsx';
 
 export function Nav({ active, onNavigate }) {
-  const [loginOpen, setLoginOpen] = useState(false);
   // In deck mode the nav drives the scroll-jack controller; in the flow fallback
   // `onNavigate` is absent and the links behave as ordinary anchors.
   const jump = (id) => (e) => {
@@ -38,15 +35,12 @@ export function Nav({ active, onNavigate }) {
             </a>
           ))}
         </div>
-        <Button
-          variant="outline"
-          onClick={() => setLoginOpen(true)}
-          className="h-auto cursor-pointer rounded-full px-4 py-1.5 font-mono text-[13px]"
-        >
-          {content.cta.label}
+        {/* The CTA is a deck panel like everything else — the swarm morphs to
+            spell "Login" and the panel holds the form. */}
+        <Button asChild variant="outline" className="h-auto cursor-pointer rounded-full px-4 py-1.5 font-mono text-[13px]">
+          <a href="#login" onClick={jump('login')}>{content.cta.label}</a>
         </Button>
       </div>
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </nav>
   );
 }
