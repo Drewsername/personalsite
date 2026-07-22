@@ -66,7 +66,10 @@ app.post('/api/contact', async (req, res) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM || 'Contact Form <onboarding@resend.dev>',
+          // From must be a sender Resend controls (SPF/DMARC forbids sending as
+          // the visitor) — but the display name carries who it's really from,
+          // and reply_to below makes Reply go straight back to them.
+          from: `${name.replace(/["<>]/g, '')} via drewbermudez.com <${process.env.RESEND_FROM || 'onboarding@resend.dev'}>`,
           to: [CONTACT_TO],
           reply_to: `${name} <${email}>`,
           subject: `drewbermudez.com contact: ${name}`,
