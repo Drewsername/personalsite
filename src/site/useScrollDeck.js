@@ -76,6 +76,9 @@ export function useScrollDeck(count, swarmRef, { duration = 800, enabled = true 
     };
 
     const onKey = (e) => {
+      // Keys typed into a form field belong to the field, not the deck.
+      const t = e.target;
+      if (t instanceof Element && (t.matches('input, textarea, select') || t.isContentEditable)) return;
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
         go(1);
