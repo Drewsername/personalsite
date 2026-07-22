@@ -57,11 +57,19 @@ app.post('/api/contact', async (req, res) => {
   if (process.env.SMTP_HOST) {
     try {
       const { default: nodemailer } = await import('nodemailer');
+      // Railway containers have no public IPv6 route, and Gmail's SMTP DNS
+      // returns AAAA records first (connect ENETUNREACH) — resolve an IPv4
+      // address explicitly and keep the hostname for TLS verification.
+      const { resolve4 } = await import('node:dns/promises');
+      const [ipv4] = await resolve4(process.env.SMTP_HOST);
       const transport = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
+        host: ipv4,
         port: Number(process.env.SMTP_PORT || 587),
         secure: process.env.SMTP_PORT === '465',
         auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        tls: { servername: process.env.SMTP_HOST },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
       });
       await transport.sendMail({
         from: process.env.SMTP_FROM || process.env.SMTP_USER,
