@@ -276,12 +276,14 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
               <>
                 {/* Reserve the top-third band for the swarm word so content never overlaps it. */}
                 <div className="shrink-0" style={{ height: `${CONTENT_TOP * 100}vh` }} aria-hidden="true" />
-                {/* Content is capped to the leftover viewport: min-h-0 stops this flex
-                    child from growing to its natural height, and overflow-hidden means a
-                    too-tall section is clipped (a design signal) — never a scrollbar.
-                    Section budget ≈ (1 - CONTENT_TOP) of the viewport height. */}
-                <div className="flex min-h-0 flex-1 items-center overflow-hidden pb-16">
-                  <div className="mx-auto w-full max-w-[var(--maxw)]">
+                {/* Content gets the leftover viewport: min-h-0 stops this flex child
+                    from growing to its natural height. A section taller than the
+                    budget (≈ (1 - CONTENT_TOP) of the viewport, e.g. the Book panel
+                    on a phone) scrolls natively inside the deck — the scroll-jack
+                    hands wheel/touch gestures over via data-deck-scroll. my-auto on
+                    the inner div centers short content without clipping tall content. */}
+                <div data-deck-scroll className="flex min-h-0 flex-1 overflow-y-auto overscroll-contain pb-16">
+                  <div className="mx-auto my-auto w-full max-w-[var(--maxw)]">
                     <PanelContent id={p.id} onNavigate={onNavigate} />
                   </div>
                 </div>

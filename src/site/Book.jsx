@@ -33,7 +33,9 @@ export function BookSection() {
       <Label>{content.sections.book.label}</Label>
       <Heading>{content.sections.book.heading}</Heading>
       <p className="mt-2 font-mono text-xs tracking-[1px] text-faint">{b.status}</p>
-      <p className="mt-5 text-[15px] leading-relaxed text-muted-foreground">{b.synopsis}</p>
+      <p className="mt-4 text-[14px] leading-relaxed text-muted-foreground sm:mt-5 sm:text-[15px]">
+        {b.synopsis}
+      </p>
 
       {state === 'done' ? (
         <p className="mt-7 font-mono text-sm text-primary">{b.thanks}</p>
@@ -42,7 +44,7 @@ export function BookSection() {
           <label htmlFor="book-email" className="font-mono text-xs tracking-[1px] text-faint">
             {b.formLabel}
           </label>
-          <div className="mt-2.5 flex max-w-[420px] gap-2.5">
+          <div className="mt-2.5 flex max-w-[420px] flex-col gap-2.5 min-[420px]:flex-row">
             <input
               id="book-email"
               type="email"

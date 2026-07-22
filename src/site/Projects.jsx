@@ -44,6 +44,15 @@ function Recording({ src, tint, playing }) {
 
 export function ProjectsSection({ open, onOpen, onClose, active = true }) {
   const [hover, setHover] = useState(0);
+  // On phones the reel stacks vertically and hover doesn't exist: strips stay
+  // equal-height, every caption is visible, and a tap opens the project.
+  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const sync = () => setMobile(mq.matches);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
   const projects = content.projects;
   const isOpen = open >= 0;
 
@@ -79,6 +88,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
       >
         {projects.map((p, i) => {
           const active = i === hover;
+          const showCaption = mobile || active;
           return (
             <button
               key={p.name}
@@ -88,30 +98,34 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
               onClick={() => onOpen(i)}
               className="relative cursor-pointer overflow-hidden border border-white/[0.08] text-left"
               style={{
-                flex: active ? '2.9 1 0%' : '1 1 0%',
+                flex: !mobile && active ? '2.9 1 0%' : '1 1 0%',
                 transition: 'flex .55s cubic-bezier(.22,.9,.3,1)',
               }}
             >
-              <Recording src={p.video} tint={p.tint} playing={active && !isOpen} />
+              <Recording src={p.video} tint={p.tint} playing={(mobile || active) && !isOpen} />
               <div
                 className="absolute inset-0"
                 style={{ background: 'linear-gradient(180deg, rgba(6,7,11,0.2), rgba(6,7,11,0.88))' }}
               />
-              <div className="absolute inset-x-7 bottom-6 flex flex-col gap-3">
+              <div className="absolute inset-x-4 bottom-3.5 flex flex-col gap-1.5 sm:inset-x-7 sm:bottom-6 sm:gap-3">
                 <div className="flex items-baseline gap-3.5">
                   <span className="font-mono text-[11px] tracking-[1px] text-primary">0{i + 1}</span>
-                  <span className="font-mono text-lg font-medium">{p.name}</span>
+                  <span className="font-mono text-base font-medium sm:text-lg">{p.name}</span>
                 </div>
                 <div
                   className="max-w-[560px]"
                   style={{
-                    opacity: active ? 1 : 0,
-                    transform: active ? 'translateY(0)' : 'translateY(10px)',
+                    opacity: showCaption ? 1 : 0,
+                    transform: showCaption ? 'translateY(0)' : 'translateY(10px)',
                     transition: 'opacity .45s .12s, transform .45s .12s',
                   }}
                 >
-                  <p className="mb-2.5 text-sm leading-[1.7] text-[#c6ccda] [text-wrap:pretty]">{p.line}</p>
-                  <span className="font-mono text-[11px] tracking-[1px] text-faint">click to open →</span>
+                  <p className="mb-1 text-[13px] leading-[1.6] text-[#c6ccda] [text-wrap:pretty] sm:mb-2.5 sm:text-sm sm:leading-[1.7]">
+                    {p.line}
+                  </p>
+                  <span className="font-mono text-[11px] tracking-[1px] text-faint">
+                    {mobile ? 'tap to open →' : 'click to open →'}
+                  </span>
                 </div>
               </div>
             </button>
@@ -137,7 +151,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-[76px] inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/[0.14] bg-background/50 px-4 py-[7px] font-mono text-xs tracking-[1px] text-muted-foreground backdrop-blur-[4px] transition-colors hover:border-white/35 hover:text-foreground"
+              className="absolute top-[96px] inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/[0.14] bg-background/50 px-4 py-[7px] font-mono text-xs tracking-[1px] text-muted-foreground backdrop-blur-[4px] transition-colors hover:border-white/35 hover:text-foreground"
               style={{ left: 'var(--pad)' }}
             >
               ← all projects
@@ -146,11 +160,17 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
               className="absolute left-1/2 flex -translate-x-1/2 flex-col gap-3.5"
               style={{ bottom: '110px', width: 'min(var(--maxw), calc(100% - 2 * var(--pad)))' }}
             >
-              <div className="flex items-baseline gap-4">
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <span className="font-mono text-xs tracking-[2px] text-primary">0{i + 1} / 0{projects.length}</span>
                 <span className="font-mono text-[13px] tracking-[1px] text-muted-foreground">{p.line}</span>
               </div>
-              <p className="max-w-[660px] text-[clamp(13.5px,1.6vw,15.5px)] leading-[1.75] text-[#c6ccda] [text-wrap:pretty]">
+              {/* Tall bodies (small phones) scroll inside the block instead of
+                  colliding with the swarm word; the deck hands the gesture over
+                  via data-deck-scroll. Desktop bodies fit — no scrollbar. */}
+              <p
+                data-deck-scroll
+                className="max-h-[min(40vh,340px)] max-w-[660px] overflow-y-auto overscroll-contain pr-1 text-[clamp(13.5px,1.6vw,15.5px)] leading-[1.75] text-[#c6ccda] [text-wrap:pretty]"
+              >
                 {p.body}
               </p>
             </div>
@@ -174,7 +194,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
           dots hop between projects; the active dot closes. */}
       {isOpen ? (
         <div className="absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-2.5">
-          <span className="font-mono text-[11px] tracking-[1px] text-faint">
+          <span className="px-4 text-center font-mono text-[10px] tracking-[1px] text-faint sm:text-[11px]">
             dots hop between projects · active dot closes
           </span>
           <div className="flex gap-2">
