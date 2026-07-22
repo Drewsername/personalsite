@@ -6,6 +6,7 @@ import { HeroPanel } from './site/Hero.jsx';
 import { UnderConstruction } from './site/Stub.jsx';
 import { BookSection } from './site/Book.jsx';
 import { ContactSection } from './site/Contact.jsx';
+import { LoginSection } from './site/Login.jsx';
 import { ProjectsSection } from './site/Projects.jsx';
 import { useScrollDeck } from './site/useScrollDeck.js';
 
@@ -17,6 +18,7 @@ const PANELS = [
   { id: 'book', word: content.sections.book.word },
   { id: 'contact', word: content.sections.contact.word },
   { id: 'resume', word: content.sections.resume.word },
+  { id: 'login', word: content.sections.login.word },
 ];
 // The swarm's word list is the panel words plus one word per project: when a
 // project is opened from the Projects panel, the swarm morphs from "Projects"
@@ -410,6 +412,7 @@ function PanelContent({ id, onNavigate }) {
   if (id === 'top') return <HeroPanel onNavigate={onNavigate} />;
   if (id === 'book') return <BookSection />;
   if (id === 'contact') return <ContactSection />;
+  if (id === 'login') return <LoginSection />;
   const s = content.sections[id];
   return s ? <UnderConstruction label={s.label} heading={s.heading} /> : null;
 }
