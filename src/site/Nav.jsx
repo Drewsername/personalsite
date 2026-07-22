@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { content } from './content.js';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo.jsx';
+import { LoginModal } from './Login.jsx';
 
 export function Nav({ active, onNavigate }) {
+  const [loginOpen, setLoginOpen] = useState(false);
   // In deck mode the nav drives the scroll-jack controller; in the flow fallback
   // `onNavigate` is absent and the links behave as ordinary anchors.
   const jump = (id) => (e) => {
@@ -35,10 +38,15 @@ export function Nav({ active, onNavigate }) {
             </a>
           ))}
         </div>
-        <Button asChild variant="outline" className="h-auto rounded-full px-4 py-1.5 font-mono text-[13px]">
-          <a href={content.cta.href}>{content.cta.label}</a>
+        <Button
+          variant="outline"
+          onClick={() => setLoginOpen(true)}
+          className="h-auto cursor-pointer rounded-full px-4 py-1.5 font-mono text-[13px]"
+        >
+          {content.cta.label}
         </Button>
       </div>
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </nav>
   );
 }
