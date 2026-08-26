@@ -11,6 +11,7 @@
 // keeps the server stateless across restarts and needs no session store.
 import express from 'express';
 import path from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes, scrypt as scryptCb, timingSafeEqual, createHmac } from 'node:crypto';
 import { promisify } from 'node:util';
 import { updateJson } from './store.mjs';
@@ -22,14 +23,32 @@ const SESSION_DAYS = 30;
 const SEED_USERNAME = 'drew';
 const SEED_PASSWORD = 'password';
 
-const SESSION_SECRET =
-  process.env.SESSION_SECRET ||
-  (() => {
-    console.warn(
-      'SESSION_SECRET is unset — generating an ephemeral one. Logins will not survive a restart.'
-    );
-    return randomBytes(32).toString('hex');
-  })();
+// The key that signs session cookies. It has to outlive the process — a new key
+// invalidates every cookie signed with the old one — so it is generated once
+// and kept on the data volume beside the credential. SESSION_SECRET overrides
+// it for anyone who would rather manage the key themselves. Nothing needs
+// configuring either way; only a volume-less deployment signs people out on
+// restart, and that would lose the account file too.
+let sessionSecret = process.env.SESSION_SECRET || '';
+
+function loadSessionSecret(dataDir) {
+  if (sessionSecret) return sessionSecret;
+  const file = path.join(dataDir, 'session-secret');
+  try {
+    sessionSecret = readFileSync(file, 'utf8').trim();
+    if (sessionSecret) return sessionSecret;
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  sessionSecret = randomBytes(32).toString('hex');
+  try {
+    mkdirSync(dataDir, { recursive: true });
+    writeFileSync(file, sessionSecret, { mode: 0o600 });
+  } catch (err) {
+    console.warn('could not persist the session secret — logins will not survive a restart:', err);
+  }
+  return sessionSecret;
+}
 
 // ── credential file ───────────────────────────────────────────────────────────
 
@@ -65,7 +84,7 @@ function loadAccount(authFile) {
 
 // ── session cookie ────────────────────────────────────────────────────────────
 
-const sign = (payload) => createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+const sign = (payload) => createHmac('sha256', sessionSecret).update(payload).digest('hex');
 
 function makeToken(username) {
   const exp = Date.now() + SESSION_DAYS * 86400000;
@@ -138,6 +157,7 @@ function recordFailure(ip) {
 
 export function createAuth(dataDir) {
   const authFile = path.join(dataDir, 'auth.json');
+  loadSessionSecret(dataDir);
 
   // Attaches req.session when the cookie checks out. Never rejects — routes
   // decide whether a session is required.

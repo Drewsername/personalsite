@@ -71,18 +71,20 @@ nothing but the password-change form.
 
 Sessions are a signed cookie rather than server state: `username.expiry.HMAC`,
 HttpOnly, SameSite=Lax, Secure whenever the request arrived over TLS, 30-day
-expiry. The HMAC key comes from `SESSION_SECRET`; if it is unset the server
-generates an ephemeral one and warns, which means sessions drop on every deploy.
+expiry. The HMAC key is generated once and kept on the data volume beside the
+credential, so it survives restarts with nothing to configure. `SESSION_SECRET`
+overrides it for anyone who would rather manage the key themselves.
 
 Failed logins are throttled at 10 per IP per 15 minutes.
 
 ### Data
 
-Three paths under `DATA_DIR`, matching the JSONL convention already in use:
+Four paths under `DATA_DIR`, matching the JSONL convention already in use:
 
 - `moveout.json` — `{ items: [...] }`. Array order is display order.
 - `moveout-submissions.jsonl` — append-only. Never deleted, never public.
 - `moveout-media/` — uploaded JPEGs, served at `/moveout-media/<uuid>.jpg`.
+- `session-secret` — the cookie-signing key, generated on first boot.
 
 **Item:** `id, title, price, description, notes, photos[], status, createdAt`.
 
@@ -134,10 +136,10 @@ apartment building.
 
 ## Deployment
 
-`SESSION_SECRET` must be set on Railway; without it every deploy signs visitors
-out. `DATA_DIR` must point at the mounted volume, as it already does for
-signups. `RESEND_API_KEY` is already configured for the contact form and is
-reused here.
+Nothing new to configure. `DATA_DIR` must point at the mounted volume, as it
+already does for signups — the account, the listings, the photos, and the
+session key all live there. `RESEND_API_KEY` is already set for the contact form
+and is reused here.
 
 The seeded password is live from the moment this deploys. Sign in and change it.
 
@@ -150,4 +152,5 @@ every owner route until the password changed, item CRUD and reordering, photo
 upload (a 2400×1800 source arriving at 1600×1200 and 24kB) and its cleanup on
 delete, public and admin payloads checked for contact leakage, both submission
 kinds through the real form, the notification path exercised down to the
-composed subject line, and the mobile layout checked for overflow.
+composed subject line, a session checked against a full server restart, and the
+mobile layout checked for overflow.
