@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from './api.js';
 import { resizeToDataUrl } from './photos.js';
-import { fieldCls, price, statusLabel } from './format.js';
+import { eyebrowCls, fieldCls, price, statusLabel } from './format.js';
 import { Btn, Field, Notice, PageShell } from './ui.jsx';
 
 // The owner-only console: edit the listing, read who responded. Everything here
@@ -30,7 +30,7 @@ export function Admin() {
   if (auth === null) {
     return (
       <PageShell>
-        <p className="font-mono text-sm text-faint">Checking…</p>
+        <p className="text-sm text-faint">Checking…</p>
       </PageShell>
     );
   }
@@ -40,10 +40,10 @@ export function Admin() {
 
   return (
     <PageShell>
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[2px] text-primary">Moveout admin</p>
-          <h1 className="mt-2 font-mono text-2xl">Signed in as {auth.username}</h1>
+          <p className={eyebrowCls}>Moveout admin</p>
+          <h1 className="mt-3 text-2xl font-semibold tracking-[-0.02em]">Signed in as {auth.username}</h1>
         </div>
         <div className="flex gap-2">
           <a href="/moveout">
@@ -101,7 +101,7 @@ function SignIn({ onDone }) {
   return (
     <PageShell>
       <div className="mx-auto max-w-[360px]">
-        <h1 className="font-mono text-xl">Moveout admin</h1>
+        <h1 className="text-xl font-semibold tracking-[-0.015em]">Moveout admin</h1>
         <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
           <Field label="Username">
             <input
@@ -136,7 +136,7 @@ function ForcePasswordChange({ onDone }) {
   return (
     <PageShell>
       <div className="mx-auto max-w-[420px]">
-        <h1 className="font-mono text-xl">Choose a new password</h1>
+        <h1 className="text-xl font-semibold tracking-[-0.015em]">Choose a new password</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           You&apos;re signed in with the handoff password. Nothing else will open until it&apos;s
           replaced.
@@ -245,7 +245,7 @@ function ItemsTab() {
   return (
     <div>
       <div className="flex items-center justify-between gap-4">
-        <p className="font-mono text-[13px] text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {items ? `${items.length} item${items.length === 1 ? '' : 's'}` : 'Loading…'}
         </p>
         <Btn variant="primary" onClick={() => setAdding((v) => !v)}>
@@ -256,7 +256,7 @@ function ItemsTab() {
       <Notice>{error}</Notice>
 
       {adding ? (
-        <div className="mt-5 rounded-xl border border-border bg-card p-5">
+        <div className="mt-6 rounded-lg border border-border bg-card p-6">
           <ItemForm
             initial={BLANK}
             submitLabel="Add item"
@@ -272,7 +272,7 @@ function ItemsTab() {
 
       <div className="mt-5 flex flex-col gap-4">
         {items?.map((item, i) => (
-          <div key={item.id} className="rounded-xl border border-border bg-card p-4">
+          <div key={item.id} className="rounded-lg border border-border bg-card p-5">
             {editing === item.id ? (
               <ItemForm
                 initial={{ ...item, price: item.price ?? '' }}
@@ -286,18 +286,18 @@ function ItemsTab() {
               />
             ) : (
               <div className="flex gap-4">
-                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-white/[0.04]">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-md border border-border bg-surface">
                   {item.photos?.[0] ? (
                     <img src={item.photos[0]} alt="" className="h-full w-full object-cover" />
                   ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h3 className="font-mono text-[15px]">{item.title}</h3>
-                    <span className="font-mono text-[13px] text-primary">
+                    <h3 className="text-[15px] font-medium">{item.title}</h3>
+                    <span className="text-[15px] font-medium text-foreground">
                       {price(item.price) || 'no price'}
                     </span>
-                    <span className="font-mono text-[11px] uppercase tracking-[1px] text-faint">
+                    <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
                       {statusLabel[item.status]}
                     </span>
                   </div>
@@ -444,24 +444,22 @@ function ItemForm({ initial, submitLabel, onSave, onCancel }) {
       </Field>
 
       <div>
-        <span className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted-foreground">
-          Photos
-        </span>
+        <span className={eyebrowCls}>Photos</span>
         <div className="mt-2 flex flex-wrap gap-2">
           {value.photos.map((url) => (
-            <div key={url} className="relative h-20 w-20 overflow-hidden rounded-lg border border-border">
+            <div key={url} className="relative h-20 w-20 overflow-hidden rounded-md border border-border">
               <img src={url} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
                 aria-label="Remove photo"
                 onClick={() => setValue((v) => ({ ...v, photos: v.photos.filter((p) => p !== url) }))}
-                className="absolute right-0 top-0 bg-black/70 px-1.5 font-mono text-xs text-white"
+                className="absolute right-0 top-0 bg-foreground/70 px-1.5 text-xs leading-5 text-background"
               >
                 ×
               </button>
             </div>
           ))}
-          <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border border-dashed border-border font-mono text-xs text-faint hover:border-white/30">
+          <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-md border border-dashed border-input text-xs text-faint transition hover:border-foreground/40 hover:text-muted-foreground">
             {uploading ? '…' : '+ add'}
             <input type="file" accept="image/*" multiple onChange={addPhotos} className="hidden" />
           </label>
@@ -498,7 +496,7 @@ function ResponsesTab() {
   }, []);
 
   if (error) return <Notice>{error}</Notice>;
-  if (!submissions) return <p className="font-mono text-sm text-faint">Loading…</p>;
+  if (!submissions) return <p className="text-sm text-faint">Loading…</p>;
   if (!submissions.length) {
     return <p className="text-sm text-muted-foreground">Nobody has responded yet.</p>;
   }
@@ -506,18 +504,18 @@ function ResponsesTab() {
   return (
     <div className="flex flex-col gap-3">
       {submissions.map((s) => (
-        <div key={s.id} className="rounded-xl border border-border bg-card p-4">
+        <div key={s.id} className="rounded-lg border border-border bg-card p-5">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="font-mono text-[15px]">{s.name || 'Someone'}</span>
-            <span className="font-mono text-[13px] text-primary">
+            <span className="text-[15px] font-medium">{s.name || 'Someone'}</span>
+            <span className="text-[15px] font-medium text-foreground">
               {s.kind === 'offer' ? `offered ${price(s.amount)}` : `claimed at ${price(s.amount) || 'asking'}`}
             </span>
             <span className="text-sm text-muted-foreground">for {s.itemTitle}</span>
           </div>
-          <p className="mt-2 font-mono text-[13px]">
+          <p className="mt-2 text-sm">
             <a
               href={s.contactKind === 'email' ? `mailto:${s.contact}` : `tel:${s.contact}`}
-              className="text-primary underline underline-offset-4"
+              className="font-medium text-foreground underline underline-offset-4 hover:text-muted-foreground"
             >
               {s.contact}
             </a>
@@ -525,9 +523,7 @@ function ResponsesTab() {
           {s.note ? (
             <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{s.note}</p>
           ) : null}
-          <p className="mt-2 font-mono text-[11px] text-faint">
-            {new Date(s.at).toLocaleString()}
-          </p>
+          <p className="mt-3 text-xs text-faint">{new Date(s.at).toLocaleString()}</p>
         </div>
       ))}
     </div>

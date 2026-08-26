@@ -3,7 +3,12 @@
 // fast refresh working).
 
 export const fieldCls =
-  'w-full min-w-0 rounded-lg border border-input bg-white/[0.04] px-3 py-2 text-[15px] text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
+  'w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-[15px] text-foreground transition placeholder:text-faint focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/15';
+
+// The small uppercase labels that carry structure on this page. Letter-spacing
+// does the work the deck's monospace used to.
+export const eyebrowCls =
+  'text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground';
 
 export const statusLabel = {
   available: 'Available',

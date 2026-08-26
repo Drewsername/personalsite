@@ -18,8 +18,12 @@ if (isMoveout) {
   robots.name = 'robots'
   robots.content = 'noindex, nofollow'
   document.head.appendChild(robots)
-  // The dark loader in index.html waits for the swarm's first frame, which is
-  // never coming on this route.
+  // index.html already swapped the palette before first paint; repeat it here
+  // so the route still themes correctly if that script is ever moved or the
+  // page is reached some other way.
+  document.documentElement.classList.remove('dark')
+  document.documentElement.classList.add('moveout')
+  // The loader waits for the swarm's first frame, which is never coming here.
   document.getElementById('loader')?.remove()
 
   import('./moveout/MoveoutApp.jsx').then((mod) => {
