@@ -25,3 +25,6 @@ dist-ssr
 
 # Localweb has its own repo
 localweb/
+
+# Local data store (signups, messages, moveout listings, uploads)
+data/

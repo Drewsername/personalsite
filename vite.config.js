@@ -15,5 +15,15 @@ export default defineConfig({
   },
   // Bind to all interfaces so the dev server is reachable from a phone on the
   // same network (http://<your-LAN-IP>:5173).
-  server: { host: true },
+  //
+  // Vite serves only the front end, so the API calls and uploaded listing
+  // photos are proxied to the Express server — run `npm start` alongside
+  // `npm run dev` when working on anything that touches the server.
+  server: {
+    host: true,
+    proxy: {
+      '/api': 'http://localhost:8080',
+      '/moveout-media': 'http://localhost:8080',
+    },
+  },
 })
