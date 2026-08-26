@@ -3,6 +3,9 @@ import { appendFile, mkdir } from 'node:fs/promises';
 import { createReadStream, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createAuth } from './server/auth.mjs';
+import { createMoveout } from './server/moveout.mjs';
+import { sendMail, CONTACT_TO } from './server/mail.mjs';
 
 const PORT = process.env.PORT || 8080;
 
@@ -14,6 +17,23 @@ const index = path.join(dist, 'index.html');
 const dataDir = process.env.DATA_DIR || path.join(root, 'data');
 
 const app = express();
+
+// Railway terminates TLS at its edge, so the client's real address and the
+// https-ness of the request both arrive as X-Forwarded-* headers. Without this
+// every request looks like it came from the proxy — which would collapse the
+// per-IP rate limits into one shared bucket.
+app.set('trust proxy', 1);
+
+const auth = createAuth(dataDir);
+const moveout = createMoveout(dataDir, { requireAuth: auth.requireAuth });
+
+app.use(auth.session);
+// These routers bring their own body parsers (the photo upload route needs
+// megabytes), so they mount ahead of the 10kb parser the older routes use.
+app.use('/api/auth', auth.router);
+app.use('/api/moveout', moveout.router);
+// Uploaded listing photos live on the data volume, outside the built bundle.
+app.use('/moveout-media', express.static(moveout.mediaDir, { maxAge: '30d', fallthrough: true }));
 
 app.use(express.json({ limit: '10kb' }));
 
@@ -34,11 +54,9 @@ app.post('/api/notify', async (req, res) => {
   }
 });
 
-// Contact-form relay. The destination address lives only here (env-overridable),
-// never in the client bundle. Messages always land in the JSONL log; email
-// delivery additionally requires SMTP_* to be configured in the environment.
-const CONTACT_TO = process.env.CONTACT_TO || 'drewtbermudez@gmail.com';
-
+// Contact-form relay. The destination address lives only in server/mail.mjs
+// (env-overridable), never in the client bundle. Messages always land in the
+// JSONL log; email delivery additionally requires a transport to be configured.
 app.post('/api/contact', async (req, res) => {
   const name = String(req.body?.name || '').trim().slice(0, 200);
   const email = String(req.body?.email || '').trim();
@@ -54,63 +72,20 @@ app.post('/api/contact', async (req, res) => {
     console.error('contact write failed:', err);
     return res.status(500).json({ error: 'write failed' });
   }
-  if (process.env.RESEND_API_KEY) {
-    // Railway blocks outbound SMTP below the Pro plan, so delivery goes over
-    // Resend's HTTPS API. Without a verified domain, Resend only delivers to
-    // the account owner's own address — fine for a contact-form-to-self relay.
-    try {
-      const r = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          // From must be a sender Resend controls (SPF/DMARC forbids sending as
-          // the visitor) — but the display name carries who it's really from,
-          // and reply_to below makes Reply go straight back to them.
-          from: `${name.replace(/["<>]/g, '')} via drewbermudez.com <${process.env.RESEND_FROM || 'onboarding@resend.dev'}>`,
-          to: [CONTACT_TO],
-          reply_to: `${name} <${email}>`,
-          subject: `drewbermudez.com contact: ${name}`,
-          text: `From: ${name} <${email}>\n\n${message}`,
-        }),
-        signal: AbortSignal.timeout(10000),
-      });
-      if (!r.ok) console.error('resend send failed:', r.status, await r.text());
-    } catch (err) {
-      console.error('resend send failed:', err);
-    }
-  } else if (process.env.SMTP_HOST) {
-    try {
-      const { default: nodemailer } = await import('nodemailer');
-      // Railway containers have no public IPv6 route, and Gmail's SMTP DNS
-      // returns AAAA records first (connect ENETUNREACH) — resolve an IPv4
-      // address explicitly and keep the hostname for TLS verification.
-      const { resolve4 } = await import('node:dns/promises');
-      const [ipv4] = await resolve4(process.env.SMTP_HOST);
-      const transport = nodemailer.createTransport({
-        host: ipv4,
-        port: Number(process.env.SMTP_PORT || 587),
-        secure: process.env.SMTP_PORT === '465',
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-        tls: { servername: process.env.SMTP_HOST },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-      });
-      await transport.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
-        to: CONTACT_TO,
-        replyTo: `${name} <${email}>`,
-        subject: `drewbermudez.com contact: ${name}`,
-        text: `From: ${name} <${email}>\n\n${message}`,
-      });
-    } catch (err) {
-      // The message is already persisted above, so don't fail the request.
-      console.error('contact email send failed:', err);
-    }
-  }
+  // The message is already persisted, so a send failure never fails the request.
+  await sendMail({
+    fromName: `${name} via drewbermudez.com`,
+    replyTo: `${name} <${email}>`,
+    subject: `drewbermudez.com contact: ${name}`,
+    text: `From: ${name} <${email}>\n\n${message}`,
+  });
   res.json({ ok: true });
+});
+
+// The moveout page is unlisted: no link to it anywhere on the site, and no
+// crawler should index it either.
+app.get('/robots.txt', (_req, res) => {
+  res.type('text/plain').send('User-agent: *\nDisallow: /moveout\n');
 });
 
 app.use(express.static(dist));
@@ -120,6 +95,13 @@ app.get(/.*/, (req, res, next) => {
   createReadStream(index).pipe(res.type('html'));
 });
 
+// Express identifies error handlers by their arity, so the fourth parameter
+// has to stay even though nothing here calls it.
+app.use((err, req, res, _next) => {
+  console.error('request failed:', req.method, req.path, err);
+  res.status(500).json({ error: 'something went wrong' });
+});
+
 app.listen(PORT, () => {
-  console.log(`drewbermudez.com server listening on ${PORT}`);
+  console.log(`drewbermudez.com server listening on ${PORT} (contact → ${CONTACT_TO})`);
 });
