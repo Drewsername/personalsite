@@ -21,8 +21,23 @@
          (which carries the real CSS) lands, so the first frame is dark — never white.
          The loader overlay covers the page while fonts load and the swarm warms up,
          then App fades it out as one piece — see useRevealOnReady. -->
+    <!-- /moveout is a light page on an otherwise dark-only site. Claim the
+         palette here, before the first paint, so it never flashes dark — and
+         before the bundle lands, so there's no second flash either. The rest of
+         the light theme is scoped to html.moveout in index.css. -->
+    <script>
+      if (/^\/moveout(\/|$)/.test(location.pathname)) {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('moveout');
+        document.querySelector('meta[name=theme-color]').content = '#ffffff';
+      }
+    </script>
     <style>
       html, body { margin: 0; background: #06070b; }
+      /* The loader waits on the swarm's first frame, which never comes on the
+         moveout route — and a dark overlay on a light page is worse than none. */
+      html.moveout, html.moveout body { background: #ffffff; }
+      html.moveout #loader { display: none; }
 
       #loader {
         position: fixed;

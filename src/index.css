@@ -30,15 +30,61 @@
   --input: rgba(255, 255, 255, 0.1);
   --ring: #35e0ff;
   --faint: #565c6e;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-hover: rgba(255, 255, 255, 0.08);
   --radius: 0.75rem;
   --maxw: 1080px;
   --pad: clamp(20px, 5vw, 64px);
+}
+
+/* ── /moveout: a light theme, scoped to that one route ────────────────────────
+   The site proper is dark-only, but the moveout page is a plain document meant
+   to be read by a neighbour on their phone, so it gets a light palette. The
+   swap happens in index.html before first paint: <html class="dark"> becomes
+   <html class="moveout">. Because this redefines the same token names, every
+   `bg-card` / `text-muted-foreground` / `border-border` in the moveout
+   components keeps working — only the values underneath change. */
+html.moveout {
+  --background: #ffffff;
+  --foreground: #16181d;
+  --card: #ffffff;
+  --card-foreground: #16181d;
+  --popover: #ffffff;
+  --popover-foreground: #16181d;
+  --primary: #16181d;
+  --primary-foreground: #ffffff;
+  --secondary: #f2f3f5;
+  --secondary-foreground: #16181d;
+  --muted: #f2f3f5;
+  --muted-foreground: #656a73;
+  --accent: #f2f3f5;
+  --accent-foreground: #16181d;
+  --destructive: #b42318;
+  --border: #e4e6ea;
+  --input: #d7dae0;
+  --ring: #16181d;
+  /* Hints, placeholders, and timestamps use this. On the dark site `faint` can
+     drop well below AA because it is decorative there; here it is real copy
+     someone has to read, so it stays at 4.6:1 on white. */
+  --faint: #6f757f;
+  --surface: #f7f8f9;
+  --surface-hover: #eef0f2;
+  --radius: 0.5rem;
+  background: var(--background);
+  color-scheme: light;
+}
+
+html.moveout body {
+  background: var(--background);
+  line-height: 1.6;
 }
 
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Inter", sans-serif;
   --color-faint: var(--faint);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);

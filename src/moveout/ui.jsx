@@ -1,32 +1,31 @@
-import { statusLabel } from './format.js';
+import { eyebrowCls, statusLabel } from './format.js';
 
 // Plain form and layout primitives for the moveout pages.
 //
-// The rest of the site is a WebGL scroll deck; this page is deliberately none
-// of that. It has to load fast on a neighbour's phone and be obvious to someone
-// who has never seen the site before, so it is a normal scrolling page built
-// from normal controls — just wearing the site's dark palette.
+// The rest of the site is a dark WebGL scroll deck; this page is deliberately
+// none of that. It is a light, quiet document — ink on white, one accent-free
+// palette, generous whitespace — that loads fast on a neighbour's phone and is
+// obvious to someone who has never seen the site before. Weight and spacing
+// carry the hierarchy; there is no brand colour doing it for them.
 
 export function Field({ label, hint, children }) {
   return (
     <label className="block">
-      <span className="font-mono text-[11px] uppercase tracking-[1.5px] text-muted-foreground">
-        {label}
-      </span>
-      <div className="mt-1.5">{children}</div>
-      {hint ? <p className="mt-1 text-xs leading-snug text-faint">{hint}</p> : null}
+      <span className={eyebrowCls}>{label}</span>
+      <div className="mt-2">{children}</div>
+      {hint ? <p className="mt-1.5 text-xs leading-snug text-faint">{hint}</p> : null}
     </label>
   );
 }
 
 const buttonBase =
-  'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-mono text-[13px] transition disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40';
 
 const buttonVariants = {
-  primary: 'bg-primary text-primary-foreground hover:brightness-110',
-  outline: 'border border-border bg-white/[0.03] text-foreground hover:bg-white/[0.07]',
-  ghost: 'text-muted-foreground hover:bg-white/[0.06] hover:text-foreground',
-  danger: 'border border-destructive/50 text-destructive hover:bg-destructive/10',
+  primary: 'bg-primary text-primary-foreground hover:opacity-85',
+  outline: 'border border-input bg-background text-foreground hover:bg-secondary',
+  ghost: 'text-muted-foreground hover:bg-secondary hover:text-foreground',
+  danger: 'border border-destructive/30 text-destructive hover:bg-destructive/[0.06]',
 };
 
 export function Btn({ variant = 'outline', className = '', ...props }) {
@@ -34,15 +33,15 @@ export function Btn({ variant = 'outline', className = '', ...props }) {
 }
 
 const statusStyles = {
-  available: 'border-primary/40 text-primary',
-  pending: 'border-amber-400/50 text-amber-300',
-  sold: 'border-white/15 text-faint',
+  available: 'border-emerald-600/25 bg-emerald-50 text-emerald-700',
+  pending: 'border-amber-500/30 bg-amber-50 text-amber-700',
+  sold: 'border-border bg-secondary text-muted-foreground',
 };
 
 export function StatusPill({ status }) {
   return (
     <span
-      className={`inline-block rounded-full border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[1px] ${statusStyles[status] || statusStyles.available}`}
+      className={`inline-block rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-[0.04em] whitespace-nowrap ${statusStyles[status] || statusStyles.available}`}
     >
       {statusLabel[status] || status}
     </span>
@@ -51,14 +50,14 @@ export function StatusPill({ status }) {
 
 export function Notice({ tone = 'error', children }) {
   if (!children) return null;
-  const cls = tone === 'error' ? 'text-destructive' : 'text-primary';
-  return <p className={`font-mono text-xs ${cls}`}>{children}</p>;
+  const cls = tone === 'error' ? 'text-destructive' : 'text-muted-foreground';
+  return <p className={`text-sm ${cls}`}>{children}</p>;
 }
 
 export function PageShell({ children }) {
   return (
     <div className="min-h-full bg-background">
-      <div className="mx-auto w-full max-w-[900px] px-5 py-10 sm:px-8 sm:py-14">{children}</div>
+      <div className="mx-auto w-full max-w-[880px] px-5 py-12 sm:px-8 sm:py-20">{children}</div>
     </div>
   );
 }

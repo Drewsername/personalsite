@@ -48,6 +48,31 @@ Within the moveout tree, routing is a single branch: `/moveout/admin` renders
 the console, anything else renders the public listing. The two link to each
 other with ordinary anchors.
 
+### Visual design
+
+The site proper is dark, monospaced, and cyan-accented. The moveout page is the
+opposite on purpose: it is a light, quiet document that a neighbour opens once
+from a text message, and it should read as a plain professional listing rather
+than as part of a portfolio.
+
+So it gets its own palette — ink `#16181d` on white, one neutral grey ramp, a
+1px `#e4e6ea` border, and no brand accent at all. Hierarchy comes from weight
+and spacing instead of colour: the primary button is filled near-black, prices
+are foreground-weight rather than tinted, and status is the only place colour
+appears (muted emerald / amber / grey pills). Type is Inter throughout with
+tight tracking on headings; the deck's monospace is gone entirely, replaced by
+letter-spaced uppercase eyebrows where structure is needed. Corners tighten from
+12px to 8px.
+
+Mechanically this is a scoped token override: `html.moveout` in `index.css`
+redefines the same shadcn token names, so every `bg-card` and
+`text-muted-foreground` in the components keeps working while the values under
+them change. `index.html` swaps `<html class="dark">` for `<html
+class="moveout">` in a head script, before first paint, so the light page never
+flashes the dark palette and the deck's loading overlay stays hidden. `--faint`
+is darkened for this theme specifically: it carries hints and timestamps here,
+so it holds 4.6:1 on white rather than the decorative value the dark site uses.
+
 ### Server modules
 
 `server.mjs` had grown to hold routing, mail transport, and validation in one

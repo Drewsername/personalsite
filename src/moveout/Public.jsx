@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from './api.js';
-import { fieldCls, price } from './format.js';
+import { eyebrowCls, fieldCls, price } from './format.js';
 import { Btn, Field, Notice, PageShell, StatusPill } from './ui.jsx';
 
 // The public listing. Anyone with the link can browse and respond; nothing here
@@ -49,29 +49,27 @@ export function PublicListing() {
 
   return (
     <PageShell>
-      <header className="border-b border-border pb-8">
-        <p className="font-mono text-[11px] uppercase tracking-[2px] text-primary">Moving out</p>
-        <h1 className="mt-3 font-mono text-[clamp(28px,6vw,42px)] font-medium tracking-[-0.5px]">
+      <header className="border-b border-border pb-10">
+        <p className={eyebrowCls}>Moving out</p>
+        <h1 className="mt-4 text-[clamp(30px,6vw,44px)] font-semibold tracking-[-0.025em] text-foreground">
           Everything must go
         </h1>
-        <p className="mt-4 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">
+        <p className="mt-5 max-w-[58ch] text-[15px] leading-relaxed text-muted-foreground">
           I&apos;m clearing out the apartment. Claim something at the asking price or make me an
           offer — whichever you like. Leave an email address or a phone number and I&apos;ll get back
           to you to sort out pickup. Only I see your contact details.
         </p>
       </header>
 
-      {error ? <p className="mt-8 font-mono text-sm text-destructive">{error}</p> : null}
-      {items === null && !error ? (
-        <p className="mt-8 font-mono text-sm text-faint">Loading…</p>
-      ) : null}
+      {error ? <p className="mt-10 text-sm text-destructive">{error}</p> : null}
+      {items === null && !error ? <p className="mt-10 text-sm text-faint">Loading…</p> : null}
       {items && ordered.length === 0 ? (
-        <p className="mt-8 text-[15px] text-muted-foreground">
+        <p className="mt-10 text-[15px] text-muted-foreground">
           Nothing listed right now. Check back in a day or two.
         </p>
       ) : null}
 
-      <div className="mt-8 grid gap-5 sm:grid-cols-2">
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
         {ordered.map((item) => (
           <ItemCard
             key={item.id}
@@ -104,35 +102,33 @@ function ItemCard({ item, responded, onOpen }) {
     <button
       type="button"
       onClick={onOpen}
-      className={`flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left transition hover:border-white/25 ${sold ? 'opacity-55' : ''}`}
+      className={`group flex flex-col overflow-hidden rounded-lg border border-border bg-card text-left transition hover:border-foreground/20 ${sold ? 'opacity-60' : ''}`}
     >
-      <div className="aspect-[4/3] w-full bg-white/[0.03]">
+      <div className="aspect-[4/3] w-full overflow-hidden bg-surface">
         {item.photos?.[0] ? (
           <img
             src={item.photos[0]}
             alt={item.title}
             loading="lazy"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
           />
         ) : (
-          <div className="flex h-full items-center justify-center font-mono text-xs text-faint">
-            no photo
-          </div>
+          <div className="flex h-full items-center justify-center text-xs text-faint">No photo</div>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-4">
+      <div className="flex flex-1 flex-col gap-2 px-5 py-4">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="font-mono text-[15px] leading-snug">{item.title}</h2>
+          <h2 className="text-[15px] font-medium leading-snug text-foreground">{item.title}</h2>
           <StatusPill status={item.status} />
         </div>
-        <p className="font-mono text-[15px] text-primary">{asking || 'Make an offer'}</p>
+        <p className="text-[15px] font-medium text-foreground">{asking || 'Make an offer'}</p>
         {item.description ? (
           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
             {item.description}
           </p>
         ) : null}
         {responded ? (
-          <p className="mt-auto pt-1 font-mono text-[11px] text-faint">You&apos;ve responded to this</p>
+          <p className="mt-auto pt-1 text-xs text-faint">You&apos;ve responded to this</p>
         ) : null}
       </div>
     </button>
@@ -158,12 +154,12 @@ function ItemDetail({ item, responded, onClose, onResponded }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 p-0 sm:p-6"
+      className="fixed inset-0 z-50 overflow-y-auto bg-foreground/25 p-0 backdrop-blur-[2px] sm:p-6"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="mx-auto w-full max-w-[560px] rounded-none border-border bg-popover sm:rounded-xl sm:border">
+      <div className="mx-auto w-full max-w-[560px] border-border bg-popover shadow-xl sm:rounded-xl sm:border">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <p className="font-mono text-[13px] text-muted-foreground">Item</p>
+          <p className={eyebrowCls}>Item</p>
           <Btn variant="ghost" onClick={onClose} aria-label="Close">
             Close
           </Btn>
@@ -174,17 +170,17 @@ function ItemDetail({ item, responded, onClose, onResponded }) {
             <img
               src={item.photos[photo]}
               alt={item.title}
-              className="max-h-[60vh] w-full bg-black object-contain"
+              className="max-h-[60vh] w-full bg-surface object-contain"
             />
             {item.photos.length > 1 ? (
-              <div className="flex gap-2 overflow-x-auto px-5 py-3">
+              <div className="flex gap-2 overflow-x-auto border-b border-border px-5 py-3">
                 {item.photos.map((src, i) => (
                   <button
                     key={src}
                     type="button"
                     onClick={() => setPhoto(i)}
                     aria-label={`Photo ${i + 1}`}
-                    className={`h-14 w-14 shrink-0 overflow-hidden rounded-md border ${i === photo ? 'border-primary' : 'border-border'}`}
+                    className={`h-14 w-14 shrink-0 overflow-hidden rounded-md border transition ${i === photo ? 'border-foreground' : 'border-border hover:border-foreground/30'}`}
                   >
                     <img src={src} alt="" className="h-full w-full object-cover" />
                   </button>
@@ -194,28 +190,28 @@ function ItemDetail({ item, responded, onClose, onResponded }) {
           </div>
         ) : null}
 
-        <div className="px-5 py-5">
+        <div className="px-5 py-6 sm:px-6">
           <div className="flex items-start justify-between gap-3">
-            <h2 className="font-mono text-xl leading-snug">{item.title}</h2>
+            <h2 className="text-xl font-semibold leading-snug tracking-[-0.015em] text-foreground">
+              {item.title}
+            </h2>
             <StatusPill status={item.status} />
           </div>
-          <p className="mt-2 font-mono text-lg text-primary">{asking || 'Make an offer'}</p>
+          <p className="mt-2 text-lg font-medium text-foreground">{asking || 'Make an offer'}</p>
           {item.description ? (
             <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-muted-foreground">
               {item.description}
             </p>
           ) : null}
-          {item.notes ? (
-            <p className="mt-3 font-mono text-xs leading-relaxed text-faint">{item.notes}</p>
-          ) : null}
+          {item.notes ? <p className="mt-3 text-sm leading-relaxed text-faint">{item.notes}</p> : null}
           {item.status === 'pending' ? (
-            <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/5 px-3 py-2 text-sm text-amber-200/90">
+            <p className="mt-5 rounded-md border border-amber-500/25 bg-amber-50 px-3 py-2 text-sm text-amber-800">
               Someone&apos;s in line for this one — but deals fall through. Offer anyway and
               you&apos;re next up.
             </p>
           ) : null}
 
-          <div className="mt-6 border-t border-border pt-6">
+          <div className="mt-8 border-t border-border pt-6">
             {item.status === 'sold' ? (
               <p className="text-sm text-muted-foreground">This one&apos;s gone. Sorry!</p>
             ) : (
@@ -244,7 +240,7 @@ function ResponseForm({ item, responded, onDone }) {
   if (sent) {
     return (
       <div>
-        <p className="font-mono text-sm text-primary">Got it — thanks!</p>
+        <p className="text-[15px] font-medium text-foreground">Got it — thanks!</p>
         <p className="mt-2 text-sm text-muted-foreground">
           I&apos;ll be in touch at {contact} to sort out pickup.
         </p>
@@ -279,7 +275,7 @@ function ResponseForm({ item, responded, onDone }) {
     return (
       <div>
         {responded ? (
-          <p className="mb-3 font-mono text-xs text-faint">
+          <p className="mb-3 text-xs text-faint">
             You&apos;ve already responded to this one — sending another is fine.
           </p>
         ) : null}
@@ -298,13 +294,13 @@ function ResponseForm({ item, responded, onDone }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4">
-      <p className="font-mono text-[13px] text-muted-foreground">
+    <form onSubmit={submit} className="flex flex-col gap-5">
+      <p className="text-sm text-muted-foreground">
         {kind === 'claim' ? `Claiming at ${asking}` : 'Making an offer'}{' '}
         <button
           type="button"
           onClick={() => setKind(null)}
-          className="ml-1 text-faint underline hover:text-foreground"
+          className="ml-1 underline underline-offset-4 hover:text-foreground"
         >
           change
         </button>
