@@ -10,6 +10,11 @@ import { Btn, Field, Notice, PageShell } from './ui.jsx';
 
 const BLANK = { title: '', price: '', description: '', notes: '', status: 'available', photos: [] };
 
+// Half-width arrows sitting on the bottom edge of a photo thumbnail. Big enough
+// for a thumb, quiet enough to leave the picture readable.
+const photoMoveCls =
+  'flex-1 bg-foreground/70 py-0.5 text-xs leading-4 text-background transition hover:bg-foreground disabled:opacity-30 disabled:hover:bg-foreground/70';
+
 export function Admin() {
   const [auth, setAuth] = useState(null); // null → still checking
   const [tab, setTab] = useState('items');
@@ -394,6 +399,19 @@ function ItemForm({ initial, submitLabel, onSave, onCancel }) {
     }
   };
 
+  // Photo order is the display order: photos[0] is the cover, the rest is the
+  // gallery. Swapping happens in the form and ships with Save, so the same two
+  // arrows that reorder items reorder photos — no extra endpoint, and a
+  // rearrangement you change your mind about dies with Cancel.
+  const movePhoto = (from, delta) =>
+    setValue((v) => {
+      const to = from + delta;
+      if (to < 0 || to >= v.photos.length) return v;
+      const photos = [...v.photos];
+      [photos[from], photos[to]] = [photos[to], photos[from]];
+      return { ...v, photos };
+    });
+
   const submit = async (e) => {
     e.preventDefault();
     setError('');
@@ -446,9 +464,14 @@ function ItemForm({ initial, submitLabel, onSave, onCancel }) {
       <div>
         <span className={eyebrowCls}>Photos</span>
         <div className="mt-2 flex flex-wrap gap-2">
-          {value.photos.map((url) => (
+          {value.photos.map((url, i) => (
             <div key={url} className="relative h-20 w-20 overflow-hidden rounded-md border border-border">
               <img src={url} alt="" className="h-full w-full object-cover" />
+              {i === 0 ? (
+                <span className="absolute left-0 top-0 bg-foreground/70 px-1.5 text-[10px] font-medium uppercase tracking-[0.08em] leading-5 text-background">
+                  Cover
+                </span>
+              ) : null}
               <button
                 type="button"
                 aria-label="Remove photo"
@@ -457,6 +480,26 @@ function ItemForm({ initial, submitLabel, onSave, onCancel }) {
               >
                 ×
               </button>
+              <div className="absolute inset-x-0 bottom-0 flex">
+                <button
+                  type="button"
+                  aria-label="Move photo earlier"
+                  disabled={i === 0}
+                  onClick={() => movePhoto(i, -1)}
+                  className={photoMoveCls}
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  aria-label="Move photo later"
+                  disabled={i === value.photos.length - 1}
+                  onClick={() => movePhoto(i, 1)}
+                  className={photoMoveCls}
+                >
+                  ›
+                </button>
+              </div>
             </div>
           ))}
           <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-md border border-dashed border-input text-xs text-faint transition hover:border-foreground/40 hover:text-muted-foreground">
