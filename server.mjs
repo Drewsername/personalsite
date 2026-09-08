@@ -82,6 +82,11 @@ app.post('/api/contact', async (req, res) => {
   res.json({ ok: true });
 });
 
+// Mounted at the root rather than under /api so it is a guessable, linkable
+// address — the listing as one plain document. Ahead of the SPA catch-all,
+// which would otherwise answer it with index.html.
+app.get('/moveout.json', moveout.feed);
+
 // The moveout page is unlisted: no link to it anywhere on the site, and no
 // crawler should index it either.
 app.get('/robots.txt', (_req, res) => {

@@ -361,7 +361,57 @@ export function createMoveout(dataDir, { requireAuth }) {
 
   router.use('/admin', admin);
 
-  return { router, mediaDir };
+  // /moveout.json — the whole listing as one flat document, for anything that
+  // reads rather than browses: an agent, a script, a friend with curl. The page
+  // itself renders client-side, so scraping it means running JavaScript; this
+  // needs one GET. Photo URLs are absolute so they can be fetched straight from
+  // the feed, and the response contract is spelled out inline so a reader can
+  // act on a listing without reverse-engineering the form. Deliberately not
+  // counted as a page view — nobody is looking at anything.
+  const feed = async (req, res, next) => {
+    try {
+      const { items } = await readJson(itemsFile, EMPTY);
+      const origin = `${req.protocol}://${req.get('host')}`;
+      const ordered = [...items].sort(
+        (a, b) => (a.status === 'sold' ? 1 : 0) - (b.status === 'sold' ? 1 : 0)
+      );
+      const body = {
+        listing: 'Moving out — everything must go',
+        page: `${origin}/moveout`,
+        generatedAt: new Date().toISOString(),
+        currency: 'USD',
+        count: ordered.length,
+        respond: {
+          method: 'POST',
+          url: `${origin}/api/moveout/submit`,
+          contentType: 'application/json',
+          fields: {
+            itemId: 'required — an item id from this feed',
+            kind: '"claim" to take it at the asking price, or "offer" to name your own price',
+            amount: 'required when kind is "offer" — a number of dollars',
+            contact: 'required — an email address or phone number, so Drew can reply',
+            name: 'optional',
+            note: 'optional — anything you want to say',
+          },
+        },
+        items: ordered.map((item) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          status: item.status,
+          description: item.description,
+          condition: item.notes,
+          photos: (item.photos || []).map((p) => origin + p),
+        })),
+      };
+      // Pretty-printed: this is meant to be read, not just parsed.
+      res.type('application/json').send(`${JSON.stringify(body, null, 2)}\n`);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  return { router, feed, mediaDir };
 }
 
 // Deletes an uploaded photo, guarding against a stored url that tries to walk
