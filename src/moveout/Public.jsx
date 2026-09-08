@@ -26,6 +26,36 @@ function rememberResponded(id) {
   }
 }
 
+// Descriptions are plain text, but a bare product URL in one is more useful as
+// a link. Only http(s) URLs are turned into anchors; everything else is left
+// exactly as typed.
+const URL_RE = /https?:\/\/[^\s<>"']+/g;
+
+function Linkified({ text }) {
+  const parts = [];
+  let last = 0;
+  for (const match of text.matchAll(URL_RE)) {
+    // Trailing punctuation belongs to the sentence, not the address.
+    const url = match[0].replace(/[.,;:!?)]+$/, '');
+    const start = match.index;
+    if (start > last) parts.push(text.slice(last, start));
+    parts.push(
+      <a
+        key={start}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="break-all text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
+      >
+        {url}
+      </a>
+    );
+    last = start + url.length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
 export function PublicListing() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState('');
@@ -200,7 +230,7 @@ function ItemDetail({ item, responded, onClose, onResponded }) {
           <p className="mt-2 text-lg font-medium text-foreground">{asking || 'Make an offer'}</p>
           {item.description ? (
             <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-muted-foreground">
-              {item.description}
+              <Linkified text={item.description} />
             </p>
           ) : null}
           {item.notes ? <p className="mt-3 text-sm leading-relaxed text-faint">{item.notes}</p> : null}
