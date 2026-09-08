@@ -8,7 +8,7 @@
 //     a mail outage loses nothing.
 import express from 'express';
 import path from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { appendFile, mkdir, writeFile, unlink, readFile } from 'node:fs/promises';
 import { readJson, updateJson } from './store.mjs';
 import { sendMail } from './mail.mjs';
@@ -25,6 +25,31 @@ const SUBMIT_LIMIT = 5;
 const submits = new Map();
 
 const STATUSES = ['available', 'pending', 'sold'];
+
+// View tracking keeps a per-day tally of page loads and item opens, plus a
+// set of visitor fingerprints per day so "unique" means something. The
+// fingerprint is a salted hash of ip + user agent — enough to dedupe one
+// person's refreshes, not enough to identify them later. The salt is per
+// process, so a deploy mid-day can count a returning visitor twice — close
+// enough for "is anyone looking". Days older than the retention window are
+// dropped on write.
+const EMPTY_VIEWS = { days: {}, items: {} };
+const VIEW_RETENTION_DAYS = 90;
+const FINGERPRINT_SALT = randomUUID();
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+function fingerprint(req) {
+  return createHash('sha256')
+    .update(`${FINGERPRINT_SALT}|${req.ip}|${req.headers['user-agent'] || ''}`)
+    .digest('base64url')
+    .slice(0, 16);
+}
+
+function pruneDays(days) {
+  const cutoff = new Date(Date.now() - VIEW_RETENTION_DAYS * 86400000).toISOString().slice(0, 10);
+  return Object.fromEntries(Object.entries(days).filter(([day]) => day >= cutoff));
+}
 
 const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, '')}`;
 
@@ -82,6 +107,7 @@ export function createMoveout(dataDir, { requireAuth }) {
   const itemsFile = path.join(dataDir, 'moveout.json');
   const submissionsFile = path.join(dataDir, 'moveout-submissions.jsonl');
   const mediaDir = path.join(dataDir, 'moveout-media');
+  const viewsFile = path.join(dataDir, 'moveout-views.json');
 
   const router = express.Router();
 
@@ -95,6 +121,31 @@ export function createMoveout(dataDir, { requireAuth }) {
     try {
       const { items } = await readJson(itemsFile, EMPTY);
       res.json({ items });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // A page load (no itemId) or an item opened (with one). The owner's own
+  // visits are skipped so checking the listing doesn't inflate it.
+  router.post('/view', smallJson, async (req, res, next) => {
+    try {
+      if (req.session) return res.json({ ok: true });
+      const itemId = typeof req.body?.itemId === 'string' ? req.body.itemId.slice(0, 64) : null;
+      const day = today();
+      const who = fingerprint(req);
+      await updateJson(viewsFile, EMPTY_VIEWS, (v) => {
+        const days = pruneDays(v.days);
+        const d = days[day] || { views: 0, opens: 0, visitors: [] };
+        if (itemId) d.opens += 1;
+        else d.views += 1;
+        if (!d.visitors.includes(who)) d.visitors.push(who);
+        days[day] = d;
+        const items = { ...v.items };
+        if (itemId) items[itemId] = (items[itemId] || 0) + 1;
+        return { days, items };
+      });
+      res.json({ ok: true });
     } catch (err) {
       next(err);
     }
@@ -177,6 +228,26 @@ export function createMoveout(dataDir, { requireAuth }) {
 
   const admin = express.Router();
   admin.use(requireAuth);
+
+  admin.get('/views', async (_req, res, next) => {
+    try {
+      const { days, items } = await readJson(viewsFile, EMPTY_VIEWS);
+      const day = today();
+      const week = new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10);
+      const sum = (from, key) =>
+        Object.entries(days)
+          .filter(([d]) => d >= from)
+          .reduce((n, [, d]) => n + (key === 'visitors' ? d.visitors.length : d[key]), 0);
+      res.json({
+        today: { views: days[day]?.views || 0, visitors: days[day]?.visitors.length || 0 },
+        week: { views: sum(week, 'views'), visitors: sum(week, 'visitors') },
+        total: { views: sum('', 'views'), opens: sum('', 'opens') },
+        items,
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
 
   admin.get('/submissions', async (_req, res, next) => {
     try {

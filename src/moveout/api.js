@@ -33,6 +33,9 @@ export const api = {
 
   items: () => request('/api/moveout/items'),
   submit: (body) => post('/api/moveout/submit', body),
+  // Fire-and-forget: a failed view ping should never surface to a visitor.
+  trackView: (itemId) => post('/api/moveout/view', itemId ? { itemId } : {}).catch(() => {}),
+  views: () => request('/api/moveout/admin/views'),
 
   adminItems: () => request('/api/moveout/items'),
   createItem: (item) => post('/api/moveout/admin/items', item),

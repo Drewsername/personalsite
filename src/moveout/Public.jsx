@@ -67,7 +67,13 @@ export function PublicListing() {
       .items()
       .then((d) => setItems(d.items))
       .catch((err) => setError(err.message));
+    api.trackView();
   }, []);
+
+  // Opening an item counts once per open; the server keeps the per-item tally.
+  useEffect(() => {
+    if (openId) api.trackView(openId);
+  }, [openId]);
 
   // Sold items sink to the bottom; everything else keeps the order Drew set.
   const ordered = useMemo(() => {

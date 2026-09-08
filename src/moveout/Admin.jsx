@@ -223,13 +223,15 @@ function ItemsTab() {
   const [error, setError] = useState('');
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [views, setViews] = useState(null);
 
   const load = useCallback(
     () =>
-      api
-        .adminItems()
-        .then((d) => setItems(d.items))
-        .catch((err) => setError(err.message)),
+      Promise.all([
+        api.adminItems().then((d) => setItems(d.items)),
+        // Stats are a nicety: if they fail, the list still loads.
+        api.views().then(setViews, () => {}),
+      ]).catch((err) => setError(err.message)),
     []
   );
 
@@ -250,9 +252,18 @@ function ItemsTab() {
   return (
     <div>
       <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
-          {items ? `${items.length} item${items.length === 1 ? '' : 's'}` : 'Loading…'}
-        </p>
+        <div>
+          <p className="text-sm text-muted-foreground">
+            {items ? `${items.length} item${items.length === 1 ? '' : 's'}` : 'Loading…'}
+          </p>
+          {views ? (
+            <p className="mt-1 text-xs text-faint">
+              {views.today.visitors} visitor{views.today.visitors === 1 ? '' : 's'} today ·{' '}
+              {views.week.visitors} this week · {views.total.views} page view
+              {views.total.views === 1 ? '' : 's'} all time. Your own visits aren&apos;t counted.
+            </p>
+          ) : null}
+        </div>
         <Btn variant="primary" onClick={() => setAdding((v) => !v)}>
           {adding ? 'Cancel' : 'Add item'}
         </Btn>
@@ -305,6 +316,11 @@ function ItemsTab() {
                     <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
                       {statusLabel[item.status]}
                     </span>
+                    {views ? (
+                      <span className="text-xs text-faint">
+                        {views.items[item.id] || 0} open{views.items[item.id] === 1 ? '' : 's'}
+                      </span>
+                    ) : null}
                   </div>
                   {item.description ? (
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
