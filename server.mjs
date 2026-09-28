@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'node:http';
 import { appendFile, mkdir } from 'node:fs/promises';
 import { createReadStream, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -23,6 +24,32 @@ const app = express();
 // every request looks like it came from the proxy — which would collapse the
 // per-IP rate limits into one shared bucket.
 app.set('trust proxy', 1);
+
+// Museum Mayhem web demo, unlisted: no link to it on the site. The build lives in its own
+// Railway service (museum-mayhem-game) and is streamed through here so it sits at /game.
+// node:http keeps the upstream's gzip bytes as-is (fetch would decompress them).
+const GAME_UPSTREAM = new URL(process.env.GAME_UPSTREAM || 'http://museum-mayhem-game.railway.internal:8080');
+const GAME_HEADERS = ['content-type', 'content-length', 'content-encoding', 'cache-control', 'vary', 'location', 'etag', 'last-modified', 'x-robots-tag'];
+app.use('/game', (req, res) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return res.status(405).end();
+  const upstream = http.request({
+    host: GAME_UPSTREAM.hostname, port: GAME_UPSTREAM.port || 80, method: req.method, path: req.originalUrl,
+    headers: { 'accept-encoding': req.headers['accept-encoding'] || '', 'if-none-match': req.headers['if-none-match'] || '' },
+    timeout: 30000,
+  }, (up) => {
+    res.status(up.statusCode || 502);
+    for (const h of GAME_HEADERS) if (up.headers[h] !== undefined) res.setHeader(h, up.headers[h]);
+    up.pipe(res);
+  });
+  upstream.on('timeout', () => upstream.destroy(new Error('game upstream timeout')));
+  upstream.on('error', (err) => {
+    console.error('game proxy failed:', err.message);
+    if (!res.headersSent) res.status(502).type('text/plain').send('The game is waking up. Try again in a moment.');
+    else res.destroy();
+  });
+  req.on('close', () => { if (!res.writableEnded) upstream.destroy(); });
+  upstream.end();
+});
 
 const auth = createAuth(dataDir);
 const moveout = createMoveout(dataDir, { requireAuth: auth.requireAuth });
@@ -90,7 +117,7 @@ app.get('/moveout.json', moveout.feed);
 // The moveout page is unlisted: no link to it anywhere on the site, and no
 // crawler should index it either.
 app.get('/robots.txt', (_req, res) => {
-  res.type('text/plain').send('User-agent: *\nDisallow: /moveout\n');
+  res.type('text/plain').send('User-agent: *\nDisallow: /moveout\nDisallow: /game\n');
 });
 
 app.use(express.static(dist));
