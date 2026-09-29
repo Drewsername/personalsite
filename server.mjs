@@ -29,11 +29,13 @@ app.set('trust proxy', 1);
 // Railway service (museum-mayhem-game) and is streamed through here so it sits at /game.
 // node:http keeps the upstream's gzip bytes as-is (fetch would decompress them).
 const GAME_UPSTREAM = new URL(process.env.GAME_UPSTREAM || 'http://museum-mayhem-game.railway.internal:8080');
+// Museum Mayhem 3D test build (service museum-mayhem-3d), unlisted at /game3d.
+const GAME3D_UPSTREAM = new URL(process.env.GAME3D_UPSTREAM || 'http://museum-mayhem-3d.railway.internal:8080');
 const GAME_HEADERS = ['content-type', 'content-length', 'content-encoding', 'cache-control', 'vary', 'location', 'etag', 'last-modified', 'x-robots-tag'];
-app.use('/game', (req, res) => {
+const proxyTo = (target) => (req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return res.status(405).end();
   const upstream = http.request({
-    host: GAME_UPSTREAM.hostname, port: GAME_UPSTREAM.port || 80, method: req.method, path: req.originalUrl,
+    host: target.hostname, port: target.port || 80, method: req.method, path: req.originalUrl,
     headers: { 'accept-encoding': req.headers['accept-encoding'] || '', 'if-none-match': req.headers['if-none-match'] || '' },
     timeout: 30000,
   }, (up) => {
@@ -49,7 +51,10 @@ app.use('/game', (req, res) => {
   });
   req.on('close', () => { if (!res.writableEnded) upstream.destroy(); });
   upstream.end();
-});
+};
+app.use('/game3d', proxyTo(GAME3D_UPSTREAM));
+app.use('/assets3d', proxyTo(GAME3D_UPSTREAM)); // the 3D renderer fetches its models from the site root
+app.use('/game', proxyTo(GAME_UPSTREAM));
 
 const auth = createAuth(dataDir);
 const moveout = createMoveout(dataDir, { requireAuth: auth.requireAuth });
@@ -117,7 +122,7 @@ app.get('/moveout.json', moveout.feed);
 // The moveout page is unlisted: no link to it anywhere on the site, and no
 // crawler should index it either.
 app.get('/robots.txt', (_req, res) => {
-  res.type('text/plain').send('User-agent: *\nDisallow: /moveout\nDisallow: /game\n');
+  res.type('text/plain').send('User-agent: *\nDisallow: /moveout\nDisallow: /game\nDisallow: /game3d\nDisallow: /assets3d\n');
 });
 
 app.use(express.static(dist));
