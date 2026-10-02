@@ -56,6 +56,36 @@ app.use('/game3d', proxyTo(GAME3D_UPSTREAM));
 app.use('/assets3d', proxyTo(GAME3D_UPSTREAM)); // the 3D renderer fetches its models from the site root
 app.use('/game', proxyTo(GAME_UPSTREAM));
 
+// anyheat.nyc (service anyheat), served at /anyheatnyc. Unlike the game proxies this forwards every
+// method with its body: the map's API and its MCP endpoint are POST/PATCH/DELETE. The upstream serves
+// its own paths under /anyheatnyc, so the URL is passed through unchanged.
+const ANYHEAT_UPSTREAM = new URL(process.env.ANYHEAT_UPSTREAM || 'http://anyheat.railway.internal:8080');
+const ANYHEAT_REQ_HEADERS = ['content-type', 'content-length', 'accept', 'accept-encoding', 'if-none-match', 'mcp-session-id'];
+const ANYHEAT_RES_HEADERS = ['content-type', 'content-length', 'content-encoding', 'cache-control', 'vary', 'location', 'etag', 'last-modified', 'retry-after', 'mcp-session-id'];
+const proxyAll = (target) => (req, res) => {
+  const headers = { host: target.host, 'x-forwarded-for': req.ip, 'x-forwarded-proto': 'https' };
+  for (const h of ANYHEAT_REQ_HEADERS) if (req.headers[h] !== undefined) headers[h] = req.headers[h];
+  const upstream = http.request({
+    host: target.hostname, port: target.port || 80, method: req.method, path: req.originalUrl, headers,
+    timeout: 120000,
+  }, (up) => {
+    res.status(up.statusCode || 502);
+    for (const h of ANYHEAT_RES_HEADERS) if (up.headers[h] !== undefined) res.setHeader(h, up.headers[h]);
+    up.pipe(res);
+  });
+  upstream.on('timeout', () => upstream.destroy(new Error('anyheat upstream timeout')));
+  upstream.on('error', (err) => {
+    console.error('anyheat proxy failed:', err.message);
+    if (!res.headersSent) res.status(502).type('text/plain').send('The map service is waking up. Try again in a moment.');
+    else res.destroy();
+  });
+  // res, not req: on current Node a request closes as soon as its body has been read, which would cut
+  // POSTs short before the upstream answers.
+  res.on('close', () => { if (!res.writableEnded) upstream.destroy(); });
+  req.pipe(upstream);
+};
+app.use('/anyheatnyc', proxyAll(ANYHEAT_UPSTREAM));
+
 const auth = createAuth(dataDir);
 const moveout = createMoveout(dataDir, { requireAuth: auth.requireAuth });
 
