@@ -128,7 +128,9 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
               <Recording src={p.video} poster={p.poster} tint={p.tint} playing={active && (mobile || highlighted) && !isOpen} />
               <div
                 className="absolute inset-0"
-                style={{ background: 'linear-gradient(180deg, rgba(6,7,11,0.2), rgba(6,7,11,0.88))' }}
+                style={{ background: p.video
+                  ? 'linear-gradient(180deg, rgba(6,7,11,0.2), rgba(6,7,11,0.88))'
+                  : 'linear-gradient(180deg, rgba(6,7,11,0.65), rgba(6,7,11,0.92))' }}
               />
               <div className="absolute inset-x-4 bottom-3.5 flex flex-col gap-1.5 sm:bottom-6 sm:gap-3">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
