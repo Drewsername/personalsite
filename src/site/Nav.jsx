@@ -25,8 +25,8 @@ export function Nav({ active, onNavigate }) {
           {content.nav.map((n) => (
             <a
               key={n.id}
-              href={`#${n.id}`}
-              onClick={jump(n.id)}
+              href={n.id === 'resume' ? content.resume.href : `#${n.id}`}
+              onClick={n.id === 'resume' ? undefined : jump(n.id)}
               className={`font-mono text-[13px] transition-colors ${
                 active === n.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}

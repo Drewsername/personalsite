@@ -5,7 +5,6 @@ export const content = {
 
   nav: [
     { id: 'projects', label: 'Projects' },
-    { id: 'book', label: 'Book' },
     { id: 'contact', label: 'Contact' },
     { id: 'resume', label: 'Resume' },
   ],
@@ -14,7 +13,6 @@ export const content = {
   // count renders the last card full-width.
   cards: [
     { id: 'projects', label: 'Projects' },
-    { id: 'book', label: 'Book' },
     { id: 'contact', label: 'Contact' },
     { id: 'resume', label: 'Resume' },
   ],
@@ -22,28 +20,10 @@ export const content = {
   // Section panels. `word` is the giant swarm word behind the panel.
   sections: {
     projects: { word: 'Projects', label: 'Projects', heading: 'Projects' },
-    book: { word: 'Book', label: 'Book', heading: 'The Ripples' },
     contact: { word: 'Contact', label: 'Contact', heading: 'Contact' },
     resume: { word: 'Resume', label: 'Resume', heading: 'Resume' },
     // Reached via the nav CTA, not the nav links / home cards.
     login: { word: 'Login', label: 'Login', heading: 'Login' },
-  },
-
-  // Book section: teaser synopsis + notify-me signup.
-  book: {
-    status: 'My first novel, a passion project — coming soon',
-    // One <p> per entry.
-    synopsis: [
-      'Three years have passed since the Exponential, the day artificial intelligence learned to improve itself and quietly perfected the world. Disease has been cured. Work has become optional. Every comfort is provided before anyone even knows to want it.',
-      'For Miles Clement, an architect whose profession vanished almost overnight, that perfect world feels strangely empty. He is starving for the one thing the machines cannot provide: a reason to get out of bed.',
-      'His search for purpose leads him to Alaska and the Scout program, where a small team keeps watch over the Ripple, a shimmering tear in the air that folds over itself in blues and greens and sings with a music only a few people can hear. It is the last true mystery on Earth, the only phenomenon artificial intelligence cannot measure or explain.',
-      'Every Scout who has entered the Ripple has returned.',
-      'Until now.',
-    ],
-    formLabel: 'Get updated when it’s available',
-    placeholder: 'you@email.com',
-    cta: 'Keep me posted',
-    thanks: 'You’re on the list. Thanks!',
   },
 
   // Contact section: LinkedIn + a message form that relays through the server,
@@ -55,8 +35,7 @@ export const content = {
   },
 
   // Projects reel. `name` is also the swarm word when the project is open.
-  // `tint` colours the placeholder texture standing in for each screen recording.
-  // Foundry / Chorus are working titles.
+  // Each project has a recording or a still from the product.
   projects: [
     {
       name: 'Arbr',
@@ -64,6 +43,24 @@ export const content = {
       tint: 'rgba(53,224,255,0.07)',
       video: '/media/arbr.mp4',
       body: 'One of the earliest vibe-coding platforms in 2023 focused on frontend software development, Arbr was a direct competitor to gpt-engineer, which became Lovable. Built on GPT3.5 before agents and orchestration were common concepts, we introduced many forward-looking innovations including wrapping Reinforcement Learning (RL) to improve model performance, and a harness to introduce planning for the agent.',
+    },
+    {
+      name: 'Babbit',
+      line: 'AI development built around product behavior',
+      tint: 'rgba(232,184,255,0.07)',
+      poster: '/media/babbit.png',
+      href: 'https://babbit.dev',
+      linkLabel: 'Visit babbit.dev',
+      body: 'A development platform where teams define what their product should do, and agents build and test changes against an approved plan. Babbit connects features, code, and evaluations in one product map, with cloud workspaces for agents and pull requests in your own GitHub repositories. We use it to build Babbit itself.',
+    },
+    {
+      name: 'Toucan',
+      line: 'a private world for two',
+      tint: 'rgba(255,183,77,0.09)',
+      video: '/media/toucan.mp4',
+      poster: '/media/toucan.jpg',
+      body: 'A native iOS app for partners to turn everyday connection into play: send dares, earn mangoes, create rewards for each other, and keep a shared space for conversations and memories. Built with SwiftUI and a Python backend, with end-to-end encryption for private content.',
+      demoNote: 'Native iOS app · recorded in Simulator with sample data',
     },
     {
       name: 'Foundry',
@@ -83,6 +80,8 @@ export const content = {
 
   // Nav CTA. Login is a placeholder for now — no auth flow wired up yet.
   cta: { label: 'Login', href: '#' },
+
+  resume: { href: '/resume.pdf' },
 
   accent: '#35E0FF',
 };

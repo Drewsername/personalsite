@@ -4,7 +4,7 @@ import { content } from './site/content.js';
 import { Nav } from './site/Nav.jsx';
 import { HeroPanel } from './site/Hero.jsx';
 import { UnderConstruction } from './site/Stub.jsx';
-import { BookSection } from './site/Book.jsx';
+import { ResumeSection } from './site/Resume.jsx';
 import { ContactSection } from './site/Contact.jsx';
 import { LoginSection } from './site/Login.jsx';
 import { ProjectsSection } from './site/Projects.jsx';
@@ -15,7 +15,6 @@ import { useScrollDeck } from './site/useScrollDeck.js';
 const PANELS = [
   { id: 'top', word: content.name },
   { id: 'projects', word: content.sections.projects.word },
-  { id: 'book', word: content.sections.book.word },
   { id: 'contact', word: content.sections.contact.word },
   { id: 'resume', word: content.sections.resume.word },
   { id: 'login', word: content.sections.login.word },
@@ -410,7 +409,7 @@ function FlowMode({ swarmRef, config, onFirstFrame }) {
 // swarm; this is everything that sits on top of it.
 function PanelContent({ id, onNavigate }) {
   if (id === 'top') return <HeroPanel onNavigate={onNavigate} />;
-  if (id === 'book') return <BookSection />;
+  if (id === 'resume') return <ResumeSection />;
   if (id === 'contact') return <ContactSection />;
   if (id === 'login') return <LoginSection />;
   const s = content.sections[id];

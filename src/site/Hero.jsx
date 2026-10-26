@@ -16,8 +16,8 @@ export function HeroPanel({ onNavigate }) {
         {content.cards.map((c, i) => (
           <a
             key={c.id}
-            href={`#${c.id}`}
-            onClick={jump(c.id)}
+            href={c.id === 'resume' ? content.resume.href : `#${c.id}`}
+            onClick={c.id === 'resume' ? undefined : jump(c.id)}
             className={`group block text-left transition-transform hover:-translate-y-0.5 ${
               // With an odd card count, the last card stretches across both columns.
               content.cards.length % 2 === 1 && i === content.cards.length - 1 ? 'col-span-2' : ''

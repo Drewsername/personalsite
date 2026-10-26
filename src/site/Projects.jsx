@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { content } from './content.js';
+import { DemoViewer } from './DemoViewer.jsx';
 import { CONTENT_TOP, WORD_CY, WORD_BAND } from './deckLayout.js';
 
-// The Projects panel: a reel of three live strips (one per project) that fills
+// The Projects panel: a reel of live strips (one per project) that fills
 // the content area under the swarm word. Hovering a strip widens it; clicking
 // opens that project as a full page — its texture goes full-bleed and the swarm
 // morphs to spell the project's name (App drives the morph). Return via the
-// "← all projects" pill, clicking the swarm word itself, or the 3-dot rail
+// "← all projects" pill, clicking the swarm word itself, or the project dot rail
 // (which also hops between projects).
 //
 // Must be rendered inside a positioned, full-viewport-height container: every
@@ -14,8 +15,8 @@ import { CONTENT_TOP, WORD_CY, WORD_BAND } from './deckLayout.js';
 
 // Each project's screen recording, with the project's colour tint washed over it
 // so the reel keeps its palette. Playback is gated: videos pause whenever their
-// layer isn't the one on screen, so at most three (the reel) decode at once.
-function Recording({ src, tint, playing }) {
+// layer isn't the one on screen, so hidden panels do not decode video.
+function Recording({ src, poster, tint, playing }) {
   const ref = useRef(null);
   useEffect(() => {
     const v = ref.current;
@@ -25,15 +26,16 @@ function Recording({ src, tint, playing }) {
   }, [playing]);
   return (
     <>
-      <video
+      {src ? <video
         ref={ref}
         src={src}
+        poster={poster}
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         className="absolute inset-0 h-full w-full object-cover"
-      />
+      /> : <img src={poster} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />}
       <div
         className="absolute inset-0"
         style={{ background: `radial-gradient(120% 90% at 50% 30%, ${tint}, transparent 70%)` }}
@@ -42,24 +44,29 @@ function Recording({ src, tint, playing }) {
   );
 }
 
+const isCompactLayout = () => window.matchMedia('(max-width: 1023px)').matches;
+function subscribeToLayout(callback) {
+  const query = window.matchMedia('(max-width: 1023px)');
+  query.addEventListener('change', callback);
+  return () => query.removeEventListener('change', callback);
+}
+
 export function ProjectsSection({ open, onOpen, onClose, active = true }) {
   const [hover, setHover] = useState(0);
   // On phones the reel stacks vertically and hover doesn't exist: strips stay
   // equal-height, every caption is visible, and a tap opens the project.
-  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const sync = () => setMobile(mq.matches);
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
+  const mobile = useSyncExternalStore(subscribeToLayout, isCompactLayout);
   const projects = content.projects;
   const isOpen = open >= 0;
 
-  // Mobile full-screen demo viewer, opened from a project page. Closes itself
+  // Full-screen demo viewer, opened from a project page. Closes itself
   // whenever the open project changes (including closing the page).
   const [demo, setDemo] = useState(false);
-  useEffect(() => setDemo(false), [open]);
+  const [previousOpen, setPreviousOpen] = useState(open);
+  if (open !== previousOpen) {
+    setPreviousOpen(open);
+    setDemo(false);
+  }
 
   return (
     <>
@@ -71,7 +78,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
           className="pointer-events-none absolute inset-0 transition-opacity duration-500"
           style={{ opacity: isOpen && open === i ? 1 : 0 }}
         >
-          <Recording src={p.video} tint={p.tint} playing={active && isOpen && open === i} />
+          <Recording src={p.video} poster={p.poster} tint={p.tint} playing={active && isOpen && open === i} />
           {/* On phones the recording is heavily dimmed — it's ambience behind the
               text there, and the "watch demo" viewer is the way to actually watch. */}
           <div
@@ -85,9 +92,11 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
         </div>
       ))}
 
-      {/* The reel: three strips sharing the content area under the word. */}
+      {/* The reel scrolls on small screens so every project stays readable. */}
       <div
-        className="absolute flex flex-col gap-2.5 transition-opacity duration-500 md:flex-row"
+        data-deck-scroll
+        inert={isOpen}
+        className="absolute flex flex-col gap-2.5 overflow-y-auto overscroll-contain transition-opacity duration-500 lg:flex-row lg:overflow-visible"
         style={{
           left: 'var(--pad)',
           right: 'var(--pad)',
@@ -100,8 +109,8 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
         }}
       >
         {projects.map((p, i) => {
-          const active = i === hover;
-          const showCaption = mobile || active;
+          const highlighted = i === hover;
+          const showCaption = mobile || highlighted;
           return (
             <button
               key={p.name}
@@ -111,17 +120,18 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
               onClick={() => onOpen(i)}
               className="relative cursor-pointer overflow-hidden border border-white/[0.08] text-left"
               style={{
-                flex: !mobile && active ? '2.9 1 0%' : '1 1 0%',
+                flex: mobile ? '0 0 140px' : highlighted ? '2.9 1 0%' : '1 1 0%',
+                minWidth: 0,
                 transition: 'flex .55s cubic-bezier(.22,.9,.3,1)',
               }}
             >
-              <Recording src={p.video} tint={p.tint} playing={(mobile || active) && !isOpen} />
+              <Recording src={p.video} poster={p.poster} tint={p.tint} playing={active && (mobile || highlighted) && !isOpen} />
               <div
                 className="absolute inset-0"
                 style={{ background: 'linear-gradient(180deg, rgba(6,7,11,0.2), rgba(6,7,11,0.88))' }}
               />
-              <div className="absolute inset-x-4 bottom-3.5 flex flex-col gap-1.5 sm:inset-x-7 sm:bottom-6 sm:gap-3">
-                <div className="flex items-baseline gap-3.5">
+              <div className="absolute inset-x-4 bottom-3.5 flex flex-col gap-1.5 sm:bottom-6 sm:gap-3">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                   <span className="font-mono text-[11px] tracking-[1px] text-primary">0{i + 1}</span>
                   <span className="font-mono text-base font-medium sm:text-lg">{p.name}</span>
                 </div>
@@ -129,6 +139,8 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
                   className="max-w-[560px]"
                   style={{
                     opacity: showCaption ? 1 : 0,
+                    maxHeight: showCaption ? '200px' : '0px',
+                    overflow: 'hidden',
                     transform: showCaption ? 'translateY(0)' : 'translateY(10px)',
                     transition: 'opacity .45s .12s, transform .45s .12s',
                   }}
@@ -153,6 +165,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
           <div
             key={p.name}
             aria-hidden={!shown}
+            inert={!shown}
             className="absolute inset-0"
             style={{
               opacity: shown ? 1 : 0,
@@ -173,6 +186,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
               className="absolute left-1/2 flex -translate-x-1/2 flex-col gap-3.5"
               style={{ bottom: '110px', width: 'min(var(--maxw), calc(100% - 2 * var(--pad)))' }}
             >
+              <h2 className="font-mono text-2xl font-medium">{p.name}</h2>
               <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <span className="font-mono text-xs tracking-[2px] text-primary">0{i + 1} / 0{projects.length}</span>
                 <span className="font-mono text-[13px] tracking-[1px] text-muted-foreground">{p.line}</span>
@@ -186,15 +200,17 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
               >
                 {p.body}
               </p>
-              {mobile ? (
+              {p.href ? <a href={p.href} target="_blank" rel="noreferrer" className="w-fit font-mono text-sm text-primary underline underline-offset-4">{p.linkLabel} ↗</a> : null}
+              {p.video ? (
                 <button
                   type="button"
                   onClick={() => setDemo(true)}
                   className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 font-mono text-xs tracking-[1px] text-primary transition-colors hover:bg-primary/20"
                 >
-                  ▶ watch demo (silent)
+                  ▶ Watch demo (silent)
                 </button>
               ) : null}
+              {p.demoNote ? <p className="font-mono text-xs text-faint">{p.demoNote}</p> : null}
             </div>
           </div>
         );
@@ -235,28 +251,8 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
         </div>
       ) : null}
 
-      {/* Full-screen demo viewer (mobile): the recording, undimmed, over
-          everything. Fixed so it escapes the panel's transform/stacking. */}
-      {demo && isOpen ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-background">
-          <video
-            key={projects[open].video}
-            src={projects[open].video}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="h-full w-full object-contain"
-          />
-          <button
-            type="button"
-            onClick={() => setDemo(false)}
-            className="absolute right-4 top-4 inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/[0.2] bg-background/60 px-4 py-2 font-mono text-xs tracking-[1px] text-foreground backdrop-blur-[4px]"
-          >
-            ✕ close
-          </button>
-        </div>
-      ) : null}
+      {demo && isOpen ? <DemoViewer project={projects[open]} onClose={() => setDemo(false)} /> : null}
+
     </>
   );
 }
