@@ -175,10 +175,10 @@ export default function App() {
       ballRadius: mobile ? [6, 14.4] : [5, 12],
       omega: 1.0,
       beta: 1.2,
-      base: mobile ? 0.085 : 0.07, // a touch brighter words on mobile
-      bgDark: 0.18, // darker background → more word contrast
+      base: mobile ? 0.21 : 0.18, // bright, readable bubble lettering
+      bgDark: 0.015, // keep drifting background bubbles quiet
       mono: 0.85,
-      dim: 0.52,
+      dim: 0.9,
       speedScale: reduce ? 0 : 0.5,
       omegaScale: reduce ? 0 : 0.5,
     };

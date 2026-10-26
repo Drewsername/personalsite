@@ -76,7 +76,10 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
           key={p.name}
           aria-hidden={!(isOpen && open === i)}
           className="pointer-events-none absolute inset-0 transition-opacity duration-500"
-          style={{ opacity: isOpen && open === i ? 1 : 0 }}
+          style={{
+            opacity: isOpen && open === i ? 1 : 0,
+            maskImage: 'linear-gradient(to bottom, transparent 32vh, black 48vh)',
+          }}
         >
           <Recording src={p.video} poster={p.poster} tint={p.tint} playing={active && isOpen && open === i} />
           {/* On phones the recording is heavily dimmed — it's ambience behind the

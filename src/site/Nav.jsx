@@ -1,6 +1,5 @@
 import { content } from './content.js';
 import { Button } from '@/components/ui/button';
-import { Logo } from './Logo.jsx';
 
 export function Nav({ active, onNavigate }) {
   // In deck mode the nav drives the scroll-jack controller; in the flow fallback
@@ -17,7 +16,6 @@ export function Nav({ active, onNavigate }) {
         onClick={jump('top')}
         className="flex items-center gap-2.5 font-mono text-[15px] font-medium tracking-[0.4px]"
       >
-        <Logo className="h-10 w-auto text-muted-foreground sm:h-[52px]" />
         {content.name}
       </a>
       <div className="flex items-center gap-[clamp(14px,2.4vw,28px)]">
