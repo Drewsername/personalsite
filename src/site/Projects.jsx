@@ -86,7 +86,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
             style={{
               background: mobile
                 ? 'linear-gradient(180deg, rgba(6,7,11,0.72), rgba(6,7,11,0.9))'
-                : 'linear-gradient(180deg, rgba(6,7,11,0.35), rgba(6,7,11,0.72))',
+                : 'linear-gradient(180deg, rgba(6,7,11,0.6), rgba(6,7,11,0.88))',
             }}
           />
         </div>
@@ -130,7 +130,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
                 className="absolute inset-0"
                 style={{ background: p.video
                   ? 'linear-gradient(180deg, rgba(6,7,11,0.2), rgba(6,7,11,0.88))'
-                  : 'linear-gradient(180deg, rgba(6,7,11,0.65), rgba(6,7,11,0.92))' }}
+                  : 'linear-gradient(180deg, rgba(6,7,11,0.15), rgba(6,7,11,0.86))' }}
               />
               <div className="absolute inset-x-4 bottom-3.5 flex flex-col gap-1.5 sm:bottom-6 sm:gap-3">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -198,7 +198,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
                   via data-deck-scroll. Desktop bodies fit — no scrollbar. */}
               <p
                 data-deck-scroll
-                className="max-h-[min(32vh,340px)] max-w-[660px] overflow-y-auto overscroll-contain pr-1 text-[clamp(13.5px,1.6vw,15.5px)] leading-[1.75] text-[#c6ccda] [text-wrap:pretty]"
+                className="max-h-[min(32vh,340px)] max-w-[660px] overflow-y-auto overscroll-contain whitespace-pre-line pr-1 text-[clamp(13.5px,1.6vw,15.5px)] leading-[1.75] text-[#c6ccda] [text-wrap:pretty]"
               >
                 {p.body}
               </p>
@@ -212,7 +212,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
                   ▶ Watch demo (silent)
                 </button>
               ) : null}
-              {p.demoNote ? <p className="font-mono text-xs text-faint">{p.demoNote}</p> : null}
+              {p.demoNote ? <p className="max-w-[660px] text-xs leading-relaxed text-muted-foreground">{p.demoNote}</p> : null}
             </div>
           </div>
         );
