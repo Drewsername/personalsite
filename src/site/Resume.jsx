@@ -39,7 +39,7 @@ const sectionHeading = 'mb-6 border-b border-border pb-3 font-mono text-xs upper
 
 export function ResumeSection() {
   return (
-    <article aria-label="Drew Bermudez resume" className="mx-auto max-w-[800px] bg-background/95 pb-8">
+    <article aria-label="Drew Bermudez resume" className="pb-8">
       <header className="border-b border-border pb-7">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div>

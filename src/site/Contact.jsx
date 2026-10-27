@@ -33,7 +33,7 @@ export function ContactSection() {
   };
 
   return (
-    <div className="mx-auto max-w-[680px] rounded-none border border-border bg-background/95 p-6 sm:p-8">
+    <div className="w-full">
 
       <div className="flex items-center gap-3">
         <a

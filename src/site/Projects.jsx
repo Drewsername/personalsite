@@ -22,8 +22,7 @@ export function ProjectsSection({ open, onOpen, onClose, active = true }) {
   if (previousOpen !== open) { setPreviousOpen(open); setDemo(false); }
   const project = content.projects[open];
   return (
-    <div data-deck-scroll className="project-content absolute overflow-y-auto overscroll-contain pb-8"
-      style={{ top: '31vh', bottom: 64, left: 'var(--pad)', right: 'var(--pad)' }}>
+    <div className="project-content">
       <div className="mx-auto max-w-[1080px]">
         {project ? (
           <>
