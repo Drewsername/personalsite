@@ -11,7 +11,7 @@ function ProjectMedia({ project, playing, detail = false }) {
   }, [playing]);
   const fit = detail || project.name === 'Toucan' ? 'object-contain' : 'object-cover';
   return project.video ? (
-    <video ref={ref} src={project.video} poster={project.poster} muted loop playsInline preload="metadata"
+    <video ref={ref} src={project.video} poster={project.poster} muted loop playsInline preload={playing ? "metadata" : "none"}
       className={`h-full w-full ${fit}`} />
   ) : <img src={project.poster} alt={`${project.name} product screenshot`} className={`h-full w-full ${fit}`} />;
 }

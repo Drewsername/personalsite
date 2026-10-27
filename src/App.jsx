@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { SwarmBackground } from './swarm/SwarmBackground.jsx';
+import { SwarmBackground } from './swarm/DeferredSwarm.jsx';
 import { content } from './site/content.js';
 import { Nav } from './site/Nav.jsx';
 import { HeroPanel } from './site/Hero.jsx';
@@ -108,50 +108,6 @@ function hasWebGL2() {
   }
 }
 
-// The dark loader overlay (a centered loading line, painted from index.html before
-// the bundle even runs) covers the page until both the webfonts are ready and the
-// swarm has painted its first frame — then it fades out, revealing a page that's
-// already fully styled and lit. No white flash, no font swap, no pop-in. Returns
-// the swarm's first-frame callback. A hard cap fades the loader regardless, so a
-// stalled font load or a failed WebGL init can never leave it stuck.
-function useRevealOnReady() {
-  const swarmPaintedRef = useRef(false);
-  const recheckRef = useRef(null);
-
-  useEffect(() => {
-    let fontsReady = false;
-    let done = false;
-    const reveal = () => {
-      if (done) return;
-      done = true;
-      const loader = document.getElementById('loader');
-      if (!loader) return;
-      loader.classList.add('hidden');
-      loader.addEventListener('transitionend', () => loader.remove(), { once: true });
-    };
-    const maybe = () => {
-      if (fontsReady && swarmPaintedRef.current) reveal();
-    };
-    recheckRef.current = maybe;
-
-    (document.fonts?.ready ?? Promise.resolve()).then(() => {
-      fontsReady = true;
-      maybe();
-    });
-    const cap = setTimeout(reveal, 1200);
-
-    return () => {
-      clearTimeout(cap);
-      recheckRef.current = null;
-    };
-  }, []);
-
-  return useCallback(() => {
-    swarmPaintedRef.current = true;
-    recheckRef.current?.();
-  }, []);
-}
-
 export default function App() {
   const swarmRef = useRef(null);
 
@@ -184,17 +140,16 @@ export default function App() {
     };
   }, []);
 
-  const onFirstFrame = useRevealOnReady();
 
   return enabled ? (
-    <DeckMode swarmRef={swarmRef} config={config} onFirstFrame={onFirstFrame} />
+    <DeckMode swarmRef={swarmRef} config={config} />
   ) : (
-    <FlowMode swarmRef={swarmRef} config={config} onFirstFrame={onFirstFrame} />
+    <FlowMode swarmRef={swarmRef} config={config} />
   );
 }
 
 // ── Scroll-jacked full-screen panel deck ──────────────────────────────────────
-function DeckMode({ swarmRef, config, onFirstFrame }) {
+function DeckMode({ swarmRef, config }) {
   const { openProject, openProjectAt, closeProject, resetProject, wordFor } =
     useProjectPages(swarmRef);
 
@@ -253,7 +208,7 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
 
   return (
     <>
-      <SwarmBackground words={WORDS} config={config} controlRef={swarmRef} onFirstFrame={onFirstFrame} />
+      <SwarmBackground words={WORDS} config={config} controlRef={swarmRef} />
       <Nav active={PANELS[index].id} onNavigate={onNavigate} />
       <main>
         {PANELS.map((p, i) => (
@@ -330,7 +285,7 @@ function DeckHint({ index, total, onNavigate }) {
 }
 
 // ── Reduced-motion / no-WebGL fallback: a normal scrolling page ───────────────
-function FlowMode({ swarmRef, config, onFirstFrame }) {
+function FlowMode({ swarmRef, config }) {
   const [index, setIndex] = useState(0);
   const { openProject, openProjectAt, closeProject, wordFor } = useProjectPages(swarmRef, {
     tween: false,
@@ -370,7 +325,7 @@ function FlowMode({ swarmRef, config, onFirstFrame }) {
 
   return (
     <>
-      <SwarmBackground words={WORDS} config={config} controlRef={swarmRef} onFirstFrame={onFirstFrame} />
+      <SwarmBackground words={WORDS} config={config} controlRef={swarmRef} />
       <Nav active={PANELS[index].id} />
       <main>
         {PANELS.map((p) =>

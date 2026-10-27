@@ -159,3 +159,11 @@ html.moveout body {
 html:not(.moveout) #root *,
 html:not(.moveout) #root *::before,
 html:not(.moveout) #root *::after { border-radius: 0; }
+
+/* Text-first title occupies the same band as the progressively loaded swarm. */
+.instant-title {
+  position: fixed; top: 19vh; left: 5%; right: 5%; transform: translateY(-50%);
+  text-align: center; font-size: clamp(32px, 7.5vw, 100px); font-weight: 600;
+  line-height: 1; pointer-events: none;
+}
+.instant-home { padding: 31vh var(--pad) 64px; }

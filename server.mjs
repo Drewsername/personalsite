@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import http from 'node:http';
 import { appendFile, mkdir } from 'node:fs/promises';
 import { createReadStream, existsSync } from 'node:fs';
@@ -132,6 +133,9 @@ app.get('/robots.txt', (_req, res) => {
   res.type('text/plain').send('User-agent: *\nDisallow: /moveout\nDisallow: /game\nDisallow: /game3d\nDisallow: /assets3d\n');
 });
 
+// Compress text assets; hashed Vite assets can be cached indefinitely.
+app.use(compression());
+app.use('/assets', express.static(path.join(dist, 'assets'), { maxAge: '1y', immutable: true }));
 app.use(express.static(dist));
 
 app.get(/.*/, (req, res, next) => {
