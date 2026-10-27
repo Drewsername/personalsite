@@ -3,9 +3,9 @@ import { Label } from './Section.jsx';
 import { Button } from '@/components/ui/button';
 
 const inputCls =
-  'h-9 w-full min-w-0 rounded-full border border-input bg-white/[0.04] px-4 font-mono text-[13px] text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
+  'h-9 w-full min-w-0 rounded-none border border-input bg-card px-4 font-mono text-[13px] text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
 
-const btnCls = 'h-9 rounded-full font-mono text-[13px]';
+const btnCls = 'h-9 rounded-none font-mono text-[13px]';
 
 // The Login panel. There is exactly one account — the owner's — and signing in
 // here is what opens the moveout console. The panel has three states: the form,

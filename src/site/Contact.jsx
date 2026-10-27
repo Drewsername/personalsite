@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { content } from './content.js';
-import { Label, Heading } from './Section.jsx';
 import { Button } from '@/components/ui/button';
 
 const inputCls =
-  'h-9 w-full min-w-0 rounded-full border border-input bg-white/[0.04] px-4 font-mono text-[13px] text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
+  'h-11 w-full min-w-0 rounded-none border border-input bg-card px-4 font-mono text-[13px] text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
 
 // Contact: a LinkedIn link plus a message form. The form relays through
 // /api/contact on the production server, which knows the destination address —
@@ -34,17 +33,15 @@ export function ContactSection() {
   };
 
   return (
-    <div className="max-w-[640px]">
-      <Label>{content.sections.contact.label}</Label>
-      <Heading>{content.sections.contact.heading}</Heading>
+    <div className="mx-auto max-w-[680px] rounded-none border border-border bg-background/95 p-6 sm:p-8">
 
-      <div className="mt-5 flex items-center gap-3">
+      <div className="flex items-center gap-3">
         <a
           href={c.linkedin}
           target="_blank"
           rel="noreferrer"
           aria-label="Drew Bermudez on LinkedIn"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-input bg-white/[0.04] text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+          className="flex h-10 w-10 items-center justify-center rounded-none border border-input bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
         >
           {/* Inline LinkedIn glyph — lucide-react no longer ships brand icons. */}
           <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="currentColor" aria-hidden="true">
@@ -85,14 +82,14 @@ export function ContactSection() {
             placeholder="Your message"
             aria-label="Your message"
             rows={4}
-            className="h-[88px] max-w-[560px] resize-none rounded-2xl border border-input bg-white/[0.04] px-4 py-3 font-mono text-[13px] leading-relaxed text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 md:h-auto"
+            className="h-[88px] max-w-[560px] resize-none rounded-none border border-input bg-card px-4 py-3 font-mono text-[13px] leading-relaxed text-foreground placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 md:h-auto"
           />
           <div>
             <Button
               type="submit"
               variant="outline"
               disabled={state === 'sending'}
-              className="h-9 rounded-full px-5 font-mono text-[13px]"
+              className="h-9 rounded-none px-5 font-mono text-[13px]"
             >
               {state === 'sending' ? 'Sending…' : 'Send message'}
             </Button>

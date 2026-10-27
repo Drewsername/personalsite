@@ -79,6 +79,11 @@ export function useScrollDeck(count, swarmRef, { duration = 800, enabled = true 
       // Keys typed into a form field belong to the field, not the deck.
       const t = e.target;
       if (t instanceof Element && (t.matches('input, textarea, select') || t.isContentEditable)) return;
+      const region = scrollRegion(t);
+      const down = ['ArrowDown', 'PageDown', ' '].includes(e.key);
+      const up = ['ArrowUp', 'PageUp'].includes(e.key);
+      if (region && ((down && canScroll(region, 1)) || (up && canScroll(region, -1))
+        || e.key === 'Home' || e.key === 'End')) return;
       if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
         e.preventDefault();
         go(1);

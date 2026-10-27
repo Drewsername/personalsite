@@ -15,7 +15,7 @@ export function DemoViewer({ project, onClose }) {
       <video src={project.video} poster={project.poster} autoPlay muted loop playsInline controls
         className="h-full w-full object-contain" />
       <button type="button" onClick={onClose} autoFocus
-        className="absolute right-4 top-4 cursor-pointer rounded-full border border-white/20 bg-background/90 px-4 py-2 font-mono text-sm">
+        className="absolute right-4 top-4 cursor-pointer rounded-none border border-border bg-background/90 px-4 py-2 font-mono text-sm">
         Close demo ✕
       </button>
     </dialog>

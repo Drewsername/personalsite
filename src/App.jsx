@@ -279,7 +279,7 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
                     bottom edge), so sections start at 34vh there — only the hero's
                     two-line name needs the full 42vh (= CONTENT_TOP) band. */}
                 <div
-                  className={`shrink-0 ${p.id === 'top' ? 'h-[42vh]' : 'h-[34vh] md:h-[42vh]'}`}
+                  className="h-[31vh] shrink-0"
                   aria-hidden="true"
                 />
                 {/* Content gets the leftover viewport: min-h-0 stops this flex child
@@ -287,7 +287,7 @@ function DeckMode({ swarmRef, config, onFirstFrame }) {
                     budget scrolls natively inside the deck — the scroll-jack hands
                     wheel/touch gestures over via data-deck-scroll. Content is
                     top-aligned so sections start right under the word band. */}
-                <div data-deck-scroll className="flex min-h-0 flex-1 overflow-y-auto overscroll-contain pb-14 md:pb-16">
+                <div data-deck-scroll tabIndex={0} aria-label={`${p.word} content`} className="flex min-h-0 flex-1 overflow-y-auto overscroll-contain mb-16 pb-4">
                   <div className="mx-auto w-full max-w-[var(--maxw)]">
                     <PanelContent id={p.id} onNavigate={onNavigate} />
                   </div>
@@ -319,8 +319,8 @@ function DeckHint({ index, total, onNavigate }) {
             type="button"
             aria-label={`Go to ${PANELS[i].word}`}
             onClick={() => onNavigate(PANELS[i].id)}
-            className={`pointer-events-auto h-1.5 rounded-full transition-all hover:brightness-110 ${
-              i === index ? 'w-6 bg-primary' : 'w-1.5 bg-white/25 hover:bg-white/35'
+            className={`pointer-events-auto h-1.5 rounded-none transition-all hover:brightness-110 ${
+              i === index ? 'w-6 bg-primary' : 'w-1.5 bg-foreground/20 hover:bg-foreground/35'
             }`}
           />
         ))}
@@ -389,7 +389,7 @@ function FlowMode({ swarmRef, config, onFirstFrame }) {
               {/* Reserve room for the swarm word (see DeckMode: hero needs the full
                   band; single-line section words free ~8vh on phones). */}
               <div
-                className={`shrink-0 ${p.id === 'top' ? 'h-[42vh]' : 'h-[34vh] md:h-[42vh]'}`}
+                className="h-[31vh] shrink-0"
                 aria-hidden="true"
               />
               <div className="flex-1 pb-24">

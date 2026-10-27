@@ -13,7 +13,6 @@ export const content = {
   // count renders the last card full-width.
   cards: [
     { id: 'projects', label: 'Projects' },
-    { id: 'contact', label: 'Contact' },
     { id: 'resume', label: 'Resume' },
   ],
 
@@ -39,15 +38,17 @@ export const content = {
   projects: [
     {
       name: 'Arbr',
+      period: 'Early 2023',
       line: 'vibe-coding for frontend development',
-      tint: 'rgba(53,224,255,0.07)',
+      tint: 'rgba(80,75,65,0.025)',
       video: '/media/arbr.mp4',
       body: 'One of the earliest vibe-coding platforms in 2023 focused on frontend software development, Arbr was a direct competitor to gpt-engineer, which became Lovable. Built on GPT3.5 before agents and orchestration were common concepts, we introduced many forward-looking innovations including wrapping Reinforcement Learning (RL) to improve model performance, and a harness to introduce planning for the agent.',
     },
     {
       name: 'Babbit',
+      period: 'Late 2026',
       line: 'AI that builds from a plan you can check',
-      tint: 'rgba(232,184,255,0.07)',
+      tint: 'rgba(80,75,65,0.025)',
       poster: '/media/babbit-dark.png',
       href: 'https://babbit.dev',
       linkLabel: 'Visit babbit.dev',
@@ -55,8 +56,9 @@ export const content = {
     },
     {
       name: 'Toucan',
+      period: 'Early 2026',
       line: 'a consumer super app for couples',
-      tint: 'rgba(255,183,77,0.09)',
+      tint: 'rgba(80,75,65,0.025)',
       video: '/media/toucan-messaging.mp4',
       poster: '/media/toucan-messaging.jpg',
       body: 'I built Toucan as a little private world for two people: a place to message, dare each other, and earn rewards like a home-cooked dinner or a back rub.\n\nI launched it on the App Store and supported more than 100 daily active users.\n\nI built the iPhone app in SwiftUI and the server in Python, including live messaging, end-to-end encryption, push notifications, and in-app subscriptions.',
@@ -64,15 +66,17 @@ export const content = {
     },
     {
       name: 'Foundry',
+      period: 'Early 2026',
       line: 'an agent-run company builder',
-      tint: 'rgba(138,162,255,0.07)',
+      tint: 'rgba(80,75,65,0.025)',
       video: '/media/foundry.mp4',
       body: 'Inspired by Polsia, a company-building platform built as an agent-orchestration experiment. It scaled dockerized company instances on Railway — full-stack development and deployment — with every company auto-deployed to its own subdomain. A management agent ran market research through Exa, maintained a knowledgebase the other agents could query, and managed a kanban board, assigning work across the team. The same design later became popular on its own: agents around a shared board are now everywhere.',
     },
     {
       name: 'PSI',
+      period: 'Early 2026',
       line: 'audience simulation with SLM swarms',
-      tint: 'rgba(232,184,255,0.07)',
+      tint: 'rgba(80,75,65,0.025)',
       video: '/media/chorus.mp4',
       body: 'An audience-simulation platform, and the project closest to my ongoing interests. A large-model agent browses the web and pitches to a swarm of 8B small-model agents that read and interact with the simulated product. The question: can a cheap synthetic audience help a big agent iterate better? It can — performance improved, though I stopped short of benchmarking compute cost. Persona simulation and agent swarms — cheaper A/B testing, product taste in agentic development, demand planning for new products — are where I’m spending my attention now; most of the field’s focus is still on agent evals.',
     },
@@ -83,5 +87,5 @@ export const content = {
 
   resume: { href: '/resume.pdf' },
 
-  accent: '#35E0FF',
+  accent: '#393832',
 };

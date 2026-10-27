@@ -8,37 +8,37 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
-/* shadcn semantic tokens, mapped to the site's dark cyan palette.
-   The site is dark-only (<html class="dark">), so these live on :root. */
+/* Warm neutral palette for the personal site. */
 :root {
-  --background: #06070b;
-  --foreground: #e8eaf0;
-  --card: rgba(255, 255, 255, 0.045);
-  --card-foreground: #e8eaf0;
-  --popover: #0e1016;
-  --popover-foreground: #e8eaf0;
-  --primary: #35e0ff;
-  --primary-foreground: #04222b;
-  --secondary: rgba(255, 255, 255, 0.07);
-  --secondary-foreground: #e8eaf0;
-  --muted: rgba(255, 255, 255, 0.07);
-  --muted-foreground: #9aa0b0;
-  --accent: rgba(255, 255, 255, 0.07);
-  --accent-foreground: #e8eaf0;
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: #35e0ff;
-  --faint: #565c6e;
-  --surface: rgba(255, 255, 255, 0.045);
-  --surface-hover: rgba(255, 255, 255, 0.08);
-  --radius: 0.75rem;
+  color-scheme: light;
+  --background: #f5f3ee;
+  --foreground: #292824;
+  --card: rgba(255, 255, 255, 0.58);
+  --card-foreground: #292824;
+  --popover: #faf9f6;
+  --popover-foreground: #292824;
+  --primary: #393832;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(45, 42, 35, 0.06);
+  --secondary-foreground: #292824;
+  --muted: rgba(45, 42, 35, 0.06);
+  --muted-foreground: #625f58;
+  --accent: rgba(45, 42, 35, 0.06);
+  --accent-foreground: #292824;
+  --destructive: #b42318;
+  --border: rgba(45, 42, 35, 0.16);
+  --input: rgba(45, 42, 35, 0.22);
+  --ring: #59564e;
+  --faint: #777269;
+  --surface: rgba(255, 255, 255, 0.58);
+  --surface-hover: rgba(255, 255, 255, 0.85);
+  --radius: 0;
   --maxw: 1080px;
   --pad: clamp(20px, 5vw, 64px);
 }
 
 /* ── /moveout: a light theme, scoped to that one route ────────────────────────
-   The site proper is dark-only, but the moveout page is a plain document meant
+   The moveout page uses a white document palette and is meant
    to be read by a neighbour on their phone, so it gets a light palette. The
    swap happens in index.html before first paint: <html class="dark"> becomes
    <html class="moveout">. Because this redefines the same token names, every
@@ -69,7 +69,7 @@ html.moveout {
   --faint: #6f757f;
   --surface: #f7f8f9;
   --surface-hover: #eef0f2;
-  --radius: 0.5rem;
+  --radius: 0;
   background: var(--background);
   color-scheme: light;
 }
@@ -154,3 +154,8 @@ html.moveout body {
     scroll-behavior: auto;
   }
 }
+
+/* Square edges across controls, cards, and their pseudo-elements. */
+html:not(.moveout) #root *,
+html:not(.moveout) #root *::before,
+html:not(.moveout) #root *::after { border-radius: 0; }
