@@ -260,13 +260,10 @@ function DeckMode({ swarmRef, config }) {
   );
 }
 
-// A small progress rail + scroll cue so the jacked navigation is discoverable.
+// A small progress rail for moving between panels.
 function DeckHint({ index, total, onNavigate }) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-6 z-10 flex flex-col items-center gap-3">
-      {index === 0 ? (
-        <div className="font-mono text-xs text-faint">scroll ↓</div>
-      ) : null}
       <div className="flex gap-2">
         {Array.from({ length: total }).map((_, i) => (
           <button

@@ -4,6 +4,7 @@ import { HomeAbout } from './HomeAbout.jsx';
 export function HeroPanel({ onNavigate }) {
   return (
     <div className="mx-auto max-w-[740px]">
+    <div className="sticky top-0 z-10 bg-background">
     <nav aria-label="Explore" className="mx-auto flex w-fit flex-wrap justify-center gap-x-8 gap-y-4 border-y border-border py-5 sm:gap-x-12 sm:px-8">
       {content.cards.map((c) => (
         <a key={c.id} href={`#${c.id}`}
@@ -13,6 +14,7 @@ export function HeroPanel({ onNavigate }) {
         </a>
       ))}
     </nav>
+    </div>
     <HomeAbout />
     </div>
   );
