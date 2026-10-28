@@ -1,6 +1,6 @@
 const about = [
   'I’m an AI Product Manager at Microsoft working on Copilot Studio (agentic workflows, orchestration, enterprise scale).',
-  "Previously, I founded Dishie and Arbr. I like the 0-to-1 phase, but I love the 1-to-1B phase where data comes into play. I enjoy problems the most when they can only be solved optimally by expanding the solution space and combining business and technology decisions.",
+  "Previously, I founded Dishie (Computer vision tech for dishwashing) and Arbr (software engineering agents). I like the 0-to-1 phase, but I love the 1-to-1B phase where data comes into play. I enjoy problems the most when they can only be solved optimally by expanding the solution space and combining business and technology decisions.",
   "I studied engineering at Carnegie Mellon ('17) and got my MBA at Yale ('24).",
   'I love to think in systems, and I advise early-stage teams on AI architecture, agentic systems, and technical org design.',
   "In my spare time, I'm finishing writing a speculative fiction novel, and hopefully I'll have more to say about that soon.",
