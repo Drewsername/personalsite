@@ -10,7 +10,7 @@ const render = (node) => root.render(<StrictMode>{node}</StrictMode>)
 // inside App keeps the WebGL swarm out of the moveout bundle entirely.
 const isMoveout = /^\/moveout(\/|$)/.test(window.location.pathname)
 
-if (/^\/booking\/30min\/?$/.test(window.location.pathname)) {
+if (/^\/cal\/30min\/?$/.test(window.location.pathname)) {
   document.title = 'Book 30 minutes · Drew Bermudez'
   document.documentElement.classList.add('booking')
   import('./booking/Booking.jsx').then(({ Booking }) => render(<Booking />))

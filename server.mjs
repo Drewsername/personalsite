@@ -136,7 +136,8 @@ app.get('/robots.txt', (_req, res) => {
 // Compress text assets; hashed Vite assets can be cached indefinitely.
 app.use(compression());
 app.use('/assets', express.static(path.join(dist, 'assets'), { maxAge: '1y', immutable: true }));
-app.get(/^\/booking\/30min\/?$/, (_req, res) => res.sendFile(path.join(dist, 'booking', '30min.html')));
+app.get(/^\/booking\/30min\/?$/, (_req, res) => res.redirect(308, '/cal/30min'));
+app.get(/^\/cal\/30min\/?$/, (_req, res) => res.sendFile(path.join(dist, 'cal', '30min.html')));
 app.use(express.static(dist));
 
 app.get(/.*/, (req, res, next) => {

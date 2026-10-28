@@ -19,8 +19,8 @@ try {
     .replace('<div id="root"></div>', `<div id="root">${renderToStaticMarkup(React.createElement(Booking))}</div>`)
     .replace(/<script type="module"[^>]*><\/script>/g, '')
     .replace(/<link rel="modulepreload"[^>]*>/g, '');
-  await mkdir(new URL('../dist/booking/', import.meta.url), { recursive: true });
-  await writeFile(new URL('../dist/booking/30min.html', import.meta.url), booking);
+  await mkdir(new URL('../dist/cal/', import.meta.url), { recursive: true });
+  await writeFile(new URL('../dist/cal/30min.html', import.meta.url), booking);
 } finally {
   await vite.close();
 }
