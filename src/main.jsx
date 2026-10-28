@@ -10,7 +10,11 @@ const render = (node) => root.render(<StrictMode>{node}</StrictMode>)
 // inside App keeps the WebGL swarm out of the moveout bundle entirely.
 const isMoveout = /^\/moveout(\/|$)/.test(window.location.pathname)
 
-if (isMoveout) {
+if (/^\/booking\/30min\/?$/.test(window.location.pathname)) {
+  document.title = 'Book 30 minutes · Drew Bermudez'
+  document.documentElement.classList.add('booking')
+  import('./booking/Booking.jsx').then(({ Booking }) => render(<Booking />))
+} else if (isMoveout) {
   document.title = 'Moving out'
   // Unlisted: nothing links here and nothing should index it either. The
   // server's robots.txt says the same thing for crawlers that never run JS.
