@@ -193,5 +193,5 @@ html:not(.moveout), html:not(.moveout) body { overflow: hidden; }
 }
 
 html.booking, html.booking body { overflow: auto; }
-.booking-calendar { min-height: 740px; height: calc(100svh - 230px); }
+.booking-calendar { mix-blend-mode: multiply; min-height: 740px; height: calc(100svh - 230px); }
 @media (max-width: 640px) { .booking-calendar { min-height: 780px; } }
